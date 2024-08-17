@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using static Channel;
 using TMPro;
+using UnityEditor;
 
+//[ExecuteInEditMode]
 public class Switch : MonoBehaviour
 {
     public enum Command { Null, Appear, Disappear }
@@ -34,11 +36,18 @@ public class Switch : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+    }
+
+
+    private void OnValidate()
+    {
         text.text = signal.ToString()[0].ToString();
+        switchState = startingState;
+        ActivateSwitch(false);
     }
 
     private void OnMouseOver()
-    {
+    { 
         if (Input.GetMouseButtonDown(0))
             ActivateSwitch();
     }

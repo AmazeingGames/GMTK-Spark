@@ -5,6 +5,7 @@ using static Channel;
 using static Switch;
 using TMPro;
 
+[ExecuteInEditMode]
 public class Platform : MonoBehaviour
 {
     [Header("Properties")]
