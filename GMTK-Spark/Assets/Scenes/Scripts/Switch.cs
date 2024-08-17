@@ -11,6 +11,7 @@ public class Switch : MonoBehaviour
     //public enum SwitchState { On, Off }
 
     [Header("Properties")]
+    [SerializeField] bool startingState;
     [SerializeField] Signal signal;
     [SerializeField] Color onColor;
     [SerializeField] Color offColor;
@@ -26,6 +27,7 @@ public class Switch : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        switchState = startingState;
         ActivateSwitch(false);
     }
 
