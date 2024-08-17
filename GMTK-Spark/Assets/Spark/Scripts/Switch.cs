@@ -37,7 +37,6 @@ public class Switch : MonoBehaviour
     {
         text.text = signal.ToString()[0].ToString();
         switchState = startingState;
-        ActivateSwitch(false);
     }
 
     private void OnMouseOver()

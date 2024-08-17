@@ -10,10 +10,14 @@ public class Platform : MonoBehaviour
 {
     [Header("Properties")]
     [SerializeField] Signal signal;
+    [SerializeField] Color onColor;
+    [SerializeField] Color offColor;
 
     [Header("Components")]
     [SerializeField] GameObject platform;
     [SerializeField] TextMeshPro text;
+    [SerializeField] BoxCollider2D boxCollider;
+    [SerializeField] SpriteRenderer spriteRenderer;
 
     private void OnEnable()
     {
@@ -49,12 +53,14 @@ public class Platform : MonoBehaviour
                 throw new System.Exception("Signal Response should not be null");
 
             case Command.Appear:
-                platform.SetActive(true);
+                boxCollider.enabled = true;
+                spriteRenderer.color = onColor;
             break;
 
             case Command.Disappear:
-                platform.SetActive(false);
-            break;
+                boxCollider.enabled = false;
+                spriteRenderer.color = offColor;
+                break;
         }
     }
 }

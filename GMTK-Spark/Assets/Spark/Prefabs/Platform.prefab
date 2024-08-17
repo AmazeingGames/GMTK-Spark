@@ -197,13 +197,13 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5423389478425744392}
-  m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -0.035514157}
   m_LocalScale: {x: 0.5, y: 5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3355450927440770356}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 3.91, y: -1.76}
@@ -251,7 +251,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 1, g: 0.50980395, b: 0.50980395, a: 1}
+  m_Color: {r: 0.38431373, g: 0.6666667, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -361,5 +361,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   signal: 1
+  onColor: {r: 0.38431373, g: 0.6666667, b: 1, a: 1}
+  offColor: {r: 0.62352943, g: 0.7372549, b: 0.7882353, a: 0.19607843}
   platform: {fileID: 5423389478425744392}
   text: {fileID: 8592627548022418876}
+  boxCollider: {fileID: 4797248837160003509}
+  spriteRenderer: {fileID: 8067433341901850115}

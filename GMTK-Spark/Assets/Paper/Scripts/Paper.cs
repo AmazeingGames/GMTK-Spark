@@ -6,7 +6,7 @@ using static UnityEditor.Timeline.TimelinePlaybackControls;
 
 public class Paper : MonoBehaviour
 {
-    [SerializeField] SpriteRenderer spriteRenderer;
+    [field: SerializeField] public SpriteRenderer SpriteRenderer { get; private set; }
     [SerializeField] PolygonCollider2D polygonCollider;
     [field: SerializeField] public PaperType Type { get; private set; }
 
@@ -27,6 +27,9 @@ public class Paper : MonoBehaviour
     {
         if (polygonCollider == null)
             polygonCollider = GetComponent<PolygonCollider2D>();
+
+        if (SpriteRenderer == null)
+            SpriteRenderer = GetComponent<SpriteRenderer>();
 
         screenBounds = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, Camera.main.transform.position.z));
         //objectWidth = transform.GetComponent<SpriteRenderer>().bounds.extents.x; //extents = size of width / 2

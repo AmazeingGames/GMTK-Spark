@@ -12,6 +12,7 @@ public class MovePaper : Singleton<MovePaper>
     [SerializeField] Space space;
     Paper holdingPaper;
 
+    int order = 0;
     // Update is called once per frame
     void Update()
     {
@@ -30,6 +31,7 @@ public class MovePaper : Singleton<MovePaper>
 
         holdingPaper = paper;
         holdingPaper.transform.SetParent(dragParent, worldPositionStays);
+        holdingPaper.SpriteRenderer.sortingOrder = order++;
 
         return true;
     }
