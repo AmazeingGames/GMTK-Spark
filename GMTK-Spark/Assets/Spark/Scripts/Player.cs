@@ -21,6 +21,8 @@ public class Player : Singleton<Player>
     // Update is called once per frame
     void Update()
     {
+        Cursor.visible = false;
+
         switch (movementType)
         {
             case MovementType.FollowMouse:
