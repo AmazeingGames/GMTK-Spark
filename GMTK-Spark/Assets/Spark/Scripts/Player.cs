@@ -6,6 +6,7 @@ public class Player : Singleton<Player>
 {
     [Header("Properties")]
     [SerializeField] float movementSpeed;
+    [SerializeField] float jumpHeight;
 
     [Header("Components")]
     [SerializeField] SpriteRenderer spriteRenderer;
@@ -15,6 +16,7 @@ public class Player : Singleton<Player>
 
     public MovementType movementType;
     float horizontalInput;
+    bool jumpImput;
 
     // Update is called once per frame
     void Update()
@@ -29,7 +31,12 @@ public class Player : Singleton<Player>
 
             case MovementType.MoveRobot:
                 horizontalInput = Input.GetAxisRaw("Horizontal");
+                jumpImput = Input.GetButtonDown("Jump");
                 robotToMove.Rigidbody.velocity = new Vector2(horizontalInput * movementSpeed, robotToMove.Rigidbody.velocity.y);
+                if (jumpImput)
+                {
+                    robotToMove.Rigidbody.AddForce(Vector2.up * jumpHeight);
+                }
                 break;
         }
     }

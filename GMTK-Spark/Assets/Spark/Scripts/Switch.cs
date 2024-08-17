@@ -42,7 +42,7 @@ public class Switch : MonoBehaviour
 
     private void OnMouseOver()
     { 
-        if (Input.GetMouseButtonDown(0))
+        if (Player.Instance.movementType == Player.MovementType.FollowMouse && Input.GetMouseButtonDown(0))
             ActivateSwitch();
     }
 
