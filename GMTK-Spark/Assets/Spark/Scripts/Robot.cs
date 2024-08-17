@@ -39,7 +39,5 @@ public class Robot : MonoBehaviour
             isActivated = Player.Instance.TryEnterRobot(this);
             spriteRenderer.color = isActivated ? onColor : offColor;
         }
-
-
     }
 }

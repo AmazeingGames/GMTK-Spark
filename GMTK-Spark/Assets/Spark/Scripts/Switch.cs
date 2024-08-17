@@ -33,12 +33,6 @@ public class Switch : MonoBehaviour
         ActivateSwitch(false);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-    }
-
-
     private void OnValidate()
     {
         text.text = signal.ToString()[0].ToString();
