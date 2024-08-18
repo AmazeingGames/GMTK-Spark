@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using static MovePaper.PaperActionEventArgs;
 
 public class MovePaper : Singleton<MovePaper>
 {
@@ -23,6 +25,25 @@ public class MovePaper : Singleton<MovePaper>
     Paper holdingPaper;
     Transform rememberParent;
     SpriteRenderer dragParentSpriteRenderer;
+
+    public static event EventHandler<PaperActionEventArgs> PaperAction;
+
+    protected virtual void OnPaperAction(PaperActionEventArgs e)
+    {
+        PaperAction?.Invoke(this, e);
+    }
+
+    public class PaperActionEventArgs : EventArgs
+    {
+        public PaperActionEventArgs(PaperActionType actionType)
+        {
+            ActionType = actionType;
+        }
+
+        public enum PaperActionType { Grab, Drop, Snap, DropSnap }
+
+        public PaperActionType ActionType { get; private set; }
+    }
 
     private void Start()
     {
@@ -56,10 +77,10 @@ public class MovePaper : Singleton<MovePaper>
         Debug.Log($"Rotation is : (z){rotation.z} | (w){rotation.w}");
     }
 
-    void SnapPaper()
+    bool SnapPaper()
     {
         if (holdingPaper == null)
-            return;
+            return false;
 
         var position = holdingPaper.transform.localPosition;
 
@@ -71,12 +92,12 @@ public class MovePaper : Singleton<MovePaper>
         bool isZRotationClose = ((rotation.z > 0 && rotation.z <= positionalLeniency) || (rotation.z <= 0 && rotation.z > -positionalLeniency));
         bool isWRotationClose = ((rotation.w > 1 && rotation.w <= positionalLeniency) || (rotation.w <= 1 && rotation.w > -positionalLeniency));
 
-        
         if (isXClose && isYClose && isZRotationClose && isWRotationClose)
         {
             StartCoroutine(LerpSnap());
+            return true;
         }
-            //holdingPaper.transform.SetPositionAndRotation(Vector2.zero, new Quaternion(rotation.x, rotation.y, 0, 1));
+        return false;
     }
 
     // Turn this into a list with a Queue
@@ -101,6 +122,7 @@ public class MovePaper : Singleton<MovePaper>
             
             yield return null;
         }
+        PaperAction?.Invoke(this, new(PaperActionType.Snap));
         lerpPaper = null;
     }
 
@@ -115,6 +137,7 @@ public class MovePaper : Singleton<MovePaper>
         holdingPaper.transform.SetParent(dragParent, worldPositionStays);
         holdingPaper.SpriteRenderer.sortingOrder = order++;
 
+        PaperAction?.Invoke(this, new(PaperActionType.Grab));
         return true;
     }
 
@@ -125,8 +148,12 @@ public class MovePaper : Singleton<MovePaper>
 
         holdingPaper.transform.SetParent(rememberParent, worldPositionStays);
         lerpPaper = holdingPaper;
-        SnapPaper();
+        bool snapPaper = SnapPaper();
         holdingPaper = null;
+
+        
+        PaperActionType paperActionType = snapPaper ? PaperActionType.DropSnap : PaperActionType.Drop;
+        PaperAction?.Invoke(this, new(paperActionType));
         return true;
     }
 }
