@@ -122,6 +122,7 @@ public class MovePaper : Singleton<MovePaper>
             
             yield return null;
         }
+        lerpPaper.SetIsInPlace(true);
         PaperAction?.Invoke(this, new(PaperActionType.Snap));
         lerpPaper = null;
     }
@@ -131,7 +132,7 @@ public class MovePaper : Singleton<MovePaper>
         if (holdingPaper != null)
             return false;
 
-        
+        paper.SetIsInPlace(false);
         holdingPaper = paper;
         rememberParent = holdingPaper.transform.parent;
         holdingPaper.transform.SetParent(dragParent, worldPositionStays);

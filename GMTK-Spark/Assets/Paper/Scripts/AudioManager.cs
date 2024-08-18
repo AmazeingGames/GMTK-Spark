@@ -33,6 +33,11 @@ public class AudioManager : Singleton<AudioManager>
         MovePaper.PaperAction += HandlePaperAction;
     }
 
+    private void OnDisable()
+    {
+        MovePaper.PaperAction -= HandlePaperAction;
+    }
+
     void PlaySound(PaperSounds paperSounds)
     {
         switch (paperSounds)
@@ -82,4 +87,7 @@ public class AudioManager : Singleton<AudioManager>
             break;
         }
     }
+
+    public void PlayWinSound()
+        => win.Play();
 }

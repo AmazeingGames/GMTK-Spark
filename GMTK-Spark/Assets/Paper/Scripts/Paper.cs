@@ -9,8 +9,9 @@ public class Paper : MonoBehaviour
     [SerializeField] PolygonCollider2D polygonCollider;
 
     public enum PaperType { Null, Sunset, Portrait  };
-    float objectHeight;
     bool isHolding;
+
+    public bool IsInPlace { get; private set; } = false;
 
     private void OnMouseDown()
     {
@@ -36,4 +37,7 @@ public class Paper : MonoBehaviour
 
         isHolding = !MovePaper.Instance.TryDropPaper(this);
     }
+
+    public void SetIsInPlace(bool inPlace)
+        => IsInPlace = inPlace;
 }
