@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class MovePaper : Singleton<MovePaper>
@@ -12,9 +13,13 @@ public class MovePaper : Singleton<MovePaper>
     [Header("Snap Properties")]
     [SerializeField] float positionalLeniency;
     [SerializeField] Vector2 rotationalLeniency;
+    [SerializeField] AnimationCurve lerpCurve;
+    [SerializeField] float lerpSpeed;
+    [SerializeField] bool fixedSpeed;
 
     int order = 0;
 
+    Paper lerpPaper;
     Paper holdingPaper;
     Transform rememberParent;
     SpriteRenderer dragParentSpriteRenderer;
@@ -68,7 +73,35 @@ public class MovePaper : Singleton<MovePaper>
 
         
         if (isXClose && isYClose && isZRotationClose && isWRotationClose)
-            holdingPaper.transform.SetPositionAndRotation(Vector2.zero, new Quaternion(rotation.x, rotation.y, 0, 1));
+        {
+            StartCoroutine(LerpSnap());
+        }
+            //holdingPaper.transform.SetPositionAndRotation(Vector2.zero, new Quaternion(rotation.x, rotation.y, 0, 1));
+    }
+
+    // Turn this into a list with a Queue
+    IEnumerator LerpSnap()
+    {
+        if (lerpPaper == null)
+            yield break;
+
+        // Instead I could rotate the parent until the rotation matches up
+        float time = 0;
+        lerpPaper.transform.GetPositionAndRotation(out Vector3 startingPosition, out Quaternion startingRotation);
+        
+        while (time < 1)
+        {
+            if (lerpPaper == null)
+                yield break;
+
+            lerpPaper.transform.rotation = Quaternion.Slerp(startingRotation, Quaternion.Euler(0, 0, 0), lerpCurve.Evaluate(time));
+            lerpPaper.transform.position = Vector3.Lerp(startingPosition, Vector3.zero, lerpCurve.Evaluate(time));
+
+            time += Time.deltaTime * lerpSpeed;
+            
+            yield return null;
+        }
+        lerpPaper = null;
     }
 
     public bool TryGrabPaper(Paper paper)
@@ -76,6 +109,7 @@ public class MovePaper : Singleton<MovePaper>
         if (holdingPaper != null)
             return false;
 
+        
         holdingPaper = paper;
         rememberParent = holdingPaper.transform.parent;
         holdingPaper.transform.SetParent(dragParent, worldPositionStays);
@@ -90,6 +124,7 @@ public class MovePaper : Singleton<MovePaper>
             return false;
 
         holdingPaper.transform.SetParent(rememberParent, worldPositionStays);
+        lerpPaper = holdingPaper;
         SnapPaper();
         holdingPaper = null;
         return true;
