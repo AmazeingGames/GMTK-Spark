@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,7 +9,7 @@ public class AudioManager : Singleton<AudioManager>
     [Header("Paper")]
     [SerializeField] AudioSource dropPaper;
     [SerializeField] AudioSource shuffle;
-    [SerializeField] AudioSource pickUp;
+    [SerializeField] AudioSource grabPaper;
     [SerializeField] AudioSource snap;
 
     [Header("UI")]
@@ -28,64 +29,32 @@ public class AudioManager : Singleton<AudioManager>
     enum UISounds { Select, Back, Start, Move }
     enum GameState { Win, Correct }
 
+    public Dictionary<PaperActionType, AudioSource> ActionsToAudio;
     private void OnEnable()
-    {
-        MovePaper.PaperAction += HandlePaperAction;
-    }
+        => MovePaper.PaperAction += HandlePaperAction;
 
     private void OnDisable()
-    {
-        MovePaper.PaperAction -= HandlePaperAction;
-    }
+        => MovePaper.PaperAction -= HandlePaperAction;
 
-    void PlaySound(PaperSounds paperSounds)
+    private void Start()
     {
-        switch (paperSounds)
+        ActionsToAudio = new()
         {
-            case PaperSounds.Drop:
-                dropPaper.Play();
-            break;
-
-            case PaperSounds.Shuffle:
-                shuffle.Play();
-            break;
-
-            case PaperSounds.Grab:
-                pickUp.Play();
-            break;
-
-            case PaperSounds.Snap:
-                snap.Play();
-            break;
-        }
+            { PaperActionType.Grab,     grabPaper   },
+            { PaperActionType.Drop,     dropPaper   },
+            { PaperActionType.Snap,     snap        },
+            { PaperActionType.Shuffle,  shuffle     },
+        };
     }
 
-    void PlaySound(UISounds uiSounds)
-    {
-
-    }
-
-    void PlaySound(GameState gameSound)
-    {
-
-    }
-
+    /// <summary>
+    ///     
+    /// </summary>
     void HandlePaperAction(object sender, MovePaper.PaperActionEventArgs e)
     {
-        switch (e.ActionType)
-        {
-            case PaperActionType.Grab:
-                PlaySound(PaperSounds.Grab);
-            break;
-
-            case PaperActionType.Drop:
-                PlaySound(PaperSounds.Drop);
-            break;
-
-            case PaperActionType.Snap:
-                PlaySound(PaperSounds.Snap);
-            break;
-        }
+        Debug.Log($"Handled paper action {e.actionType}");
+        if (ActionsToAudio.TryGetValue(e.actionType, out var audio))
+            audio.Play();
     }
 
     public void PlayWinSound()

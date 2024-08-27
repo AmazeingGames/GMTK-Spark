@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class Clamp
+public static class Clamper
 {
     public static void CalculateBounds(PolygonCollider2D collider, out float objectWidth, out float objectHeight, out Vector2 screenBounds)
     {

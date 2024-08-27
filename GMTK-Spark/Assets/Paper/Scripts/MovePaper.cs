@@ -3,158 +3,244 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 using static MovePaper.PaperActionEventArgs;
+using static TMPro.Examples.ObjectSpin;
 
 public class MovePaper : Singleton<MovePaper>
 {
     [SerializeField] Transform dragParent;
-    [SerializeField] bool worldPositionStays;
+    [SerializeField] SpriteRenderer dragParentSpriteRenderer;
+
+    [Header("Rotation Properties")]
     [SerializeField] float rotationSpeed;
     [SerializeField] Space space;
 
     [Header("Snap Properties")]
+    [SerializeField] bool worldPositionStays;
     [SerializeField] float positionalLeniency;
-    [SerializeField] Vector2 rotationalLeniency;
+    [SerializeField] float rotationalLeniency;
     [SerializeField] AnimationCurve lerpCurve;
     [SerializeField] float lerpSpeed;
     [SerializeField] bool fixedSpeed;
 
     int order = 0;
 
-    Paper lerpPaper;
-    Paper holdingPaper;
     Transform rememberParent;
-    SpriteRenderer dragParentSpriteRenderer;
 
     public static event EventHandler<PaperActionEventArgs> PaperAction;
 
-    protected virtual void OnPaperAction(PaperActionEventArgs e)
-    {
-        PaperAction?.Invoke(this, e);
-    }
+    protected virtual void OnPaperAction(Paper paper, PaperActionType paperAction)
+        => PaperAction?.Invoke(this, new(paper, paperAction));
 
     public class PaperActionEventArgs : EventArgs
     {
-        public PaperActionEventArgs(PaperActionType actionType)
+        public enum PaperActionType { Grab, Drop, StartSnap, Snap, Shuffle }
+
+        public readonly PaperActionType actionType;
+        public readonly Paper paper;
+
+        public PaperActionEventArgs(Paper paper, PaperActionType actionType)
         {
-            ActionType = actionType;
+            this.paper = paper;
+            this.actionType = actionType;
         }
-
-        public enum PaperActionType { Grab, Drop, Snap, DropSnap }
-
-        public PaperActionType ActionType { get; private set; }
     }
 
-    private void Start()
+    PaperVariables paperValues;
+
+    private void Awake()
+        => paperValues = new PaperVariables();
+
+    void OnEnable()
     {
-        dragParentSpriteRenderer = dragParent.GetComponent<SpriteRenderer>();
+        Paper.PaperInteraction += HandlePaperInteraction;
+        paperValues.OnEnable();
     }
 
-    // Update is called once per frame
-    void Update()
+    void OnDisable()
     {
-        dragParent.transform.position = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
-
-        if (Input.mouseScrollDelta.y != 0)
-        {
-            dragParent.transform.Rotate(Input.mouseScrollDelta.y * rotationSpeed * Time.deltaTime * Vector3.forward, space);
-        }
-
-        Clamp.CalculateBounds(dragParentSpriteRenderer, out float width, out float height, out Vector2 screenBounds);
-        Clamp.ClampToScreenOrthographic(dragParent, width, height, screenBounds);
-
-        SnapPaper();
-        DebugPaper();
+        Paper.PaperInteraction -= HandlePaperInteraction;
+        paperValues.OnDisable();
     }
 
-    void DebugPaper()
+    /// <summary>
+    ///     <para>
+    ///     Called on mouse interaction on paper scraps. <br/>
+    ///     Grabs the paper on mouse down, and drops on mouse up.
+    ///     </para>
+    /// </summary>
+    void HandlePaperInteraction(object sender, Paper.PaperInteractionEventArgs e)
     {
-        if (holdingPaper == null)
+        if (sender is not Paper)
             return;
 
-        Quaternion rotation = holdingPaper.transform.rotation;
+        Paper paper = sender as Paper;
 
+        Func<Paper, bool> paperAction = e.interaction switch
+        {
+            Paper.PaperInteractionEventArgs.InteractionType.Click => TryGrabPaper,
+            Paper.PaperInteractionEventArgs.InteractionType.Release => TryDropPaper,
+            _ => null
+        };
+        paperAction(paper);
+    }
+
+    void Update()
+    {
+        // Moves & Rotates Paper
+        dragParent.transform.position = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Clamper.CalculateBounds(dragParentSpriteRenderer, out float width, out float height, out Vector2 screenBounds);
+        Clamper.ClampToScreenOrthographic(dragParent, width, height, screenBounds);
+        if (Input.mouseScrollDelta.y != 0)
+            dragParent.transform.Rotate(Input.mouseScrollDelta.y * rotationSpeed * Time.deltaTime * Vector3.forward, space);
+
+        // Debug
+        if (paperValues.HoldingPaper == null)
+            return;
+        Quaternion rotation = paperValues.HoldingPaper.transform.rotation;
         Debug.Log($"Rotation is : (z){rotation.z} | (w){rotation.w}");
     }
 
-    bool SnapPaper()
+    bool isXClose;
+    bool isYClose;
+    bool isZRotationClosePlus;
+    bool isZRotationCloseMinus;
+    bool isWRotationClosePlus;
+    bool isWRotationCloseMinus;
+
+    /// <summary>
+    ///     Resets the paper's parent and informs listeners of any state changes.
+    /// </summary>
+    /// <param name="sender"> The paper calling this method. </param>
+    /// <returns> True if the paper is successfully dropped. </returns>
+    public bool TryDropPaper(Paper paper)
     {
-        if (holdingPaper == null)
+        if (paperValues.HoldingPaper != paper)
             return false;
 
-        var position = holdingPaper.transform.localPosition;
+        paper.transform.SetParent(rememberParent, worldPositionStays);
 
-        bool isXClose = ((position.x >= 0 && position.x <= positionalLeniency) || (position.x <= 0 && position.x > -positionalLeniency));
-        bool isYClose = ((position.y > 0 && position.y <= positionalLeniency) || (position.y <= 0 && position.y > -positionalLeniency));
+        PaperActionType paperActionType = CheckPosition(paper) ? PaperActionType.StartSnap : PaperActionType.Drop;
+        OnPaperAction(paper, paperActionType);
+        return true;
+    }
 
-        Quaternion rotation = holdingPaper.transform.rotation;
+    /// <summary>
+    ///     <para>
+    ///     Should only be called when we drop a paper. <br/>
+    ///     Checks if the dropped paper is close to 0, 0 and 0, 1.
+    ///     </para>
+    /// </summary>
+    /// <returns> True if we start snapping the paper </returns>
+    bool CheckPosition(Paper paper)
+    {
+        // Check Position
+        var position = paper.transform.localPosition;
+        
+        isXClose = (position.x >= 0 && position.x <= positionalLeniency) || (position.x <= 0 && position.x > -positionalLeniency);
+        isYClose = (position.y > 0 && position.y <= positionalLeniency) || (position.y <= 0 && position.y > -positionalLeniency);
 
-        bool isZRotationClose = ((rotation.z > 0 && rotation.z <= positionalLeniency) || (rotation.z <= 0 && rotation.z > -positionalLeniency));
-        bool isWRotationClose = ((rotation.w > 1 && rotation.w <= positionalLeniency) || (rotation.w <= 1 && rotation.w > -positionalLeniency));
+        // Check Rotation
+        Quaternion rotation = paper.transform.rotation;
 
-        if (isXClose && isYClose && isZRotationClose && isWRotationClose)
+        isZRotationClosePlus = rotation.z > 0 && rotation.z <= rotationalLeniency;
+        isZRotationCloseMinus = rotation.z <= 0 && rotation.z > -rotationalLeniency;
+
+        bool isCloseZ = isZRotationClosePlus || isZRotationCloseMinus;
+
+        isWRotationClosePlus = rotation.w > 1 && rotation.w <= rotationalLeniency;
+        isWRotationCloseMinus = rotation.w <= 1 && rotation.w > -rotationalLeniency;
+
+        bool isCloseW = isWRotationCloseMinus || isWRotationClosePlus;
+
+        // Snap Position
+        if (isXClose && isYClose && isCloseZ && isCloseW)
         {
-            StartCoroutine(LerpSnap());
+            StartCoroutine(LerpSnap(paper));
             return true;
         }
         return false;
     }
 
-    // Turn this into a list with a Queue
-    IEnumerator LerpSnap()
+    /// <summary>
+    ///     Moves the last held paper to the correct position over time.
+    /// </summary>
+    IEnumerator LerpSnap(Paper paper)
     {
-        if (lerpPaper == null)
-            yield break;
-
-        // Instead I could rotate the parent until the rotation matches up
         float time = 0;
-        lerpPaper.transform.GetPositionAndRotation(out Vector3 startingPosition, out Quaternion startingRotation);
+        paper.transform.GetPositionAndRotation(out Vector3 startingPosition, out Quaternion startingRotation);
         
         while (time < 1)
         {
-            if (lerpPaper == null)
-                yield break;
-
-            lerpPaper.transform.rotation = Quaternion.Slerp(startingRotation, Quaternion.Euler(0, 0, 0), lerpCurve.Evaluate(time));
-            lerpPaper.transform.position = Vector3.Lerp(startingPosition, Vector3.zero, lerpCurve.Evaluate(time));
-
+            paper.transform.SetPositionAndRotation(Vector3.Lerp(startingPosition, Vector3.zero, lerpCurve.Evaluate(time)), Quaternion.Slerp(startingRotation, Quaternion.Euler(0, 0, 0), lerpCurve.Evaluate(time)));
             time += Time.deltaTime * lerpSpeed;
             
             yield return null;
         }
-        lerpPaper.SetIsInPlace(true);
-        PaperAction?.Invoke(this, new(PaperActionType.Snap));
-        lerpPaper = null;
+
+        OnPaperAction(paper, PaperActionType.Snap);
     }
 
+    /// <summary>
+    ///     Sets the paper's parent to the mouse and informs listeners of any state changes.
+    /// </summary>
+    /// <param name="caller"></param>
+    /// <returns></returns>
     public bool TryGrabPaper(Paper paper)
     {
-        if (holdingPaper != null)
+        if (paperValues.HoldingPaper != null)
             return false;
 
-        paper.SetIsInPlace(false);
-        holdingPaper = paper;
-        rememberParent = holdingPaper.transform.parent;
-        holdingPaper.transform.SetParent(dragParent, worldPositionStays);
-        holdingPaper.SpriteRenderer.sortingOrder = order++;
+        rememberParent = paper.transform.parent;
+        paper.transform.SetParent(dragParent, worldPositionStays);
 
-        PaperAction?.Invoke(this, new(PaperActionType.Grab));
+        paper.SpriteRenderer.sortingOrder = order++;
+
+        OnPaperAction(paper, PaperActionType.Grab);
         return true;
     }
 
-    public bool TryDropPaper(Paper paper)
+    [Serializable]
+    class PaperVariables
     {
-        if (holdingPaper != paper)
-            return false;
+        public Paper HoldingPaper { get; private set; }
+        public Paper DroppedPaper {get; private set; }
+        public Paper LerpPaper {get; private set; }
 
-        holdingPaper.transform.SetParent(rememberParent, worldPositionStays);
-        lerpPaper = holdingPaper;
-        bool snapPaper = SnapPaper();
-        holdingPaper = null;
 
-        
-        PaperActionType paperActionType = snapPaper ? PaperActionType.DropSnap : PaperActionType.Drop;
-        PaperAction?.Invoke(this, new(paperActionType));
-        return true;
+        public void OnEnable()
+            => PaperAction += HandlePaperAction;
+
+        public void OnDisable()
+            => PaperAction -= HandlePaperAction;
+
+        void HandlePaperAction(object sender, PaperActionEventArgs e)
+        {
+            HoldingPaper = null;
+            DroppedPaper = null;
+            LerpPaper = null;
+
+            switch (e.actionType)
+            {
+                case PaperActionType.Grab:
+                    HoldingPaper = e.paper;
+                break;
+
+                case PaperActionType.Drop:
+                    DroppedPaper = e.paper;
+                break;
+
+                case PaperActionType.StartSnap:
+                    LerpPaper = e.paper;
+                break;
+
+                case PaperActionType.Snap:
+                case PaperActionType.Shuffle:
+                break;
+            }
+        }
     }
+
+    
 }

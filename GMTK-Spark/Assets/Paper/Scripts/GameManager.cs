@@ -29,6 +29,9 @@ public class GameManager : Singleton<GameManager>
 
     void HandlePaperAction(object sender, MovePaper.PaperActionEventArgs e)
     {
+        if (e.actionType != MovePaper.PaperActionEventArgs.PaperActionType.Snap)
+            return;
+
         foreach (var paper in paperList)
         {
             if (!paper.IsInPlace)
