@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using static MovePaper.PaperActionEventArgs;
 using static TMPro.Examples.ObjectSpin;
+using static Paper.PaperInteractionEventArgs;
 
 public class MovePaper : Singleton<MovePaper>
 {
@@ -72,18 +73,31 @@ public class MovePaper : Singleton<MovePaper>
     /// </summary>
     void HandlePaperInteraction(object sender, Paper.PaperInteractionEventArgs e)
     {
-        if (sender is not Paper)
-            return;
-
-        Paper paper = sender as Paper;
-
-        Func<Paper, bool> paperAction = e.interaction switch
+        switch (e.interaction)
         {
-            Paper.PaperInteractionEventArgs.InteractionType.Click => TryGrabPaper,
-            Paper.PaperInteractionEventArgs.InteractionType.Release => TryDropPaper,
-            _ => null
-        };
-        paperAction(paper);
+            // Grab Paper
+            case InteractionType.Click:
+                if (paperValues.HoldingPaper != null)
+                    break;
+
+                // Sets the paper's parent to the mouse and informs listeners of any state changes.
+                rememberParent = e.paper.transform.parent;
+                e.paper.transform.SetParent(dragParent, worldPositionStays);
+                e.paper.SpriteRenderer.sortingOrder = order++;
+                OnPaperAction(e.paper, PaperActionType.Grab);
+            break;
+
+            // Drop Paper
+            case InteractionType.Release:
+                if (paperValues.HoldingPaper != e.paper)
+                    break;
+
+                // Resets the paper's parent and informs listeners of any state changes.
+                e.paper.transform.SetParent(rememberParent, worldPositionStays);
+                PaperActionType paperActionType = CheckPosition(e.paper) ? PaperActionType.StartSnap : PaperActionType.Drop;
+                OnPaperAction(e.paper, paperActionType);
+            break;
+        }
     }
 
     void Update()
@@ -108,23 +122,6 @@ public class MovePaper : Singleton<MovePaper>
     bool isZRotationCloseMinus;
     bool isWRotationClosePlus;
     bool isWRotationCloseMinus;
-
-    /// <summary>
-    ///     Resets the paper's parent and informs listeners of any state changes.
-    /// </summary>
-    /// <param name="sender"> The paper calling this method. </param>
-    /// <returns> True if the paper is successfully dropped. </returns>
-    public bool TryDropPaper(Paper paper)
-    {
-        if (paperValues.HoldingPaper != paper)
-            return false;
-
-        paper.transform.SetParent(rememberParent, worldPositionStays);
-
-        PaperActionType paperActionType = CheckPosition(paper) ? PaperActionType.StartSnap : PaperActionType.Drop;
-        OnPaperAction(paper, paperActionType);
-        return true;
-    }
 
     /// <summary>
     ///     <para>
@@ -154,7 +151,7 @@ public class MovePaper : Singleton<MovePaper>
 
         bool isCloseW = isWRotationCloseMinus || isWRotationClosePlus;
 
-        // Snap Position
+        // Start snap Position
         if (isXClose && isYClose && isCloseZ && isCloseW)
         {
             StartCoroutine(LerpSnap(paper));
@@ -180,25 +177,6 @@ public class MovePaper : Singleton<MovePaper>
         }
 
         OnPaperAction(paper, PaperActionType.Snap);
-    }
-
-    /// <summary>
-    ///     Sets the paper's parent to the mouse and informs listeners of any state changes.
-    /// </summary>
-    /// <param name="caller"></param>
-    /// <returns></returns>
-    public bool TryGrabPaper(Paper paper)
-    {
-        if (paperValues.HoldingPaper != null)
-            return false;
-
-        rememberParent = paper.transform.parent;
-        paper.transform.SetParent(dragParent, worldPositionStays);
-
-        paper.SpriteRenderer.sortingOrder = order++;
-
-        OnPaperAction(paper, PaperActionType.Grab);
-        return true;
     }
 
     [Serializable]
@@ -242,5 +220,5 @@ public class MovePaper : Singleton<MovePaper>
         }
     }
 
-    
+
 }

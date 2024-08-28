@@ -20,13 +20,17 @@ public class Paper : MonoBehaviour
         public enum InteractionType { Click, Release }
 
         public readonly InteractionType interaction;
+        public readonly Paper paper;
 
-        public PaperInteractionEventArgs(InteractionType interaction)
-            => this.interaction = interaction;
+        public PaperInteractionEventArgs(Paper paper, InteractionType interaction)
+        {
+            this.interaction = interaction;
+            this.paper = paper;
+        }    
     }
 
     public void OnPaperInteraction(PaperInteractionEventArgs.InteractionType interaction)
-        => PaperInteraction(this, new (interaction));
+        => PaperInteraction?.Invoke(this, new (this, interaction));
 
     private void OnEnable()
         => MovePaper.PaperAction += HandlePaperAction;

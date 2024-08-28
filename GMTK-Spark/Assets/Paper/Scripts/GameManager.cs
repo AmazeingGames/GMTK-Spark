@@ -9,22 +9,16 @@ public class GameManager : Singleton<GameManager>
     readonly List<Paper> paperList = new();
 
     private void OnEnable()
-    {
-        MovePaper.PaperAction += HandlePaperAction;
-    }
+        => MovePaper.PaperAction += HandlePaperAction;
 
     private void OnDisable()
-    {
-        MovePaper.PaperAction -= HandlePaperAction;
-    }
+        => MovePaper.PaperAction -= HandlePaperAction;
 
     // Start is called before the first frame update
     void Start()
     {
         for (int i = 0; i < puzzleParent.transform.childCount; i++)
-        {
             paperList.Add(puzzleParent.transform.GetChild(i).GetComponent<Paper>());
-        }
     }
 
     void HandlePaperAction(object sender, MovePaper.PaperActionEventArgs e)
@@ -37,12 +31,10 @@ public class GameManager : Singleton<GameManager>
             if (!paper.IsInPlace)
                 return;
         }
-        Debug.Log("Win!");
+
         Win();
     }
 
     void Win()
-    {
-        AudioManager.Instance.PlayWinSound();
-    }
+        => AudioManager.Instance.PlayWinSound();
 }

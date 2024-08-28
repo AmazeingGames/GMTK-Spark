@@ -48,7 +48,7 @@ public class AudioManager : Singleton<AudioManager>
     }
 
     /// <summary>
-    ///     
+    ///     Plays audio for corresponding paper actions
     /// </summary>
     void HandlePaperAction(object sender, MovePaper.PaperActionEventArgs e)
     {
