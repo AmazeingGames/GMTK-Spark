@@ -160,6 +160,7 @@ public class MovePaper : Singleton<MovePaper>
         // Start snap Position
         if (isXClose && isYClose && isCloseZ && isCloseW)
         {
+            OnPaperAction(paper, PaperActionType.StartSnap);
             StartCoroutine(LerpSnap(paper));
             return true;
         }
@@ -176,6 +177,9 @@ public class MovePaper : Singleton<MovePaper>
         
         while (time < 1)
         {
+            if (paperValues.HoldingPaper == paper)
+                yield break;
+
             paper.transform.SetPositionAndRotation(Vector3.Lerp(startingPosition, Vector3.zero, lerpCurve.Evaluate(time)), Quaternion.Slerp(startingRotation, Quaternion.Euler(0, 0, 0), lerpCurve.Evaluate(time)));
             time += Time.deltaTime * lerpSpeed;
             

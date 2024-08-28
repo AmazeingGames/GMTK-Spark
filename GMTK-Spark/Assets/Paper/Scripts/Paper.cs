@@ -40,16 +40,16 @@ public class Paper : MonoBehaviour
 
     private void OnMouseDown()
     {
-        if (isHolding)
-            return;
+        //if (isHolding)
+          // return;
 
         OnPaperInteraction(PaperInteractionEventArgs.InteractionType.Click);
     }
 
     private void OnMouseUp()
     {
-        if (!isHolding)
-            return;
+        //if (!isHolding)
+            //return;
 
         OnPaperInteraction(PaperInteractionEventArgs.InteractionType.Release);
     }
