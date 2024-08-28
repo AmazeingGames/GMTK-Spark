@@ -118,38 +118,44 @@ public class MovePaper : Singleton<MovePaper>
 
     bool isXClose;
     bool isYClose;
-    bool isZRotationClosePlus;
-    bool isZRotationCloseMinus;
-    bool isWRotationClosePlus;
-    bool isWRotationCloseMinus;
+    bool isZRotationBetweenZeroAndPositiveLeniency;
+    bool isZRotationBetweenZeroAndNegativeLeniency;
+    bool isWRotationBetweenOneAndPositiveLeniency;
+    bool isWRotationBetweenOneAndNegativeLeniency;
+    
+    bool isFlippedWRotationBetweenNegativeOneAndNegativeLeniency; // Close to 1
+    bool isFlippedWRotationBetweenNegativeOneAndPositiveLeniency; // Close to 1
 
     /// <summary>
     ///     <para>
     ///     Should only be called when we drop a paper. <br/>
-    ///     Checks if the dropped paper is close to 0, 0 and 0, 1.
+    ///     Checks if we should snap the paper
     ///     </para>
     /// </summary>
     /// <returns> True if we start snapping the paper </returns>
     bool CheckPosition(Paper paper)
     {
-        // Check Position
+        // Checks Position
         var position = paper.transform.localPosition;
         
-        isXClose = (position.x >= 0 && position.x <= positionalLeniency) || (position.x <= 0 && position.x > -positionalLeniency);
-        isYClose = (position.y > 0 && position.y <= positionalLeniency) || (position.y <= 0 && position.y > -positionalLeniency);
+        isXClose = (position.x >= 0 && position.x <= positionalLeniency) || (position.x <= 0 && position.x > -positionalLeniency); // Close to 0
+        isYClose = (position.y > 0 && position.y <= positionalLeniency) || (position.y <= 0 && position.y > -positionalLeniency); // Close to 0
 
         // Check Rotation
         Quaternion rotation = paper.transform.rotation;
 
-        isZRotationClosePlus = rotation.z > 0 && rotation.z <= rotationalLeniency;
-        isZRotationCloseMinus = rotation.z <= 0 && rotation.z > -rotationalLeniency;
+        isZRotationBetweenZeroAndPositiveLeniency = rotation.z > 0 && rotation.z <= rotationalLeniency;     // Close to 0
+        isZRotationBetweenZeroAndNegativeLeniency = rotation.z <= 0 && rotation.z > -rotationalLeniency;    // Close to 0
 
-        bool isCloseZ = isZRotationClosePlus || isZRotationCloseMinus;
+        bool isCloseZ = isZRotationBetweenZeroAndPositiveLeniency || isZRotationBetweenZeroAndNegativeLeniency;
 
-        isWRotationClosePlus = rotation.w > 1 && rotation.w <= rotationalLeniency;
-        isWRotationCloseMinus = rotation.w <= 1 && rotation.w > -rotationalLeniency;
+        isWRotationBetweenOneAndPositiveLeniency = rotation.w > 1 && rotation.w <= (1 + rotationalLeniency);    // Close to 1 (>1 && <1.1) leniency of .1
+        isWRotationBetweenOneAndNegativeLeniency = rotation.w <= 1 && rotation.w > -(1 - rotationalLeniency);   // Close to 1 (<1 && >-.9) leniency of .1
 
-        bool isCloseW = isWRotationCloseMinus || isWRotationClosePlus;
+        isFlippedWRotationBetweenNegativeOneAndNegativeLeniency = rotation.w > -1 && rotation.w <= -(1 - rotationalLeniency);  // Close to -1 (>-1 && <-.9) leniency of .1
+        isFlippedWRotationBetweenNegativeOneAndPositiveLeniency = rotation.w <= -1 && rotation.w > -(1 - rotationalLeniency);  // Close to -1 (<-1 && >-.9) leniency of .1
+
+        bool isCloseW = (isWRotationBetweenOneAndNegativeLeniency || isWRotationBetweenOneAndPositiveLeniency) || (isFlippedWRotationBetweenNegativeOneAndNegativeLeniency || isFlippedWRotationBetweenNegativeOneAndPositiveLeniency);
 
         // Start snap Position
         if (isXClose && isYClose && isCloseZ && isCloseW)

@@ -7438,8 +7438,8 @@ MonoBehaviour:
   rotationSpeed: 250
   space: 0
   worldPositionStays: 1
-  positionalLeniency: 0.4
-  rotationalLeniency: 0.4
+  positionalLeniency: 0.45
+  rotationalLeniency: 0.1
   lerpCurve:
     serializedVersion: 2
     m_Curve:
