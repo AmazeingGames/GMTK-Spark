@@ -9,11 +9,11 @@ public class Paper : MonoBehaviour
     [field: SerializeField] public SpriteRenderer SpriteRenderer { get; private set; }
     [SerializeField] PolygonCollider2D polygonCollider;
 
-    bool isHolding;
+    public static event EventHandler<PaperInteractionEventArgs> PaperInteraction;
 
     public bool IsInPlace { get; private set; } = false;
 
-    public static event EventHandler<PaperInteractionEventArgs> PaperInteraction;
+    bool isHolding;
 
     public class PaperInteractionEventArgs : EventArgs
     {

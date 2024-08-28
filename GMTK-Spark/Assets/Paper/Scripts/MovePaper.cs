@@ -5,14 +5,10 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 using static MovePaper.PaperActionEventArgs;
-using static TMPro.Examples.ObjectSpin;
 using static Paper.PaperInteractionEventArgs;
 
-public class MovePaper : Singleton<MovePaper>
+public class MovePaper : MonoBehaviour
 {
-    [SerializeField] Transform dragParent;
-    [SerializeField] SpriteRenderer dragParentSpriteRenderer;
-
     [Header("Rotation Properties")]
     [SerializeField] float rotationSpeed;
     [SerializeField] Space space;
@@ -28,7 +24,6 @@ public class MovePaper : Singleton<MovePaper>
     int order = 0;
 
     Transform rememberParent;
-
     public static event EventHandler<PaperActionEventArgs> PaperAction;
 
     protected virtual void OnPaperAction(Paper paper, PaperActionType paperAction)
@@ -82,7 +77,7 @@ public class MovePaper : Singleton<MovePaper>
 
                 // Sets the paper's parent to the mouse and informs listeners of any state changes.
                 rememberParent = e.paper.transform.parent;
-                e.paper.transform.SetParent(dragParent, worldPositionStays);
+                e.paper.transform.SetParent(GameManager.Instance.LevelData.DragParent, worldPositionStays);
                 e.paper.SpriteRenderer.sortingOrder = order++;
                 OnPaperAction(e.paper, PaperActionType.Grab);
             break;
@@ -102,12 +97,15 @@ public class MovePaper : Singleton<MovePaper>
 
     void Update()
     {
+        if (GameManager.Instance.LevelData == null)
+            return;
+
         // Moves & Rotates Paper
-        dragParent.transform.position = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Clamper.CalculateBounds(dragParentSpriteRenderer, out float width, out float height, out Vector2 screenBounds);
-        Clamper.ClampToScreenOrthographic(dragParent, width, height, screenBounds);
+        GameManager.Instance.LevelData.DragParent.transform.position = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Clamper.CalculateBounds(GameManager.Instance.LevelData.DragParentSpriteRenderer, out float width, out float height, out Vector2 screenBounds);
+        Clamper.ClampToScreenOrthographic(GameManager.Instance.LevelData.DragParent, width, height, screenBounds);
         if (Input.mouseScrollDelta.y != 0)
-            dragParent.transform.Rotate(Input.mouseScrollDelta.y * rotationSpeed * Time.deltaTime * Vector3.forward, space);
+            GameManager.Instance.LevelData.DragParent.transform.Rotate(Input.mouseScrollDelta.y * rotationSpeed * Time.deltaTime * Vector3.forward, space);
 
         // Debug
         if (paperValues.HoldingPaper == null)
