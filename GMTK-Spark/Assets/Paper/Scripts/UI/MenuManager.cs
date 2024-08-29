@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using UnityEditor;
 using UnityEngine;
 using static GameManager;
 
@@ -18,17 +19,17 @@ public class MenuManager : Singleton<MenuManager>
     [Header("Cameras")]
     [SerializeField] Camera userInterfaceCamera;
 
-    public enum MenuTypes { None, Main, Credits, Pause, Settings, LevelSelect, BeatLevel, GameEndScreen, }
+    public enum MenuTypes { None, Previous, Main, Credits, Pause, Settings, LevelSelect, BeatLevel, GameEndScreen, Empty }
 
     public bool IsGamePaused { get; private set; }
 
-    readonly Menu emptyMenu = new();
-    Menu previousMenu; 
+    Menu emptyMenu = new();
     Menu currentMenu;
+    Menu previousMenu; 
 
-    readonly List<Menu> menusToClear = new();
-    readonly List<Menu> menuHistory = new();
-    int currentHistoryIndex = 0;
+    List<Menu> menusToClear = new();
+    List<Menu> menuHistory = new();
+    int currentHistoryIndex = -1;
 
     KeyCode pauseKey = KeyCode.Escape;
 
@@ -37,9 +38,40 @@ public class MenuManager : Singleton<MenuManager>
     [Serializable]
     class Menu
     {
+        public bool HasSetMenuType { get; private set; } = false;
+        MenuTypes menuType;
+
+        public void SetMenuType(MenuTypes menuType)
+        {
+            if (HasSetMenuType)
+            {
+                Debug.LogWarning($"Has already set this menu's type to {menuType}");
+                return;
+            }
+
+            this.menuType = menuType;
+            HasSetMenuType = true;
+        }
+
+        public void SetReady(bool ready)
+        {
+            if (Canvas != null)
+                Canvas.gameObject.SetActive(ready);
+
+            foreach (GameObject obj in EnableOnReady)
+                obj.SetActive(ready);
+
+            if (!ready)
+                return;
+
+            foreach (GameObject obj in DisableOnReady)
+                obj.SetActive(false);
+
+        }
+
         [field: SerializeField] public Canvas Canvas { get; private set; } = new();
-        [field: SerializeField] public List<GameObject> ObjectsToEnable { get; private set; } = new();
-        [field: SerializeField] public List<GameObject> ObjectsToDisable { get; private set; } = new();
+        [field: SerializeField] public List<GameObject> EnableOnReady { get; private set; } = new();
+        [field: SerializeField] public List<GameObject> DisableOnReady { get; private set; } = new();
     }
 
     void Start()
@@ -47,6 +79,14 @@ public class MenuManager : Singleton<MenuManager>
 #if DEBUG
         pauseKey = KeyCode.P;
 #endif
+        mainMenu.SetMenuType(MenuTypes.Main);
+        pauseMenu.SetMenuType(MenuTypes.Pause);
+        settingsMenu.SetMenuType(MenuTypes.Settings);
+        levelSelectMenu.SetMenuType(MenuTypes.LevelSelect);
+        beatLevelMenu.SetMenuType(MenuTypes.BeatLevel);
+        creditsScreen.SetMenuType(MenuTypes.Credits);
+        gameEndScreen.SetMenuType(MenuTypes.GameEndScreen);
+        emptyMenu.SetMenuType(MenuTypes.Empty);
 
         MenuTypeToMenu = new()
         {
@@ -57,6 +97,7 @@ public class MenuManager : Singleton<MenuManager>
             { MenuTypes.BeatLevel,      beatLevelMenu},
             { MenuTypes.LevelSelect,    levelSelectMenu},
             { MenuTypes.Credits,        creditsScreen},
+            { MenuTypes.Empty,          emptyMenu},
         };
 
         RespondToGameStateChange(GameManager.Instance.CurrentState);
@@ -85,7 +126,7 @@ public class MenuManager : Singleton<MenuManager>
     {
         switch (newState)
         {
-            case GameState.RunGame:
+            case GameState.EnterMainMenu:
                 LoadMenu(mainMenu);
             break;
 
@@ -100,10 +141,19 @@ public class MenuManager : Singleton<MenuManager>
         }
     }
 
+    /// <summary>
+    ///     Loads the menu told by a clicked ui button
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     void HandleUIButtonInteract(object sender, UIButton.UIInteractEventArgs e)
     {
-        if (e.buttonEvent != UIButton.ButtonEventType.UI)
+        if (e.buttonEvent != UIButton.UIEventTypes.UI)
             return;
+
+        if (e.buttonInteraction != UIButton.UIInteractionTypes.Click)
+            return;
+
         LoadMenu(e.menuToOpen);
     }
 
@@ -130,6 +180,10 @@ public class MenuManager : Singleton<MenuManager>
     {
         if (MenuTypeToMenu.TryGetValue(menuType, out Menu menu))
             LoadMenu(menu, addToHistory);
+        else if (menuType == MenuTypes.Previous)
+            LoadPreviousMenu();
+        else
+            Debug.LogWarning($"Menu Type: {menuType} not covered by conditional statements");
     }
 
     /// <summary>
@@ -140,33 +194,25 @@ public class MenuManager : Singleton<MenuManager>
     void LoadMenu(Menu menu, bool addToHistory = true)
     {
         if (addToHistory)
+        {
             menuHistory.Add(menu);
-        
+            currentHistoryIndex++;
+        }
+
         previousMenu = currentMenu;
         currentMenu = menu;
 
-        // Ready menu
-        Debug.Log(menu.ToString());
-        if (menu.Canvas != null)
-            menu.Canvas.gameObject.SetActive(true);
-        foreach (GameObject menuObject in menu.ObjectsToEnable)
-            menuObject.SetActive(true);
-        foreach (GameObject menuObject in menu.ObjectsToDisable)
-            menuObject.SetActive(false);
+        if (!menu.HasSetMenuType)
+            throw new ArgumentException($"The menu type of {menu} has not been set");
 
-        // Unready previous menu
-        if (previousMenu != null)
-        {
-            previousMenu.Canvas.gameObject.SetActive(false);
-            foreach (GameObject menuObject in previousMenu.ObjectsToEnable)
-                menuObject.SetActive(false);
-        }
+        menu.SetReady(true);
         
-        // Note this as a menu we have loaded
+        previousMenu?.SetReady(false);
+        
         if (!menusToClear.Contains(menu))
         {
-            foreach (GameObject menuObject in menu.ObjectsToEnable)
-                emptyMenu.ObjectsToDisable.Add(menuObject);
+            foreach (GameObject menuObject in menu.EnableOnReady)
+                emptyMenu.DisableOnReady.Add(menuObject);
             menusToClear.Add(menu);
         }
     }
@@ -180,10 +226,9 @@ public class MenuManager : Singleton<MenuManager>
             return;
 
         if (currentHistoryIndex >= menuHistory.Count)
-            throw new Exception("Index out of bounds");
+            throw new Exception("Menu history index exceeds the menu history list");
 
-        menuHistory.RemoveAt(currentHistoryIndex);
-
-        LoadMenu(menuHistory[currentHistoryIndex--], false);
+        LoadMenu(menuHistory[--currentHistoryIndex], false);
+        menuHistory.RemoveAt(currentHistoryIndex + 1);
     }
 }

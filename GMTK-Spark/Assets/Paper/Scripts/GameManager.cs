@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : Singleton<GameManager>
 {
-    public enum GameState { None, RunGame, StartLevel, LoseLevel, RestartLevel, BeatLevel, BeatGame }
+    public enum GameState { None, EnterMainMenu, StartLevel, LoseLevel, RestartLevel, BeatLevel, BeatGame }
 
     public GameState CurrentState { get; private set; }
 
@@ -89,7 +89,7 @@ public class GameManager : Singleton<GameManager>
 #endif
         // Otherewise, runs the game as normal
         if (!foundTestLevel)
-            UpdateGameState(GameState.RunGame);
+            UpdateGameState(GameState.EnterMainMenu);
     }
 
     /// <summary>
@@ -111,10 +111,10 @@ public class GameManager : Singleton<GameManager>
 
     void HandleUIInteract(object sender, UIButton.UIInteractEventArgs e)
     {
-        if (e.buttonEvent != UIButton.ButtonEventType.GameState)
+        if (e.buttonEvent != UIButton.UIEventTypes.GameState)
             return;
 
-        if (e.buttonInteraction != UIButton.ButtonInteractType.Click)
+        if (e.buttonInteraction != UIButton.UIInteractionTypes.Click)
             return;
 
         UpdateGameState(e.newGameState, e.levelToLoad);
@@ -127,7 +127,7 @@ public class GameManager : Singleton<GameManager>
         => UpdateGameState(GameState.RestartLevel);
 
     void HandleBeatLastLevel(object sender, EventArgs e)
-        => UpdateGameState(GameState.RunGame);
+        => UpdateGameState(GameState.EnterMainMenu);
 
     void HandleLevelLoad(object sender, LevelData.LevelLoadEventArgs e)
     {

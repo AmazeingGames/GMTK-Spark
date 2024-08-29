@@ -35,8 +35,12 @@ public class ScenesManager : Singleton<ScenesManager>
     {
         switch (e.newState)
         {
-            case GameManager.GameState.RunGame:
-                LoadScene("Menus");
+            case GameManager.GameState.EnterMainMenu:
+                string menu = "Menus";
+                if (!IsSceneLoaded(menu))
+                    LoadScene(menu);
+                
+                UnloadLevel(CurrentLevel);
             break;
 
             case GameManager.GameState.StartLevel:
@@ -132,20 +136,28 @@ public class ScenesManager : Singleton<ScenesManager>
     }
 
     /// <summary>
+    ///     Asynchronously unloads a level.
+    /// </summary>
+    /// <param name="levelnumber"> The number of the level to unload </param>
+    /// <returns> True if the level starts to unload. </returns>
+    public bool UnloadLevel(int levelnumber)
+        => UnloadScene($"{levelConvention}{levelnumber}");
+
+    /// <summary>
     ///     Asynchronously unloads a scene.
     /// </summary>
     /// <param name="sceneName"> The name of the scene to unload. </param>
-    /// <returns> True if the scene is succesfully unloaded. </returns>
+    /// <returns> True if the scene starts to unload. </returns>
     public bool UnloadScene(string sceneName)
     {
         if (SceneUtility.GetBuildIndexByScenePath(sceneName) == -1)
             return false;
-
         if (lastLoadedLevel == null)
+            return false;
+        if (!IsSceneLoaded(sceneName))
             return false;
 
         SceneManager.UnloadSceneAsync(sceneName);
-
         return true;
     }
 }

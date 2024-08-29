@@ -30,7 +30,7 @@ public class AudioManager : MonoBehaviour
     [SerializeField] bool snap1;
 
     public Dictionary<PaperActionEventArgs.PaperActionType, AudioSource> ActionsToAudio;
-    public Dictionary<UIButton.ButtonInteractType, AudioSource> UIInteractToAudio;
+    public Dictionary<UIButton.UIInteractionTypes, AudioSource> UIInteractToAudio;
     public Dictionary<GameManager.GameState, AudioSource> GameStateToAudio;
 
     private void OnEnable()
@@ -62,16 +62,16 @@ public class AudioManager : MonoBehaviour
             { GameState.StartLevel,     shuffle },
             { GameState.RestartLevel,   null    },
             { GameState.BeatLevel,      null    },
-            { GameState.RunGame,        null    },
+            { GameState.EnterMainMenu,        null    },
             { GameState.BeatGame,       null    },
         };
 
         UIInteractToAudio = new()
         {
-            { ButtonInteractType.Enter, buttonEnter },
-            { ButtonInteractType.Click, buttonClick },
-            { ButtonInteractType.Up,    buttonUp    },
-            { ButtonInteractType.Exit,  buttonExit  },
+            { UIInteractionTypes.Enter, buttonEnter },
+            { UIInteractionTypes.Click, buttonClick },
+            { UIInteractionTypes.Up,    buttonUp    },
+            { UIInteractionTypes.Exit,  buttonExit  },
         };
     }
 

@@ -7,7 +7,7 @@ using UnityEngine.EventSystems;
 public class UIButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler, IPointerUpHandler
 {
     [Header("Button Type")]
-    [SerializeField] ButtonEventType buttonEvent;
+    [SerializeField] UIEventTypes buttonEvent;
 
     // Turn this into a class value, which inherits from the same type
     // Change the class based on the button type, and then serialize the class values
@@ -19,15 +19,15 @@ public class UIButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
     [SerializeField] GameManager.GameState newGameState;
     [SerializeField] int levelToLoad = -1;
 
-    public enum ButtonEventType { None, UI, GameState }
-    public enum ButtonInteractType { Enter, Click, Up, Exit }
+    public enum UIEventTypes { None, UI, GameState }
+    public enum UIInteractionTypes { Enter, Click, Up, Exit }
 
     public static EventHandler<UIInteractEventArgs> UIInteractEventHandler;
 
     public class UIInteractEventArgs : EventArgs
     {
-        public readonly ButtonEventType buttonEvent;
-        public readonly ButtonInteractType buttonInteraction;
+        public readonly UIEventTypes buttonEvent;
+        public readonly UIInteractionTypes buttonInteraction;
         public readonly PointerEventData pointerEventData;
 
         public readonly MenuManager.MenuTypes menuToOpen = MenuManager.MenuTypes.None;
@@ -35,19 +35,19 @@ public class UIButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
         public readonly GameManager.GameState newGameState = GameManager.GameState.None;
         public readonly int levelToLoad = -1;
 
-        public UIInteractEventArgs(UIButton button, ButtonEventType buttonEvent, PointerEventData pointerEventData, ButtonInteractType buttonInteraction)
+        public UIInteractEventArgs(UIButton button, UIEventTypes uiEventType, PointerEventData pointerEventData, UIInteractionTypes uiInteractionType)
         {
-            this.buttonEvent = buttonEvent;
+            this.buttonEvent = uiEventType;
             this.pointerEventData = pointerEventData;
-            this.buttonInteraction = buttonInteraction;
+            this.buttonInteraction = uiInteractionType;
 
-            switch (buttonEvent)
+            switch (uiEventType)
             {
-                case ButtonEventType.UI:
+                case UIEventTypes.UI:
                     menuToOpen = button.menuToOpen;
                 break;
                 
-                case ButtonEventType.GameState:
+                case UIEventTypes.GameState:
                     newGameState = button.newGameState;
                     levelToLoad = button.levelToLoad;
                 break;
@@ -56,17 +56,17 @@ public class UIButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
     }
 
     public void OnPointerClick(PointerEventData pointerEventData)
-        => OnUIInteract(pointerEventData, ButtonInteractType.Click);
+        => OnUIInteract(pointerEventData, UIInteractionTypes.Click);
 
     public void OnPointerEnter(PointerEventData pointerEventData)
-        => OnUIInteract(pointerEventData, ButtonInteractType.Enter);
+        => OnUIInteract(pointerEventData, UIInteractionTypes.Enter);
 
     public void OnPointerExit(PointerEventData pointerEventData)
-        => OnUIInteract(pointerEventData, ButtonInteractType.Exit);
+        => OnUIInteract(pointerEventData, UIInteractionTypes.Exit);
 
     public void OnPointerUp(PointerEventData pointerEventData)
-        => OnUIInteract(pointerEventData, ButtonInteractType.Up);
+        => OnUIInteract(pointerEventData, UIInteractionTypes.Up);
 
-    public virtual void OnUIInteract(PointerEventData pointerEventData, ButtonInteractType buttonInteract)
+    public virtual void OnUIInteract(PointerEventData pointerEventData, UIInteractionTypes buttonInteract)
         => UIInteractEventHandler?.Invoke(this, new(this, buttonEvent, pointerEventData, buttonInteract));
 }
