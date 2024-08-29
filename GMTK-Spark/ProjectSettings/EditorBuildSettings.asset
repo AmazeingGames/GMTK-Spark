@@ -9,6 +9,12 @@ EditorBuildSettings:
     path: Assets/Spark/Scenes/Spark Sample.unity
     guid: 2cda990e2423bbf4892e6590ba056729
   - enabled: 1
+    path: Assets/Paper/Scenes/Managers.unity
+    guid: 69cdfded6d804ac4098f07bf497261e5
+  - enabled: 1
     path: Assets/Paper/Scenes/Level_1.unity
     guid: 725bcfb84da621b4d9293729ed3f8335
+  - enabled: 1
+    path: Assets/Paper/Scenes/Menus.unity
+    guid: 09cc49b02ac91b94791b0cb6e285fe85
   m_configObjects: {}

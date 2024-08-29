@@ -36,7 +36,7 @@ public class ScenesManager : Singleton<ScenesManager>
         switch (e.newState)
         {
             case GameManager.GameState.RunGame:
-                GameManager.Instance.UpdateGameState(GameManager.GameState.StartLevel, 1);
+                LoadScene("Menus");
             break;
 
             case GameManager.GameState.StartLevel:
@@ -107,12 +107,28 @@ public class ScenesManager : Singleton<ScenesManager>
     /// </summary>
     /// <param name="levelnumber"> The nummber of the level to check. </param>
     /// <returns> True if a scene is successfully found. </returns>
-    public static bool DoesLevelExist(int levelnumber)
+    public static bool IsLevelInBuildPath(int levelnumber)
     {
         if (Instance == null)
             return false;
 
         return SceneUtility.GetBuildIndexByScenePath($"{Instance.levelConvention}{levelnumber}") != -1;
+    }
+
+    public static bool IsLevelLoaded(int levelnumber)
+        => IsSceneLoaded($"{Instance.levelConvention}{levelnumber}");
+
+    public static bool IsSceneLoaded(string sceneName)
+    {
+        for (int i = 0; i < SceneManager.sceneCount; i++)
+        {
+            Scene scene = SceneManager.GetSceneAt(i);
+            
+            if (scene.name != sceneName)
+                continue;
+            return true;
+        }
+        return false;
     }
 
     /// <summary>

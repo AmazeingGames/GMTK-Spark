@@ -3,7 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static MovePaper.PaperActionEventArgs;
+using static MovePaper;
 using static GameManager;
+using static UIButton;
+
 
 public class AudioManager : MonoBehaviour
 {
@@ -14,10 +17,10 @@ public class AudioManager : MonoBehaviour
     [SerializeField] AudioSource snap;
 
     [Header("UI")]
-    [SerializeField] AudioSource select;
-    [SerializeField] AudioSource back;
-    [SerializeField] AudioSource start;
-    [SerializeField] AudioSource move;
+    [SerializeField] AudioSource buttonEnter;
+    [SerializeField] AudioSource buttonClick;
+    [SerializeField] AudioSource buttonUp;
+    [SerializeField] AudioSource buttonExit;
 
     [Header("Game State")]
     [SerializeField] AudioSource win;
@@ -26,14 +29,23 @@ public class AudioManager : MonoBehaviour
     [SerializeField] bool shortPickup;
     [SerializeField] bool snap1;
 
-    public Dictionary<PaperActionType, AudioSource> ActionsToAudio;
-    public Dictionary<GameState, AudioSource> GameStateToAudio;
+    public Dictionary<PaperActionEventArgs.PaperActionType, AudioSource> ActionsToAudio;
+    public Dictionary<UIButton.ButtonInteractType, AudioSource> UIInteractToAudio;
+    public Dictionary<GameManager.GameState, AudioSource> GameStateToAudio;
 
     private void OnEnable()
-        => MovePaper.PaperAction += HandlePaperAction;
-
+    {
+        MovePaper.PaperAction += HandlePaperAction;
+        GameManager.GameStateChangeEventHandler += HandleGameStateChange;
+        UIButton.UIInteractEventHandler += HandleUIInteract;
+    }
+    
     private void OnDisable()
-        => MovePaper.PaperAction -= HandlePaperAction;
+    {
+        MovePaper.PaperAction -= HandlePaperAction;
+        GameManager.GameStateChangeEventHandler -= HandleGameStateChange;
+        UIButton.UIInteractEventHandler -= HandleUIInteract;
+    }
 
     private void Start()
     {
@@ -52,6 +64,14 @@ public class AudioManager : MonoBehaviour
             { GameState.BeatLevel,      null    },
             { GameState.RunGame,        null    },
             { GameState.BeatGame,       null    },
+        };
+
+        UIInteractToAudio = new()
+        {
+            { ButtonInteractType.Enter, buttonEnter },
+            { ButtonInteractType.Click, buttonClick },
+            { ButtonInteractType.Up,    buttonUp    },
+            { ButtonInteractType.Exit,  buttonExit  },
         };
     }
 
@@ -72,6 +92,15 @@ public class AudioManager : MonoBehaviour
     {
         Debug.Log($"Handled game action {e.newState}");
         if (GameStateToAudio.TryGetValue(e.newState, out var audio) && audio != null)
+            audio.Play();
+    }
+
+    /// <summary>
+    ///     Plays audio for corresponding UI interactions
+    /// </summary>
+    void HandleUIInteract(object sender, UIButton.UIInteractEventArgs e)
+    {
+        if (UIInteractToAudio.TryGetValue(e.buttonInteraction, out var audio) && audio != null)
             audio.Play();
     }
 }

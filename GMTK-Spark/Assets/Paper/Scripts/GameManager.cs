@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : Singleton<GameManager>
 {
-    public enum GameState { RunGame, StartLevel, LoseLevel, RestartLevel, BeatLevel, BeatGame }
+    public enum GameState { None, RunGame, StartLevel, LoseLevel, RestartLevel, BeatLevel, BeatGame }
 
     public GameState CurrentState { get; private set; }
 
@@ -38,6 +38,7 @@ public class GameManager : Singleton<GameManager>
         MovePaper.PaperAction += HandlePaperAction;
         ScenesManager.BeatLastLevelEventHandler += HandleBeatLastLevel;
         LevelData.LevelLoadEventHandler += HandleLevelLoad;
+        UIButton.UIInteractEventHandler += HandleUIInteract;
     }
 
     void OnDisable()
@@ -45,6 +46,7 @@ public class GameManager : Singleton<GameManager>
         MovePaper.PaperAction -= HandlePaperAction;
         ScenesManager.BeatLastLevelEventHandler -= HandleBeatLastLevel;
         LevelData.LevelLoadEventHandler -= HandleLevelLoad;
+        UIButton.UIInteractEventHandler -= HandleUIInteract;
     }
 
     // Start is called before the first frame update
@@ -53,11 +55,11 @@ public class GameManager : Singleton<GameManager>
         bool foundTestLevel = false;
 
 #if DEBUG
-        // Starts the game by unloading and reloading the level already in the scene
         int levelToLoad = -1;
         string levelString;
-        string levelToUnload = string.Empty;
+        List<string> levelsToUnload = new();
 
+        // Checks if there's any levels already loaded
         for (int i = 0; i < SceneManager.sceneCount; i++)
         {
             var scene = SceneManager.GetSceneAt(i);
@@ -66,29 +68,33 @@ public class GameManager : Singleton<GameManager>
                 continue;
 
             levelString = scene.name[(scene.name.LastIndexOf('_') + 1)..];
+            if (!int.TryParse(levelString, out int levelNumber))
+                continue;
 
-            if (int.TryParse(levelString, out int levelNumber))
-            {
-                levelToUnload = scene.name;
-                levelToLoad = levelNumber;
-            }
+            levelsToUnload.Add(scene.name);
+            levelToLoad = levelNumber;
         }
 
-        if (ScenesManager.DoesLevelExist(levelToLoad))
+        // Loads the first found level and unloads the rest
+        if (ScenesManager.IsLevelInBuildPath(levelToLoad))
         {
             foundTestLevel = true;
             Debug.Log($"TestLevel: {levelToLoad}");
 
-            if (!string.IsNullOrEmpty(levelToUnload))
-                SceneManager.UnloadSceneAsync(levelToUnload);
+            for (int i = 0; i < levelsToUnload.Count; i++)
+                SceneManager.UnloadSceneAsync(levelsToUnload[i]);
 
             UpdateGameState(GameState.StartLevel, levelToLoad);
         }
 #endif
+        // Otherewise, runs the game as normal
         if (!foundTestLevel)
             UpdateGameState(GameState.RunGame);
     }
 
+    /// <summary>
+    ///     Reacts to paper being moved, dragged, picked up, and dropped into place
+    /// </summary>
     void HandlePaperAction(object sender, MovePaper.PaperActionEventArgs e)
     {
         if (e.actionType != MovePaper.PaperActionEventArgs.PaperActionType.Snap)
@@ -101,6 +107,17 @@ public class GameManager : Singleton<GameManager>
         }
 
         UpdateGameState(GameState.BeatLevel);
+    }
+
+    void HandleUIInteract(object sender, UIButton.UIInteractEventArgs e)
+    {
+        if (e.buttonEvent != UIButton.ButtonEventType.GameState)
+            return;
+
+        if (e.buttonInteraction != UIButton.ButtonInteractType.Click)
+            return;
+
+        UpdateGameState(e.newGameState, e.levelToLoad);
     }
 
     void HandleReachGoal(object sender, EventArgs e)
