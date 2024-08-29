@@ -7,7 +7,6 @@ using UnityEngine;
 public class Paper : MonoBehaviour
 {
     [field: SerializeField] public SpriteRenderer SpriteRenderer { get; private set; }
-    [SerializeField] PolygonCollider2D polygonCollider;
 
     public static event EventHandler<PaperInteractionEventArgs> PaperInteraction;
 
