@@ -22,14 +22,10 @@ public class ScenesManager : Singleton<ScenesManager>
     public static event EventHandler BeatLastLevelEventHandler;
 
     private void OnEnable()
-    {
-        GameManager.GameStateChangeEventHandler += HandleGameStateChange;
-    }
+        => GameManager.GameStateChangeEventHandler += HandleGameStateChange;
 
     private void OnDisable()
-    {
-        GameManager.GameStateChangeEventHandler -= HandleGameStateChange;
-    }
+        => GameManager.GameStateChangeEventHandler -= HandleGameStateChange;
 
     /// <summary>
     ///     Handles scene and level loading for various game updates.
