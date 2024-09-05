@@ -29,6 +29,7 @@ public class AudioManager : MonoBehaviour
     [SerializeField] AudioSource gameplayMusic;
     [SerializeField] AudioSource mainMenuMusic;
     [SerializeField] AudioSource pauseMenuMusic;
+    [SerializeField] bool stopMusicByMute = false;
 
     AudioSource currentMusic;
 
@@ -84,9 +85,11 @@ public class AudioManager : MonoBehaviour
 
         GameStateToMusic = new()
         {
-            { GameState.EnterMainMenu, mainMenuMusic },
-            { GameState.StartLevel, gameplayMusic },
-            { GameState.PauseGame, pauseMenuMusic }
+            { GameState.EnterMainMenu,  mainMenuMusic },
+            { GameState.StartLevel,     gameplayMusic },
+            { GameState.ResumeGame,     gameplayMusic },
+            { GameState.RestartLevel,   gameplayMusic },
+            { GameState.PauseGame,      pauseMenuMusic }
         };
 
     }
@@ -96,49 +99,49 @@ public class AudioManager : MonoBehaviour
     /// </summary>
     void HandlePaperAction(object sender, MovePaper.PaperActionEventArgs e)
     {
-        if (ActionsToSFX.TryGetValue(e.actionType, out var audio) && audio != null)
-            audio.Play();
-        Debug.Log($"AudioManager: Handled paper action {e.actionType} {(audio == null ? "" : $"and played audio : {audio}")}");
+        if (ActionsToSFX.TryGetValue(e.actionType, out var sfx) && sfx != null)
+            sfx.Play();
+        Debug.Log($"AudioManager: Handled paper action {e.actionType} {(sfx == null ? "" : $"and played sfx : {sfx}")}");
     }
 
     /// <summary>
-    ///     Plays audio for corresponding game state actions
+    ///     Plays sfx for corresponding game state actions
     /// </summary>
     void HandleGameStateChange(object sender, GameManager.GameStateChangeEventArgs e)
     {
-        if (GameStateToSFX.TryGetValue(e.newState, out var audio) && audio != null)
-            audio.Play();
-
-        switch (e.newState)
+        if (GameStateToSFX.TryGetValue(e.newState, out var sfx) && sfx != null)
+            sfx.Play();
+        if (GameStateToMusic.TryGetValue(e.newState, out var music) && music != null)
         {
-            case GameState.None:
-                break;
-            case GameState.EnterMainMenu:
+            if (currentMusic != null)
+            {
+                if (stopMusicByMute)
+                    currentMusic.mute = true;
+                else
+                    currentMusic.Stop();
 
-                break;
-            case GameState.StartLevel:
-                break;
-            case GameState.LoseLevel:
-                break;
-            case GameState.RestartLevel:
-                break;
-            case GameState.BeatLevel:
-                break;
-            case GameState.BeatGame:
-                break;
+            }
+            currentMusic = music;
+            currentMusic.mute = false;
+
+            if (!stopMusicByMute)
+                currentMusic.Play();
+            else if (!currentMusic.isPlaying)
+                currentMusic.Play();
         }
 
-        Debug.Log($"AudioManager: Handled game action {e.newState} {(audio == null ? "" : $"and played audio : {audio}")}");
+        Debug.Log($"AudioManager: Handled game action {e.newState} {(sfx == null ? "" : $"and played sfx : {sfx}")} {(music == null ? "" : $", as well as changed music track : {music}")}");
+
     }
 
     /// <summary>
-    ///     Plays audio for corresponding UI interactions
+    ///     Plays sfx for corresponding UI interactions
     /// </summary>
     void HandleUIInteract(object sender, UIButton.UIInteractEventArgs e)
     {
-        if (UIInteractToSFX.TryGetValue(e.buttonInteraction, out var audio) && audio != null)
-            audio.Play();
-        Debug.Log($"AudioManager: Handled UI interaction {e.buttonInteraction} {(audio == null ? "" : $"and played audio : {audio}")}");
+        if (UIInteractToSFX.TryGetValue(e.buttonInteraction, out var sfx) && sfx != null)
+            sfx.Play();
+        Debug.Log($"AudioManager: Handled UI interaction {e.buttonInteraction} {(sfx == null ? "" : $"and played sfx : {sfx}")}");
 
     }
 }
