@@ -6,11 +6,13 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : Singleton<GameManager>
 {
-    public enum GameState { None, EnterMainMenu, StartLevel, LoseLevel, RestartLevel, BeatLevel, BeatGame }
+    KeyCode pauseKey = KeyCode.Escape;
+
+    public enum GameState { None, EnterMainMenu, StartLevel, LoseLevel, RestartLevel, BeatLevel, BeatGame, PauseGame, ResumeGame }
 
     public GameState CurrentState { get; private set; }
 
-    List<Paper> paperList = new();
+    readonly List<Paper> paperList = new();
     
     public static event EventHandler<GameStateChangeEventArgs> GameStateChangeEventHandler;
 
@@ -55,6 +57,8 @@ public class GameManager : Singleton<GameManager>
         bool foundTestLevel = false;
 
 #if DEBUG
+        pauseKey = KeyCode.P;
+
         int levelToLoad = -1;
         string levelString;
         List<string> levelsToUnload = new();
@@ -90,6 +94,25 @@ public class GameManager : Singleton<GameManager>
         // Otherewise, runs the game as normal
         if (!foundTestLevel)
             UpdateGameState(GameState.EnterMainMenu);
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(pauseKey))
+        {
+            switch (CurrentState)
+            {
+                case GameState.StartLevel:
+                case GameState.RestartLevel:
+                case GameState.ResumeGame:
+                    UpdateGameState(GameState.PauseGame);
+                break;
+
+                case GameState.PauseGame:
+                    UpdateGameState(GameState.ResumeGame);
+                break;
+            }
+        }
     }
 
     /// <summary>

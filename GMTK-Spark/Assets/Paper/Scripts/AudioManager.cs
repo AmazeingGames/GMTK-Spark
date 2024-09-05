@@ -22,16 +22,24 @@ public class AudioManager : MonoBehaviour
     [SerializeField] AudioSource buttonUp;
     [SerializeField] AudioSource buttonExit;
 
-    [Header("Game State")]
+    [Header("Game States")]
     [SerializeField] AudioSource win;
+
+    [Header("Music")]
+    [SerializeField] AudioSource gameplayMusic;
+    [SerializeField] AudioSource mainMenuMusic;
+    [SerializeField] AudioSource pauseMenuMusic;
+
+    AudioSource currentMusic;
 
     [Header("Audio Properties")]
     [SerializeField] bool shortPickup;
     [SerializeField] bool snap1;
 
-    public Dictionary<PaperActionEventArgs.PaperActionType, AudioSource> ActionsToAudio;
-    public Dictionary<UIButton.UIInteractionTypes, AudioSource> UIInteractToAudio;
-    public Dictionary<GameManager.GameState, AudioSource> GameStateToAudio;
+    public Dictionary<PaperActionEventArgs.PaperActionType, AudioSource> ActionsToSFX;
+    public Dictionary<UIButton.UIInteractionTypes, AudioSource> UIInteractToSFX;
+    public Dictionary<GameManager.GameState, AudioSource> GameStateToSFX;
+    public Dictionary<GameManager.GameState, AudioSource> GameStateToMusic;
 
     private void OnEnable()
     {
@@ -49,7 +57,7 @@ public class AudioManager : MonoBehaviour
 
     private void Start()
     {
-        ActionsToAudio = new()
+        ActionsToSFX = new()
         {
             { PaperActionType.Grab,     grabPaper   },
             { PaperActionType.Drop,     dropPaper   },
@@ -57,7 +65,15 @@ public class AudioManager : MonoBehaviour
             { PaperActionType.Shuffle,  shuffle     },
         };
 
-        GameStateToAudio = new()
+        UIInteractToSFX = new()
+        {
+            { UIInteractionTypes.Enter, buttonEnter },
+            { UIInteractionTypes.Click, buttonClick },
+            { UIInteractionTypes.Up,    buttonUp    },
+            { UIInteractionTypes.Exit,  buttonExit  },
+        };
+
+        GameStateToSFX = new()
         {
             { GameState.StartLevel,     shuffle },
             { GameState.RestartLevel,   null    },
@@ -66,13 +82,13 @@ public class AudioManager : MonoBehaviour
             { GameState.BeatGame,       null    },
         };
 
-        UIInteractToAudio = new()
+        GameStateToMusic = new()
         {
-            { UIInteractionTypes.Enter, buttonEnter },
-            { UIInteractionTypes.Click, buttonClick },
-            { UIInteractionTypes.Up,    buttonUp    },
-            { UIInteractionTypes.Exit,  buttonExit  },
+            { GameState.EnterMainMenu, mainMenuMusic },
+            { GameState.StartLevel, gameplayMusic },
+            { GameState.PauseGame, pauseMenuMusic }
         };
+
     }
 
     /// <summary>
@@ -80,9 +96,9 @@ public class AudioManager : MonoBehaviour
     /// </summary>
     void HandlePaperAction(object sender, MovePaper.PaperActionEventArgs e)
     {
-        Debug.Log($"Handled paper action {e.actionType}");
-        if (ActionsToAudio.TryGetValue(e.actionType, out var audio) && audio != null)
+        if (ActionsToSFX.TryGetValue(e.actionType, out var audio) && audio != null)
             audio.Play();
+        Debug.Log($"AudioManager: Handled paper action {e.actionType} {(audio == null ? "" : $"and played audio : {audio}")}");
     }
 
     /// <summary>
@@ -90,9 +106,29 @@ public class AudioManager : MonoBehaviour
     /// </summary>
     void HandleGameStateChange(object sender, GameManager.GameStateChangeEventArgs e)
     {
-        Debug.Log($"Handled game action {e.newState}");
-        if (GameStateToAudio.TryGetValue(e.newState, out var audio) && audio != null)
+        if (GameStateToSFX.TryGetValue(e.newState, out var audio) && audio != null)
             audio.Play();
+
+        switch (e.newState)
+        {
+            case GameState.None:
+                break;
+            case GameState.EnterMainMenu:
+
+                break;
+            case GameState.StartLevel:
+                break;
+            case GameState.LoseLevel:
+                break;
+            case GameState.RestartLevel:
+                break;
+            case GameState.BeatLevel:
+                break;
+            case GameState.BeatGame:
+                break;
+        }
+
+        Debug.Log($"AudioManager: Handled game action {e.newState} {(audio == null ? "" : $"and played audio : {audio}")}");
     }
 
     /// <summary>
@@ -100,7 +136,9 @@ public class AudioManager : MonoBehaviour
     /// </summary>
     void HandleUIInteract(object sender, UIButton.UIInteractEventArgs e)
     {
-        if (UIInteractToAudio.TryGetValue(e.buttonInteraction, out var audio) && audio != null)
+        if (UIInteractToSFX.TryGetValue(e.buttonInteraction, out var audio) && audio != null)
             audio.Play();
+        Debug.Log($"AudioManager: Handled UI interaction {e.buttonInteraction} {(audio == null ? "" : $"and played audio : {audio}")}");
+
     }
 }

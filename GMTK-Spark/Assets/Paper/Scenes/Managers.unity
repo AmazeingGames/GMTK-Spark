@@ -456,7 +456,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 3df2429a9d72c024594f5d872c2407c9, type: 3}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -849,7 +849,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 22380a34dff9be740b96f8b7e7892182, type: 3}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -1692,8 +1692,6 @@ MonoBehaviour:
   rotationSpeed: 250
   space: 0
   worldPositionStays: 1
-  positionalLeniency: 0.45
-  rotationalLeniency: 0.1
   lerpCurve:
     serializedVersion: 2
     m_Curve:
@@ -1901,7 +1899,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 54bde822ca593024099a5d6e3808a778, type: 3}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 0.2
   m_Pitch: 1
   Loop: 1

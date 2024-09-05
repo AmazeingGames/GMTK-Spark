@@ -23,15 +23,12 @@ public class MenuManager : Singleton<MenuManager>
 
     public bool IsGamePaused { get; private set; }
 
-    Menu emptyMenu = new();
     Menu currentMenu;
-    Menu previousMenu; 
-
-    List<Menu> menusToClear = new();
-    List<Menu> menuHistory = new();
+    Menu previousMenu;
+    readonly Menu emptyMenu = new();
+    readonly List<Menu> menusToClear = new();
+    readonly List<Menu> menuHistory = new();
     int currentHistoryIndex = -1;
-
-    KeyCode pauseKey = KeyCode.Escape;
 
     Dictionary<MenuTypes, Menu> MenuTypeToMenu;
 
@@ -39,7 +36,6 @@ public class MenuManager : Singleton<MenuManager>
     class Menu
     {
         public bool HasSetMenuType { get; private set; } = false;
-        MenuTypes menuType;
 
         public void SetMenuType(MenuTypes menuType)
         {
@@ -48,8 +44,6 @@ public class MenuManager : Singleton<MenuManager>
                 Debug.LogWarning($"Has already set this menu's type to {menuType}");
                 return;
             }
-
-            this.menuType = menuType;
             HasSetMenuType = true;
         }
 
@@ -76,9 +70,6 @@ public class MenuManager : Singleton<MenuManager>
 
     void Start()
     {
-#if DEBUG
-        pauseKey = KeyCode.P;
-#endif
         mainMenu.SetMenuType(MenuTypes.Main);
         pauseMenu.SetMenuType(MenuTypes.Pause);
         settingsMenu.SetMenuType(MenuTypes.Settings);
@@ -113,8 +104,6 @@ public class MenuManager : Singleton<MenuManager>
         GameStateChangeEventHandler -= HandleGameStateChange;
         UIButton.UIInteractEventHandler -= HandleUIButtonInteract;
     }
-    private void Update()
-        => PauseGame();
 
     /// <summary>
     ///     Loads the menu appropriate to the current game state.
@@ -124,21 +113,15 @@ public class MenuManager : Singleton<MenuManager>
 
     void RespondToGameStateChange(GameManager.GameState newState)
     {
-        switch (newState)
+        Menu menuToLoad = newState switch
         {
-            case GameState.EnterMainMenu:
-                LoadMenu(mainMenu);
-            break;
-
-            case GameState.StartLevel:
-            case GameState.RestartLevel:
-                LoadMenu(emptyMenu);
-            break;
-
-            case GameState.BeatLevel:
-                // LoadMenu(beatLevelScreen);
-            break;
-        }
+            GameState.EnterMainMenu => mainMenu,
+            GameState.PauseGame => pauseMenu,
+            //GameState.ResumeGame or GameState.RestartLevel or GameState.StartLevel => emptyMenu,
+            //GameState.BeatLevel => beatLevelScreen,
+            _ => emptyMenu,
+        };
+        LoadMenu(menuToLoad);
     }
 
     /// <summary>
@@ -155,20 +138,6 @@ public class MenuManager : Singleton<MenuManager>
             return;
 
         LoadMenu(e.menuToOpen);
-    }
-
-    /// <summary>
-    ///     Puase and unpause the game on escape press.
-    /// </summary>
-    void PauseGame()
-    {
-        if (Input.GetKeyDown(pauseKey))
-        {
-            if (currentMenu == pauseMenu)
-                LoadMenu(emptyMenu);
-            else if (currentMenu == emptyMenu)
-                LoadMenu(pauseMenu);
-        }
     }
 
     /// <summary>

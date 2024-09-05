@@ -31,7 +31,6 @@ public class UIButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
         public readonly PointerEventData pointerEventData;
 
         public readonly MenuManager.MenuTypes menuToOpen = MenuManager.MenuTypes.None;
-
         public readonly GameManager.GameState newGameState = GameManager.GameState.None;
         public readonly int levelToLoad = -1;
 
@@ -41,15 +40,28 @@ public class UIButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
             this.pointerEventData = pointerEventData;
             this.buttonInteraction = uiInteractionType;
 
+            if (uiInteractionType == UIInteractionTypes.Enter || uiInteractionType == UIInteractionTypes.Exit)
+                return;
+
             switch (uiEventType)
             {
                 case UIEventTypes.UI:
                     menuToOpen = button.menuToOpen;
+
+                    if (menuToOpen == MenuManager.MenuTypes.Pause)
+                        throw new InvalidOperationException("Puasing the game should be done by updating the game state, not through changing UI menus.");
+                    else if (menuToOpen == MenuManager.MenuTypes.Empty)
+                        throw new InvalidOperationException("Closing all menus should be done by updating the game to the proper game state, not through changing UI menus.");
+                    else if (menuToOpen == MenuManager.MenuTypes.None)
+                        throw new InvalidOperationException("A menu type of none will cause nothing to happen.");
                 break;
                 
                 case UIEventTypes.GameState:
                     newGameState = button.newGameState;
                     levelToLoad = button.levelToLoad;
+
+                    if (newGameState == GameManager.GameState.None)
+                        throw new InvalidOperationException("A game state of none will cause nothing to happen.");
                 break;
             }
         }
