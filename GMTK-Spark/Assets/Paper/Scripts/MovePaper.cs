@@ -15,16 +15,16 @@ public class MovePaper : MonoBehaviour
 
     [Header("Snap Properties")]
     [SerializeField] bool worldPositionStays;
-    [SerializeField] float positionalLeniency;
-    [SerializeField] float rotationalLeniency;
     [SerializeField] AnimationCurve lerpCurve;
     [SerializeField] float lerpSpeed;
     [SerializeField] bool fixedSpeed;
 
-    int order = 0;
+    public static event EventHandler<PaperActionEventArgs> PaperAction;
 
     Transform rememberParent;
-    public static event EventHandler<PaperActionEventArgs> PaperAction;
+    int order = 0;
+
+    LevelData levelData;
 
     protected virtual void OnPaperAction(Paper paper, PaperActionType paperAction)
         => PaperAction?.Invoke(this, new(paper, paperAction));
@@ -51,14 +51,19 @@ public class MovePaper : MonoBehaviour
     void OnEnable()
     {
         Paper.PaperInteraction += HandlePaperInteraction;
+        LevelData.LoadLevelDataEventHandler += HandleLoadLevelData;
         paperValues.OnEnable();
     }
 
     void OnDisable()
     {
         Paper.PaperInteraction -= HandlePaperInteraction;
+        LevelData.LoadLevelDataEventHandler -= HandleLoadLevelData;
         paperValues.OnDisable();
     }
+
+    void HandleLoadLevelData(object sender, LevelData.LoadLevelDataEventArgs e)
+        => levelData = e.isLoadingIn ? e.levelData : null;
 
     /// <summary>
     ///     <para>
@@ -136,22 +141,22 @@ public class MovePaper : MonoBehaviour
         // Checks Position
         var position = paper.transform.localPosition;
         
-        isXClose = (position.x >= 0 && position.x <= positionalLeniency) || (position.x <= 0 && position.x > -positionalLeniency); // Close to 0
-        isYClose = (position.y > 0 && position.y <= positionalLeniency) || (position.y <= 0 && position.y > -positionalLeniency); // Close to 0
+        isXClose = (position.x >= 0 && position.x <= levelData.PositionalLeniency) || (position.x <= 0 && position.x > -levelData.PositionalLeniency); // Close to 0
+        isYClose = (position.y > 0 && position.y <= levelData.PositionalLeniency) || (position.y <= 0 && position.y > -levelData.PositionalLeniency); // Close to 0
 
         // Check Rotation
         Quaternion rotation = paper.transform.rotation;
 
-        isZRotationBetweenZeroAndPositiveLeniency = rotation.z > 0 && rotation.z <= rotationalLeniency;     // Close to 0
-        isZRotationBetweenZeroAndNegativeLeniency = rotation.z <= 0 && rotation.z > -rotationalLeniency;    // Close to 0
+        isZRotationBetweenZeroAndPositiveLeniency = rotation.z > 0 && rotation.z <= levelData.RotationalLeniency;     // Close to 0
+        isZRotationBetweenZeroAndNegativeLeniency = rotation.z <= 0 && rotation.z > -levelData.RotationalLeniency;    // Close to 0
 
         bool isCloseZ = isZRotationBetweenZeroAndPositiveLeniency || isZRotationBetweenZeroAndNegativeLeniency;
 
-        isWRotationBetweenOneAndPositiveLeniency = rotation.w > 1 && rotation.w <= (1 + rotationalLeniency);    // Close to 1 (>1 && <1.1) leniency of .1
-        isWRotationBetweenOneAndNegativeLeniency = rotation.w <= 1 && rotation.w > -(1 - rotationalLeniency);   // Close to 1 (<1 && >-.9) leniency of .1
+        isWRotationBetweenOneAndPositiveLeniency = rotation.w > 1 && rotation.w <= (1 + levelData.RotationalLeniency);    // Close to 1 (>1 && <1.1) leniency of .1
+        isWRotationBetweenOneAndNegativeLeniency = rotation.w <= 1 && rotation.w > -(1 - levelData.RotationalLeniency);   // Close to 1 (<1 && >-.9) leniency of .1
 
-        isFlippedWRotationBetweenNegativeOneAndNegativeLeniency = rotation.w > -1 && rotation.w <= -(1 - rotationalLeniency);  // Close to -1 (>-1 && <-.9) leniency of .1
-        isFlippedWRotationBetweenNegativeOneAndPositiveLeniency = rotation.w <= -1 && rotation.w > -(1 - rotationalLeniency);  // Close to -1 (<-1 && >-.9) leniency of .1
+        isFlippedWRotationBetweenNegativeOneAndNegativeLeniency = rotation.w > -1 && rotation.w <= -(1 - levelData.RotationalLeniency);  // Close to -1 (>-1 && <-.9) leniency of .1
+        isFlippedWRotationBetweenNegativeOneAndPositiveLeniency = rotation.w <= -1 && rotation.w > -(1 - levelData.RotationalLeniency);  // Close to -1 (<-1 && >-.9) leniency of .1
 
         bool isCloseW = (isWRotationBetweenOneAndNegativeLeniency || isWRotationBetweenOneAndPositiveLeniency) || (isFlippedWRotationBetweenNegativeOneAndNegativeLeniency || isFlippedWRotationBetweenNegativeOneAndPositiveLeniency);
 

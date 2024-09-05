@@ -12,7 +12,7 @@ public class MenuManager : Singleton<MenuManager>
     [SerializeField] Menu pauseMenu;
     [SerializeField] Menu settingsMenu;
     [SerializeField] Menu levelSelectMenu;
-    [SerializeField] Menu beatLevelMenu;
+    [SerializeField] Menu beatLevelScreen;
     [SerializeField] Menu creditsScreen;
     [SerializeField] Menu gameEndScreen;
 
@@ -83,7 +83,7 @@ public class MenuManager : Singleton<MenuManager>
         pauseMenu.SetMenuType(MenuTypes.Pause);
         settingsMenu.SetMenuType(MenuTypes.Settings);
         levelSelectMenu.SetMenuType(MenuTypes.LevelSelect);
-        beatLevelMenu.SetMenuType(MenuTypes.BeatLevel);
+        beatLevelScreen.SetMenuType(MenuTypes.BeatLevel);
         creditsScreen.SetMenuType(MenuTypes.Credits);
         gameEndScreen.SetMenuType(MenuTypes.GameEndScreen);
         emptyMenu.SetMenuType(MenuTypes.Empty);
@@ -94,7 +94,7 @@ public class MenuManager : Singleton<MenuManager>
             { MenuTypes.Pause,          pauseMenu},
             { MenuTypes.GameEndScreen,  gameEndScreen},
             { MenuTypes.Settings,       settingsMenu},
-            { MenuTypes.BeatLevel,      beatLevelMenu},
+            { MenuTypes.BeatLevel,      beatLevelScreen},
             { MenuTypes.LevelSelect,    levelSelectMenu},
             { MenuTypes.Credits,        creditsScreen},
             { MenuTypes.Empty,          emptyMenu},
@@ -136,7 +136,7 @@ public class MenuManager : Singleton<MenuManager>
             break;
 
             case GameState.BeatLevel:
-                LoadMenu(gameEndScreen);
+                // LoadMenu(beatLevelScreen);
             break;
         }
     }

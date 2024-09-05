@@ -61,8 +61,8 @@ public class AudioManager : MonoBehaviour
         {
             { GameState.StartLevel,     shuffle },
             { GameState.RestartLevel,   null    },
-            { GameState.BeatLevel,      null    },
-            { GameState.EnterMainMenu,        null    },
+            { GameState.BeatLevel,      win    },
+            { GameState.EnterMainMenu,  null    },
             { GameState.BeatGame,       null    },
         };
 

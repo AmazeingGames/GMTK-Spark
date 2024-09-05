@@ -10,7 +10,7 @@ public class GameManager : Singleton<GameManager>
 
     public GameState CurrentState { get; private set; }
 
-    readonly List<Paper> paperList = new();
+    List<Paper> paperList = new();
     
     public static event EventHandler<GameStateChangeEventArgs> GameStateChangeEventHandler;
 
@@ -37,7 +37,7 @@ public class GameManager : Singleton<GameManager>
     {
         MovePaper.PaperAction += HandlePaperAction;
         ScenesManager.BeatLastLevelEventHandler += HandleBeatLastLevel;
-        LevelData.LevelLoadEventHandler += HandleLevelLoad;
+        LevelData.LoadLevelDataEventHandler += HandleLoadLevelData;
         UIButton.UIInteractEventHandler += HandleUIInteract;
     }
 
@@ -45,7 +45,7 @@ public class GameManager : Singleton<GameManager>
     {
         MovePaper.PaperAction -= HandlePaperAction;
         ScenesManager.BeatLastLevelEventHandler -= HandleBeatLastLevel;
-        LevelData.LevelLoadEventHandler -= HandleLevelLoad;
+        LevelData.LoadLevelDataEventHandler -= HandleLoadLevelData;
         UIButton.UIInteractEventHandler -= HandleUIInteract;
     }
 
@@ -94,18 +94,25 @@ public class GameManager : Singleton<GameManager>
 
     /// <summary>
     ///     Reacts to paper being moved, dragged, picked up, and dropped into place
+    ///     Delay to make sure other objects can update before responding
     /// </summary>
     void HandlePaperAction(object sender, MovePaper.PaperActionEventArgs e)
     {
         if (e.actionType != MovePaper.PaperActionEventArgs.PaperActionType.Snap)
             return;
+        
+        StartCoroutine(CheckVictory());
+    }
+
+    IEnumerator CheckVictory()
+    {
+        yield return new WaitForSeconds(.1f);
 
         foreach (var paper in paperList)
         {
             if (!paper.IsInPlace)
-                return;
+                yield break;
         }
-
         UpdateGameState(GameState.BeatLevel);
     }
 
@@ -129,21 +136,18 @@ public class GameManager : Singleton<GameManager>
     void HandleBeatLastLevel(object sender, EventArgs e)
         => UpdateGameState(GameState.EnterMainMenu);
 
-    void HandleLevelLoad(object sender, LevelData.LevelLoadEventArgs e)
+    void HandleLoadLevelData(object sender, LevelData.LoadLevelDataEventArgs e)
     {
-        switch (e.loadState)
+        if (!e.isLoadingIn)
         {
-            case LevelData.LevelLoadEventArgs.LoadType.Loaded:
-                LevelData = e.levelData;
-
-                for (int i = 0; i < LevelData.PuzzleParent.transform.childCount; i++)
-                    paperList.Add(LevelData.PuzzleParent.transform.GetChild(i).GetComponent<Paper>());
-            break;
-
-            case LevelData.LevelLoadEventArgs.LoadType.Unloaded:
-                LevelData = null;
-            break;
+            LevelData = null;
+            return;
         }
+
+        LevelData = e.levelData;
+
+        for (int i = 0; i < LevelData.PuzzleParent.transform.childCount; i++)
+            paperList.Add(LevelData.PuzzleParent.transform.GetChild(i).GetComponent<Paper>());
     }
 
 

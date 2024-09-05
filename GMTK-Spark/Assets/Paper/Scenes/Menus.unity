@@ -606,7 +606,7 @@ GameObject:
   - component: {fileID: 347893237}
   - component: {fileID: 347893238}
   m_Layer: 5
-  m_Name: NamesHolder
+  m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1140,7 +1140,7 @@ MonoBehaviour:
     <Canvas>k__BackingField: {fileID: 81503558}
     <EnableOnReady>k__BackingField: []
     <DisableOnReady>k__BackingField: []
-  beatLevelMenu:
+  beatLevelScreen:
     <Canvas>k__BackingField: {fileID: 191060954}
     <EnableOnReady>k__BackingField: []
     <DisableOnReady>k__BackingField: []
@@ -1170,7 +1170,7 @@ GameObject:
   - component: {fileID: 1039995881}
   - component: {fileID: 1039995880}
   m_Layer: 5
-  m_Name: "\xC1lvaro Roles"
+  m_Name: Roles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1221,7 +1221,7 @@ MonoBehaviour:
 
     Game Designer
 
-    Writer'
+    Head Story Writer'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2502,7 +2502,7 @@ GameObject:
   - component: {fileID: 2125954491}
   - component: {fileID: 2125954490}
   m_Layer: 5
-  m_Name: Adrian Roles
+  m_Name: Roles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2553,7 +2553,6 @@ MonoBehaviour:
 
     Game Designer
 
-    Writer
 
 '
   m_isRightToLeft: 0

@@ -8,29 +8,29 @@ public class LevelData : MonoBehaviour
     [field: SerializeField] public Transform PuzzleParent { get; private set; }
     [field: SerializeField] public Transform DragParent { get; private set ; }
     [field: SerializeField] public SpriteRenderer DragParentSpriteRenderer { get; private set ; }
+    [field: SerializeField] public float PositionalLeniency { get; private set; } = .45f;
+    [field: SerializeField] public float RotationalLeniency { get; private set; } = .1f;
 
-    public static EventHandler<LevelLoadEventArgs> LevelLoadEventHandler;
+    public static EventHandler<LoadLevelDataEventArgs> LoadLevelDataEventHandler;
 
-    public class LevelLoadEventArgs
+    public class LoadLevelDataEventArgs
     {
-        public enum LoadType { Loaded, Unloaded }
-        public readonly LoadType loadState;
+        public readonly bool isLoadingIn;
         public readonly LevelData levelData;
-
-        public LevelLoadEventArgs(LevelData levelData, LoadType loadState)
+        public LoadLevelDataEventArgs(LevelData levelData, bool isLoadingIn)
         {
             this.levelData = levelData;
-            this.loadState = loadState;
+            this.isLoadingIn = isLoadingIn;
         }
     }
 
     private void OnEnable()
-        => OnLevelLoad(LevelLoadEventArgs.LoadType.Loaded);
+        => OnLoadLevelData(true);
 
     private void OnDisable()
-        => OnLevelLoad(LevelLoadEventArgs.LoadType.Unloaded);
+        => OnLoadLevelData(false);
 
-    void OnLevelLoad(LevelLoadEventArgs.LoadType loadState)
-        => LevelLoadEventHandler?.Invoke(this, new (this, loadState));
+    void OnLoadLevelData(bool loadState)
+        => LoadLevelDataEventHandler?.Invoke(this, new (this, loadState));
 
 }

@@ -15,6 +15,9 @@ EditorBuildSettings:
     path: Assets/Paper/Scenes/Level_1.unity
     guid: 725bcfb84da621b4d9293729ed3f8335
   - enabled: 1
+    path: Assets/Paper/Scenes/Level_2.unity
+    guid: 90acce10bb25ef74e92d739fb3179ed2
+  - enabled: 1
     path: Assets/Paper/Scenes/Menus.unity
     guid: 09cc49b02ac91b94791b0cb6e285fe85
   m_configObjects: {}
