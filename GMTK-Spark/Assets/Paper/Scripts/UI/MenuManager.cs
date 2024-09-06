@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using static GameManager;
@@ -13,40 +14,47 @@ public class MenuManager : Singleton<MenuManager>
     [SerializeField] Menu settingsMenu;
     [SerializeField] Menu levelSelectMenu;
     [SerializeField] Menu beatLevelScreen;
+    [SerializeField] Menu diaryScreen;
     [SerializeField] Menu creditsScreen;
     [SerializeField] Menu gameEndScreen;
 
     [Header("Cameras")]
     [SerializeField] Camera userInterfaceCamera;
 
-    public enum MenuTypes { None, Previous, Main, Credits, Pause, Settings, LevelSelect, BeatLevel, GameEndScreen, Empty }
+    public enum MenuTypes { None, Previous, Main, Credits, Pause, Settings, LevelSelect, BeatLevel, GameEndScreen, Empty, Diary }
+
+    public static event EventHandler<MenuChangeEventArgs> MenuChangeEventHandler;
+
+    public class MenuChangeEventArgs
+    {
+        public readonly MenuTypes newMenuType;
+        public readonly MenuTypes previousMenuType;
+        public MenuChangeEventArgs(MenuTypes newMenuType, MenuTypes previousMenuType)
+        {
+            this.newMenuType = newMenuType;
+            this.previousMenuType = previousMenuType;
+        }
+    }
 
     public bool IsGamePaused { get; private set; }
 
     Menu currentMenu;
     Menu previousMenu;
+
+    MenuTypes currentMenuType;
+    MenuTypes previousMenuType;
+
     readonly Menu emptyMenu = new();
     readonly List<Menu> menusToClear = new();
     readonly List<Menu> menuHistory = new();
     int currentHistoryIndex = -1;
 
     Dictionary<MenuTypes, Menu> MenuTypeToMenu;
+    Dictionary<Menu, MenuTypes> MenuToMenuType;
 
     [Serializable]
     class Menu
     {
-        public bool HasSetMenuType { get; private set; } = false;
-
-        public void SetMenuType(MenuTypes menuType)
-        {
-            if (HasSetMenuType)
-            {
-                Debug.LogWarning($"Has already set this menu's type to {menuType}");
-                return;
-            }
-            HasSetMenuType = true;
-        }
-
         public void SetReady(bool ready)
         {
             if (Canvas != null)
@@ -60,7 +68,6 @@ public class MenuManager : Singleton<MenuManager>
 
             foreach (GameObject obj in DisableOnReady)
                 obj.SetActive(false);
-
         }
 
         [field: SerializeField] public Canvas Canvas { get; private set; } = new();
@@ -70,15 +77,6 @@ public class MenuManager : Singleton<MenuManager>
 
     void Start()
     {
-        mainMenu.SetMenuType(MenuTypes.Main);
-        pauseMenu.SetMenuType(MenuTypes.Pause);
-        settingsMenu.SetMenuType(MenuTypes.Settings);
-        levelSelectMenu.SetMenuType(MenuTypes.LevelSelect);
-        beatLevelScreen.SetMenuType(MenuTypes.BeatLevel);
-        creditsScreen.SetMenuType(MenuTypes.Credits);
-        gameEndScreen.SetMenuType(MenuTypes.GameEndScreen);
-        emptyMenu.SetMenuType(MenuTypes.Empty);
-
         MenuTypeToMenu = new()
         {
             { MenuTypes.Main,           mainMenu },
@@ -89,9 +87,15 @@ public class MenuManager : Singleton<MenuManager>
             { MenuTypes.LevelSelect,    levelSelectMenu},
             { MenuTypes.Credits,        creditsScreen},
             { MenuTypes.Empty,          emptyMenu},
+            { MenuTypes.Diary,          diaryScreen},
         };
 
-        RespondToGameStateChange(GameManager.Instance.CurrentState);
+        MenuToMenuType = MenuTypeToMenu.ToDictionary(x => x.Value, x => x.Key);
+
+        // Ignores following MenuTypes: 'Previous', 'None', 
+        if (MenuTypeToMenu.Count < Enum.GetNames(typeof(MenuTypes)).Length - 2)
+            throw new Exception("Not all enums are counted for in the MenuTypeToMenu dictionary");
+        UpdateToMatchGameState(GameManager.Instance.CurrentState);
     }
 
     void OnEnable()
@@ -109,16 +113,16 @@ public class MenuManager : Singleton<MenuManager>
     ///     Loads the menu appropriate to the current game state.
     /// </summary>
     void HandleGameStateChange(object sender, GameStateChangeEventArgs e)
-        => RespondToGameStateChange(e.newState);
+        => UpdateToMatchGameState(e.newState);
 
-    void RespondToGameStateChange(GameManager.GameState newState)
+    void UpdateToMatchGameState(GameManager.GameState newState)
     {
         Menu menuToLoad = newState switch
         {
             GameState.EnterMainMenu => mainMenu,
             GameState.PauseGame => pauseMenu,
-            //GameState.ResumeGame or GameState.RestartLevel or GameState.StartLevel => emptyMenu,
-            //GameState.BeatLevel => beatLevelScreen,
+            GameState.BeatGame => gameEndScreen,
+            GameState.BeatLevel => beatLevelScreen,
             _ => emptyMenu,
         };
         LoadMenu(menuToLoad);
@@ -171,8 +175,10 @@ public class MenuManager : Singleton<MenuManager>
         previousMenu = currentMenu;
         currentMenu = menu;
 
-        if (!menu.HasSetMenuType)
-            throw new ArgumentException($"The menu type of {menu} has not been set");
+        if (currentMenu != null && MenuToMenuType.TryGetValue(currentMenu, out MenuTypes currentType))
+            currentMenuType = currentType;
+        if (previousMenu != null && MenuToMenuType.TryGetValue(previousMenu, out MenuTypes previousType))
+            previousMenuType = previousType;
 
         menu.SetReady(true);
         
@@ -184,7 +190,12 @@ public class MenuManager : Singleton<MenuManager>
                 emptyMenu.DisableOnReady.Add(menuObject);
             menusToClear.Add(menu);
         }
+        
+        OnMenuChange(currentMenuType, previousMenuType);   
     }
+
+    void OnMenuChange(MenuTypes newMenuType, MenuTypes previousMenuType)
+        => MenuChangeEventHandler?.Invoke(this, new(newMenuType, previousMenuType));
 
     /// <summary>
     ///     Loads the menu of the previous index in the menu history

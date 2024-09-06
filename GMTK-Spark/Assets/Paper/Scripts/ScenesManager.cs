@@ -19,6 +19,7 @@ public class ScenesManager : Singleton<ScenesManager>
     string lastLoadedLevel = null;
 
     public static event EventHandler<LevelLoadStartEventArgs> StartLevelLoadEventHandler;
+    public static event EventHandler<LevelLoadStartEventArgs> FinishLevelLoadEventHandler;
     public static event EventHandler BeatLastLevelEventHandler;
 
     private void OnEnable()
@@ -55,7 +56,7 @@ public class ScenesManager : Singleton<ScenesManager>
                 LoadLevel(CurrentLevel);
             break;
 
-            case GameManager.GameState.BeatLevel:
+            case GameManager.GameState.LoadNextLevel:
                 if (!LoadLevel(CurrentLevel + 1))
                     OnBeatLastLevel();
             break;
@@ -74,7 +75,7 @@ public class ScenesManager : Singleton<ScenesManager>
         lastLoadedLevel = $"{levelConvention}{level}";
         CurrentLevel = level;
 
-        return LoadScene($"{levelConvention}{level}");
+       return LoadScene($"{levelConvention}{level}");
     }
 
     /// <summary>

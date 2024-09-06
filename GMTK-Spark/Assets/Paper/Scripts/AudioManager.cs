@@ -130,7 +130,7 @@ public class AudioManager : MonoBehaviour
                 currentMusic.Play();
         }
 
-        Debug.Log($"AudioManager: Handled game action {e.newState} {(sfx == null ? "" : $"and played sfx : {sfx}")} {(music == null ? "" : $", as well as changed music track : {music}")}");
+        Debug.Log($"AudioManager: Handled game action{e.newState}{(sfx == null ? "" : $" and played sfx : {sfx}")}{(music == null ? "" : $" and changed music track to : {music}")}");
 
     }
 

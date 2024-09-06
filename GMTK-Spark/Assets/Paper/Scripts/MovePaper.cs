@@ -19,6 +19,9 @@ public class MovePaper : MonoBehaviour
     [SerializeField] float lerpSpeed;
     [SerializeField] bool fixedSpeed;
 
+    [Header("Cheats")]
+    [SerializeField] bool autoSnap;
+
     public static event EventHandler<PaperActionEventArgs> PaperAction;
 
     Transform rememberParent;
@@ -52,6 +55,7 @@ public class MovePaper : MonoBehaviour
     {
         Paper.PaperInteraction += HandlePaperInteraction;
         LevelData.LoadLevelDataEventHandler += HandleLoadLevelData;
+        CheatsManager.CheatEventHandler += HandleCheat;
         paperValues.OnEnable();
     }
 
@@ -59,7 +63,18 @@ public class MovePaper : MonoBehaviour
     {
         Paper.PaperInteraction -= HandlePaperInteraction;
         LevelData.LoadLevelDataEventHandler -= HandleLoadLevelData;
+        CheatsManager.CheatEventHandler -= HandleCheat;
         paperValues.OnDisable();
+    }
+
+    void HandleCheat(object sender, CheatsManager.CheatEventArgs e)
+    {
+        switch (e.cheatCommand)
+        {
+            case CheatsManager.CheatCommands.AutoSnap:
+                autoSnap = true;
+            break;
+        }
     }
 
     void HandleLoadLevelData(object sender, LevelData.LoadLevelDataEventArgs e)
@@ -160,13 +175,19 @@ public class MovePaper : MonoBehaviour
 
         bool isCloseW = (isWRotationBetweenOneAndNegativeLeniency || isWRotationBetweenOneAndPositiveLeniency) || (isFlippedWRotationBetweenNegativeOneAndNegativeLeniency || isFlippedWRotationBetweenNegativeOneAndPositiveLeniency);
 
-        // Start snap Position
-        if (isXClose && isYClose && isCloseZ && isCloseW)
+        bool startSnap = isXClose && isYClose && isCloseZ && isCloseW;
+#if DEBUG
+        if (autoSnap)
+            startSnap = true;
+#endif
+        if (startSnap)
         {
             OnPaperAction(paper, PaperActionType.StartSnap);
             StartCoroutine(LerpSnap(paper));
             return true;
         }
+        
+
         return false;
     }
 

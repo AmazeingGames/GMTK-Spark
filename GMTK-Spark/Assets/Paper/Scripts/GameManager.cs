@@ -8,7 +8,7 @@ public class GameManager : Singleton<GameManager>
 {
     KeyCode pauseKey = KeyCode.Escape;
 
-    public enum GameState { None, EnterMainMenu, StartLevel, LoseLevel, RestartLevel, BeatLevel, BeatGame, PauseGame, ResumeGame }
+    public enum GameState { None, EnterMainMenu, StartLevel, LoseLevel, RestartLevel, BeatLevel, BeatGame, PauseGame, ResumeGame, LoadNextLevel }
 
     public GameState CurrentState { get; private set; }
 
@@ -41,6 +41,7 @@ public class GameManager : Singleton<GameManager>
         ScenesManager.BeatLastLevelEventHandler += HandleBeatLastLevel;
         LevelData.LoadLevelDataEventHandler += HandleLoadLevelData;
         UIButton.UIInteractEventHandler += HandleUIInteract;
+        CheatsManager.CheatEventHandler += HandleCheat;
     }
 
     void OnDisable()
@@ -49,6 +50,7 @@ public class GameManager : Singleton<GameManager>
         ScenesManager.BeatLastLevelEventHandler -= HandleBeatLastLevel;
         LevelData.LoadLevelDataEventHandler -= HandleLoadLevelData;
         UIButton.UIInteractEventHandler -= HandleUIInteract;
+        CheatsManager.CheatEventHandler -= HandleCheat;
     }
 
     // Start is called before the first frame update
@@ -150,15 +152,14 @@ public class GameManager : Singleton<GameManager>
         UpdateGameState(e.newGameState, e.levelToLoad);
     }
 
-    void HandleReachGoal(object sender, EventArgs e)
-        => UpdateGameState(GameState.BeatLevel);
-
-    void HandleLoseLevel(object sender, EventArgs e)
-        => UpdateGameState(GameState.RestartLevel);
-
     void HandleBeatLastLevel(object sender, EventArgs e)
-        => UpdateGameState(GameState.EnterMainMenu);
+        => UpdateGameState(GameState.BeatGame);
 
+    void HandleCheat(object sender, CheatsManager.CheatEventArgs e)
+    {
+        if (e.gameStateCommand != GameState.None)
+            UpdateGameState(e.gameStateCommand);
+    }
     void HandleLoadLevelData(object sender, LevelData.LoadLevelDataEventArgs e)
     {
         if (!e.isLoadingIn)
@@ -180,6 +181,12 @@ public class GameManager : Singleton<GameManager>
     /// <param name="newState"> The state of the game to update to. </param>
     public void UpdateGameState(GameState newState, int levelToLoad = -1)
     {
+        if (newState == GameState.None)
+        {
+            Debug.LogWarning("Cannont update game state to 'none'.");
+            return;
+        }
+
         var previousState = CurrentState;
         CurrentState = newState;
 
