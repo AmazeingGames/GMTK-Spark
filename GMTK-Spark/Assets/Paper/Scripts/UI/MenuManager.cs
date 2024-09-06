@@ -21,7 +21,7 @@ public class MenuManager : Singleton<MenuManager>
     [Header("Cameras")]
     [SerializeField] Camera userInterfaceCamera;
 
-    public enum MenuTypes { None, Previous, Main, Credits, Pause, Settings, LevelSelect, BeatLevel, GameEndScreen, Empty, Diary }
+    public enum MenuTypes { None, Previous, MainMenu, Credits, Pause, Settings, LevelSelect, BeatLevel, GameEndScreen, Empty, Diary }
 
     public static event EventHandler<MenuChangeEventArgs> MenuChangeEventHandler;
 
@@ -79,7 +79,7 @@ public class MenuManager : Singleton<MenuManager>
     {
         MenuTypeToMenu = new()
         {
-            { MenuTypes.Main,           mainMenu },
+            { MenuTypes.MainMenu,           mainMenu },
             { MenuTypes.Pause,          pauseMenu},
             { MenuTypes.GameEndScreen,  gameEndScreen},
             { MenuTypes.Settings,       settingsMenu},
@@ -95,34 +95,41 @@ public class MenuManager : Singleton<MenuManager>
         // Ignores following MenuTypes: 'Previous', 'None', 
         if (MenuTypeToMenu.Count < Enum.GetNames(typeof(MenuTypes)).Length - 2)
             throw new Exception("Not all enums are counted for in the MenuTypeToMenu dictionary");
-        UpdateToMatchGameState(GameManager.Instance.CurrentState);
+        UpdateMenusToGameAction(GameManager.Instance.LastGameAction);
     }
 
     void OnEnable()
     {
         GameStateChangeEventHandler += HandleGameStateChange;
         UIButton.UIInteractEventHandler += HandleUIButtonInteract;
+        GameManager.GameActionEventHandler += HandleGameAction;
     }
     void OnDisable()
     {
         GameStateChangeEventHandler -= HandleGameStateChange;
         UIButton.UIInteractEventHandler -= HandleUIButtonInteract;
+        GameManager.GameActionEventHandler -= HandleGameAction;
     }
+
+    void HandleGameAction(object sender, GameActionEventArgs e)
+        => UpdateMenusToGameAction(e.gameAction);
 
     /// <summary>
     ///     Loads the menu appropriate to the current game state.
     /// </summary>
     void HandleGameStateChange(object sender, GameStateChangeEventArgs e)
-        => UpdateToMatchGameState(e.newState);
-
-    void UpdateToMatchGameState(GameManager.GameState newState)
     {
-        Menu menuToLoad = newState switch
+    }
+
+    void UpdateMenusToGameAction(GameManager.GameAction action)
+    {
+        Debug.Log($"Menu Manager: Handled Game Action {action}");
+        Menu menuToLoad = action switch
         {
-            GameState.EnterMainMenu => mainMenu,
-            GameState.PauseGame => pauseMenu,
-            GameState.BeatGame => gameEndScreen,
-            GameState.BeatLevel => beatLevelScreen,
+            GameManager.GameAction.EnterMainMenu => mainMenu,
+            GameManager.GameAction.PauseGame => pauseMenu,
+            GameManager.GameAction.BeatGame => gameEndScreen,
+            GameManager.GameAction.CompleteLevel => beatLevelScreen,
             _ => emptyMenu,
         };
         LoadMenu(menuToLoad);

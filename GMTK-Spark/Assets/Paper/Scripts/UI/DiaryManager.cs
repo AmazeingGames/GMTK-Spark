@@ -17,12 +17,12 @@ public class DiaryManager : MonoBehaviour
 
     private void OnEnable()
     {
-        GameManager.GameStateChangeEventHandler += HandleGameStateChange;
+        GameManager.GameActionEventHandler += HandleGameAction;
         MenuManager.MenuChangeEventHandler += HandleMenuChange;
     }
     private void OnDisable()
     {
-        GameManager.GameStateChangeEventHandler -= HandleGameStateChange;
+        GameManager.GameActionEventHandler -= HandleGameAction;
         MenuManager.MenuChangeEventHandler -= HandleMenuChange;
     }
     private void Start()
@@ -37,9 +37,11 @@ public class DiaryManager : MonoBehaviour
         };
     }
 
-    void HandleGameStateChange(object sender, GameManager.GameStateChangeEventArgs e)
+    void HandleGameAction(object sender, GameManager.GameActionEventArgs e)
     {
-        if (e.levelToLoad != -1)
+        if (e.gameAction == GameManager.GameAction.LoadNextLevel)
+            lastLoadedLevel++;
+        else if (e.levelToLoad != -1)
             lastLoadedLevel = e.levelToLoad;
     }
 

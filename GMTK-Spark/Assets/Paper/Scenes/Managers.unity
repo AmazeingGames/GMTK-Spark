@@ -853,8 +853,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cheats:
   - <Code>k__BackingField: auto
-    <GameStateCommand>k__BackingField: 0
+    <GameActionToPerform>k__BackingField: 0
     <CheatCommand>k__BackingField: 1
+  - <Code>k__BackingField: skip
+    <GameActionToPerform>k__BackingField: 7
+    <CheatCommand>k__BackingField: 0
 --- !u!1 &931363400
 GameObject:
   m_ObjectHideFlags: 0

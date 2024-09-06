@@ -8,15 +8,33 @@ public class GameManager : Singleton<GameManager>
 {
     KeyCode pauseKey = KeyCode.Escape;
 
-    public enum GameState { None, EnterMainMenu, StartLevel, LoseLevel, RestartLevel, BeatLevel, BeatGame, PauseGame, ResumeGame, LoadNextLevel }
+    public enum GameState { None, InMenu, Running, Paused, Loading }
+    public enum GameAction { None, EnterMainMenu, StartLevel, PauseGame, ResumeGame, RestartLevel, LoadNextLevel, CompleteLevel, BeatGame, }
 
     public GameState CurrentState { get; private set; }
+    public GameAction LastGameAction { get; private set; }
 
     readonly List<Paper> paperList = new();
-    
-    public static event EventHandler<GameStateChangeEventArgs> GameStateChangeEventHandler;
 
     public LevelData LevelData { get; private set; }
+
+    public static event EventHandler<GameStateChangeEventArgs> GameStateChangeEventHandler;
+    public static event EventHandler<GameActionEventArgs> GameActionEventHandler;
+
+    public class GameActionEventArgs : EventArgs
+    {
+        public readonly GameManager gameManager;
+        public readonly GameAction gameAction;
+        public readonly int levelToLoad;
+
+        public GameActionEventArgs(GameManager gameManager, GameAction gameAction, int levelToLoad)
+        {
+            this.gameManager = gameManager;
+
+            this.gameAction = gameAction;
+            this.levelToLoad = levelToLoad;
+        }
+    }
 
     public class GameStateChangeEventArgs : EventArgs
     {
@@ -90,12 +108,12 @@ public class GameManager : Singleton<GameManager>
             for (int i = 0; i < levelsToUnload.Count; i++)
                 SceneManager.UnloadSceneAsync(levelsToUnload[i]);
 
-            UpdateGameState(GameState.StartLevel, levelToLoad);
+            PerformGameAction(GameAction.StartLevel, levelToLoad);
         }
 #endif
         // Otherewise, runs the game as normal
         if (!foundTestLevel)
-            UpdateGameState(GameState.EnterMainMenu);
+            PerformGameAction(GameAction.EnterMainMenu);
     }
 
     private void Update()
@@ -104,14 +122,12 @@ public class GameManager : Singleton<GameManager>
         {
             switch (CurrentState)
             {
-                case GameState.StartLevel:
-                case GameState.RestartLevel:
-                case GameState.ResumeGame:
-                    UpdateGameState(GameState.PauseGame);
+                case GameState.Running:
+                    PerformGameAction(GameAction.PauseGame);
                 break;
 
-                case GameState.PauseGame:
-                    UpdateGameState(GameState.ResumeGame);
+                case GameState.Paused:
+                    PerformGameAction(GameAction.ResumeGame);
                 break;
             }
         }
@@ -138,27 +154,27 @@ public class GameManager : Singleton<GameManager>
             if (!paper.IsInPlace)
                 yield break;
         }
-        UpdateGameState(GameState.BeatLevel);
+        PerformGameAction(GameAction.CompleteLevel);
     }
 
     void HandleUIInteract(object sender, UIButton.UIInteractEventArgs e)
     {
-        if (e.buttonEvent != UIButton.UIEventTypes.GameState)
+        if (e.buttonEvent != UIButton.UIEventTypes.GameAction)
             return;
 
         if (e.buttonInteraction != UIButton.UIInteractionTypes.Click)
             return;
 
-        UpdateGameState(e.newGameState, e.levelToLoad);
+        PerformGameAction(e.actionToPerform, e.levelToLoad);
     }
 
     void HandleBeatLastLevel(object sender, EventArgs e)
-        => UpdateGameState(GameState.BeatGame);
+        => PerformGameAction(GameAction.BeatGame);
 
     void HandleCheat(object sender, CheatsManager.CheatEventArgs e)
     {
-        if (e.gameStateCommand != GameState.None)
-            UpdateGameState(e.gameStateCommand);
+        if (e.gameAction != GameAction.None)
+            PerformGameAction(e.gameAction);
     }
     void HandleLoadLevelData(object sender, LevelData.LoadLevelDataEventArgs e)
     {
@@ -175,15 +191,61 @@ public class GameManager : Singleton<GameManager>
     }
 
 
+    void PerformGameAction(GameAction action, int levelToLoad = -1)
+    {
+        if (action == GameAction.None)
+        {
+            Debug.LogWarning("Cannont run comand 'none'.");
+            return;
+        }
+
+        LastGameAction = action;
+        OnGameAction(action, levelToLoad);
+
+        // Updates the game state to fit the action
+        switch (action)
+        {
+            case GameAction.EnterMainMenu:
+                UpdateGameState(GameState.InMenu);
+            break;
+
+            case GameAction.StartLevel:
+            case GameAction.ResumeGame:
+            case GameAction.RestartLevel:
+            case GameAction.LoadNextLevel:
+                UpdateGameState(GameState.Running);
+            break;
+
+            case GameAction.PauseGame:
+                UpdateGameState(GameState.Paused);
+            break;
+
+            case GameAction.CompleteLevel:
+            break;
+
+            case GameAction.BeatGame:
+            break;
+
+        }
+    }
+
+    void OnGameAction(GameAction action, int levelToLoad)
+        => GameActionEventHandler?.Invoke(this, new(this, action, levelToLoad));
+
     /// <summary>
     ///     Informs listeners on how to align with the current state of the game.
     /// </summary>
     /// <param name="newState"> The state of the game to update to. </param>
-    public void UpdateGameState(GameState newState, int levelToLoad = -1)
+    void UpdateGameState(GameState newState, int levelToLoad = -1)
     {
         if (newState == GameState.None)
         {
             Debug.LogWarning("Cannont update game state to 'none'.");
+            return;
+        }
+        else if (newState == CurrentState)
+        {
+            Debug.LogWarning($"Cannont update game state to its own state ({newState}).");
             return;
         }
 

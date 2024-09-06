@@ -961,7 +961,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2819612214920752329, guid: 5c04fa07afdc24e498373c1171eb3c67, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2819612214920752329, guid: 5c04fa07afdc24e498373c1171eb3c67, type: 3}
       propertyPath: m_AnchorMin.x
@@ -969,7 +969,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2819612214920752329, guid: 5c04fa07afdc24e498373c1171eb3c67, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2819612214920752329, guid: 5c04fa07afdc24e498373c1171eb3c67, type: 3}
       propertyPath: m_SizeDelta.x
@@ -1009,11 +1009,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2819612214920752329, guid: 5c04fa07afdc24e498373c1171eb3c67, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 2819612214920752329, guid: 5c04fa07afdc24e498373c1171eb3c67, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -50
       objectReference: {fileID: 0}
     - target: {fileID: 2819612214920752329, guid: 5c04fa07afdc24e498373c1171eb3c67, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -1035,9 +1035,17 @@ PrefabInstance:
       propertyPath: newGameState
       value: 9
       objectReference: {fileID: 0}
+    - target: {fileID: 5500098498570823109, guid: 5c04fa07afdc24e498373c1171eb3c67, type: 3}
+      propertyPath: newGameAction
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 6631919791526123297, guid: 5c04fa07afdc24e498373c1171eb3c67, type: 3}
       propertyPath: m_Name
       value: NextLevel
+      objectReference: {fileID: 0}
+    - target: {fileID: 6969286388897757719, guid: 5c04fa07afdc24e498373c1171eb3c67, type: 3}
+      propertyPath: m_text
+      value: Continue
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1123,7 +1131,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 114702156255199579, guid: 644ee48187ac04147abf77d81c2f6345, type: 3}
       propertyPath: m_text
-      value: Thank You!
+      value: Thank you for playing!
       objectReference: {fileID: 0}
     - target: {fileID: 1493989131365765169, guid: 644ee48187ac04147abf77d81c2f6345, type: 3}
       propertyPath: m_SizeDelta.x
@@ -1275,7 +1283,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7737518872495058178, guid: 644ee48187ac04147abf77d81c2f6345, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1830,7 +1838,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7737518872495058178, guid: 644ee48187ac04147abf77d81c2f6345, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2281,7 +2289,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5500098498570823109, guid: 5c04fa07afdc24e498373c1171eb3c67, type: 3}
       propertyPath: menuToOpen
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 5500098498570823109, guid: 5c04fa07afdc24e498373c1171eb3c67, type: 3}
       propertyPath: buttonEvent
@@ -3224,7 +3232,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2819612214920752329, guid: 5c04fa07afdc24e498373c1171eb3c67, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2819612214920752329, guid: 5c04fa07afdc24e498373c1171eb3c67, type: 3}
       propertyPath: m_AnchorMin.x
@@ -3232,7 +3240,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2819612214920752329, guid: 5c04fa07afdc24e498373c1171eb3c67, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2819612214920752329, guid: 5c04fa07afdc24e498373c1171eb3c67, type: 3}
       propertyPath: m_SizeDelta.x
@@ -3280,11 +3288,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2819612214920752329, guid: 5c04fa07afdc24e498373c1171eb3c67, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 50
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2819612214920752329, guid: 5c04fa07afdc24e498373c1171eb3c67, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -50
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2819612214920752329, guid: 5c04fa07afdc24e498373c1171eb3c67, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -4376,6 +4384,10 @@ PrefabInstance:
       propertyPath: newGameState
       value: 8
       objectReference: {fileID: 0}
+    - target: {fileID: 5500098498570823109, guid: 5c04fa07afdc24e498373c1171eb3c67, type: 3}
+      propertyPath: newGameAction
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 6631919791526123297, guid: 5c04fa07afdc24e498373c1171eb3c67, type: 3}
       propertyPath: m_Name
       value: ResumeButton
@@ -4614,6 +4626,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5500098498570823109, guid: 5c04fa07afdc24e498373c1171eb3c67, type: 3}
       propertyPath: newGameState
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5500098498570823109, guid: 5c04fa07afdc24e498373c1171eb3c67, type: 3}
+      propertyPath: newGameAction
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6631919791526123297, guid: 5c04fa07afdc24e498373c1171eb3c67, type: 3}
@@ -4873,6 +4889,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5500098498570823109, guid: 5c04fa07afdc24e498373c1171eb3c67, type: 3}
       propertyPath: newGameState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5500098498570823109, guid: 5c04fa07afdc24e498373c1171eb3c67, type: 3}
+      propertyPath: newGameAction
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6631919791526123297, guid: 5c04fa07afdc24e498373c1171eb3c67, type: 3}

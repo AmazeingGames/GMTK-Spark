@@ -15,20 +15,14 @@ public class CheatsManager : MonoBehaviour
     public static EventHandler<CheatEventArgs> CheatEventHandler;
     public class CheatEventArgs : EventArgs
     {
-        public readonly GameManager.GameState gameStateCommand = GameManager.GameState.None;
+        public readonly GameManager.GameAction gameAction = GameManager.GameAction.None;
         public readonly CheatCommands cheatCommand = CheatCommands.None;
 
-        public CheatEventArgs(GameManager.GameState gameStateCommand, CheatCommands gheatCommand)
+        public CheatEventArgs(GameManager.GameAction gameAction, CheatCommands gheatCommand)
         {
-            this.gameStateCommand = gameStateCommand;
+            this.gameAction = gameAction;
             this.cheatCommand = gheatCommand;
         }
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
     }
 
     // Update is called once per frame
@@ -46,21 +40,21 @@ public class CheatsManager : MonoBehaviour
             foreach (var cheat in cheats)
             {
                 if (cheat.Code.Equals(command, StringComparison.OrdinalIgnoreCase))
-                    OnCheat(cheat.GameStateCommand, cheat.CheatCommand);
+                    OnCheat(cheat.GameActionToPerform, cheat.CheatCommand);
             }
         }
 #endif
     }
 
-    void OnCheat(GameManager.GameState gameStateCommand = GameManager.GameState.None, CheatCommands cheatCommand = CheatCommands.None)
-        => CheatEventHandler?.Invoke(this, new(gameStateCommand, cheatCommand));
+    void OnCheat(GameManager.GameAction gameAction = GameManager.GameAction.None, CheatCommands cheatCommand = CheatCommands.None)
+        => CheatEventHandler?.Invoke(this, new(gameAction, cheatCommand));
 
     [Serializable]
     public class CheatCode
     {
         [field: SerializeField] public string Code { get; private set; }
 
-        [field: SerializeField] public GameManager.GameState GameStateCommand { get; private set; } = GameManager.GameState.None;
+        [field: SerializeField] public GameManager.GameAction GameActionToPerform { get; private set; } = GameManager.GameAction.None;
         [field: SerializeField] public CheatsManager.CheatCommands CheatCommand { get; private set; } = CheatCommands.None;
     }
 }

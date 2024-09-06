@@ -1,10 +1,8 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static MovePaper.PaperActionEventArgs;
-using static MovePaper;
 using static GameManager;
+using static MovePaper;
+using static MovePaper.PaperActionEventArgs;
 using static UIButton;
 
 
@@ -39,7 +37,7 @@ public class AudioManager : MonoBehaviour
 
     public Dictionary<PaperActionEventArgs.PaperActionType, AudioSource> ActionsToSFX;
     public Dictionary<UIButton.UIInteractionTypes, AudioSource> UIInteractToSFX;
-    public Dictionary<GameManager.GameState, AudioSource> GameStateToSFX;
+    public Dictionary<GameManager.GameAction, AudioSource> GameActionToSFX;
     public Dictionary<GameManager.GameState, AudioSource> GameStateToMusic;
 
     private void OnEnable()
@@ -74,22 +72,20 @@ public class AudioManager : MonoBehaviour
             { UIInteractionTypes.Exit,  buttonExit  },
         };
 
-        GameStateToSFX = new()
+        GameActionToSFX = new()
         {
-            { GameState.StartLevel,     shuffle },
-            { GameState.RestartLevel,   null    },
-            { GameState.BeatLevel,      win    },
-            { GameState.EnterMainMenu,  null    },
-            { GameState.BeatGame,       null    },
+            { GameAction.StartLevel,       shuffle },
+            { GameAction.RestartLevel,     null    },
+            { GameAction.CompleteLevel,    win     },
+            { GameAction.EnterMainMenu,    null    },
+            { GameAction.BeatGame,         null    },
         };
 
         GameStateToMusic = new()
         {
-            { GameState.EnterMainMenu,  mainMenuMusic },
-            { GameState.StartLevel,     gameplayMusic },
-            { GameState.ResumeGame,     gameplayMusic },
-            { GameState.RestartLevel,   gameplayMusic },
-            { GameState.PauseGame,      pauseMenuMusic }
+            { GameState.InMenu,   mainMenuMusic },
+            { GameState.Running,   gameplayMusic },
+            { GameState.Paused,   pauseMenuMusic }
         };
 
     }
@@ -109,8 +105,6 @@ public class AudioManager : MonoBehaviour
     /// </summary>
     void HandleGameStateChange(object sender, GameManager.GameStateChangeEventArgs e)
     {
-        if (GameStateToSFX.TryGetValue(e.newState, out var sfx) && sfx != null)
-            sfx.Play();
         if (GameStateToMusic.TryGetValue(e.newState, out var music) && music != null)
         {
             if (currentMusic != null)
@@ -130,8 +124,15 @@ public class AudioManager : MonoBehaviour
                 currentMusic.Play();
         }
 
-        Debug.Log($"AudioManager: Handled game action{e.newState}{(sfx == null ? "" : $" and played sfx : {sfx}")}{(music == null ? "" : $" and changed music track to : {music}")}");
+        Debug.Log($"AudioManager: Handled game state change {(music == null ? "" : $"and changed music track to : {music}")}");
+    }
 
+    void HandleGameAction(object sender, GameManager.GameActionEventArgs e)
+    {
+        if (GameActionToSFX.TryGetValue(e.gameAction, out var sfx) && sfx != null)
+            sfx.Play();
+
+        Debug.Log($"AudioManager: Handled game action {e.gameAction}{(sfx == null ? "" : $"and played sfx : {sfx}")}");
     }
 
     /// <summary>

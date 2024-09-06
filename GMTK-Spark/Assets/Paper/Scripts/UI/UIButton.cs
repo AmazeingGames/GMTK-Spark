@@ -16,10 +16,10 @@ public class UIButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
     [SerializeField] MenuManager.MenuTypes menuToOpen;
 
     [Header("Game State Button Type")]
-    [SerializeField] GameManager.GameState newGameState;
+    [SerializeField] GameManager.GameAction newGameAction;
     [SerializeField] int levelToLoad = -1;
 
-    public enum UIEventTypes { None, UI, GameState }
+    public enum UIEventTypes { None, UI, GameAction }
     public enum UIInteractionTypes { Enter, Click, Up, Exit }
 
     public static EventHandler<UIInteractEventArgs> UIInteractEventHandler;
@@ -31,7 +31,7 @@ public class UIButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
         public readonly PointerEventData pointerEventData;
 
         public readonly MenuManager.MenuTypes menuToOpen = MenuManager.MenuTypes.None;
-        public readonly GameManager.GameState newGameState = GameManager.GameState.None;
+        public readonly GameManager.GameAction actionToPerform = GameManager.GameAction.None;
         public readonly int levelToLoad = -1;
 
         public UIInteractEventArgs(UIButton button, UIEventTypes uiEventType, PointerEventData pointerEventData, UIInteractionTypes uiInteractionType)
@@ -56,11 +56,11 @@ public class UIButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
                         throw new InvalidOperationException("A menu type of none will cause nothing to happen.");
                 break;
                 
-                case UIEventTypes.GameState:
-                    newGameState = button.newGameState;
+                case UIEventTypes.GameAction:
+                    actionToPerform = button.newGameAction;
                     levelToLoad = button.levelToLoad;
 
-                    if (newGameState == GameManager.GameState.None)
+                    if (actionToPerform == GameManager.GameAction.None)
                         throw new InvalidOperationException("A game state of none will cause nothing to happen.");
                 break;
             }

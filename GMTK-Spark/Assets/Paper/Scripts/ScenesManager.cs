@@ -23,44 +23,53 @@ public class ScenesManager : Singleton<ScenesManager>
     public static event EventHandler BeatLastLevelEventHandler;
 
     private void OnEnable()
-        => GameManager.GameStateChangeEventHandler += HandleGameStateChange;
-
-    private void OnDisable()
-        => GameManager.GameStateChangeEventHandler -= HandleGameStateChange;
-
-    /// <summary>
-    ///     Handles scene and level loading for various game updates.
-    /// </summary>
-    /// <exception cref="ArgumentException"> Exception on invalid level number when loading a level. </exception>
-    public void HandleGameStateChange(object sender, GameManager.GameStateChangeEventArgs e)
     {
-        switch (e.newState)
+        GameManager.GameActionEventHandler += HandleGameAction;
+        GameManager.GameStateChangeEventHandler += HandleGameStateChange;
+    }
+    private void OnDisable()
+    {
+        GameManager.GameActionEventHandler -= HandleGameAction;
+        GameManager.GameStateChangeEventHandler -= HandleGameStateChange;
+    }
+
+    void HandleGameAction(object sender, GameManager.GameActionEventArgs e)
+    {
+        switch (e.gameAction)
         {
-            case GameManager.GameState.EnterMainMenu:
+            case GameManager.GameAction.EnterMainMenu:
                 string menu = "Menus";
                 if (!IsSceneLoaded(menu))
                     LoadScene(menu);
-                
+
                 UnloadLevel(CurrentLevel);
             break;
 
-            case GameManager.GameState.StartLevel:
+            case GameManager.GameAction.StartLevel:
 
                 if (e.levelToLoad == -1)
                     throw new ArgumentException("Level to load should not be -1. ");
                 LoadLevel(e.levelToLoad);
             break;
 
-            case GameManager.GameState.LoseLevel:
-            case GameManager.GameState.RestartLevel:
+            case GameManager.GameAction.RestartLevel:
                 LoadLevel(CurrentLevel);
             break;
 
-            case GameManager.GameState.LoadNextLevel:
+            case GameManager.GameAction.LoadNextLevel:
                 if (!LoadLevel(CurrentLevel + 1))
-                    OnBeatLastLevel();
+                    Invoke(nameof(OnBeatLastLevel), .01f);
             break;
         }
+    }
+
+    /// <summary>
+    ///     Handles scene and level loading for various game updates.
+    /// </summary>
+    /// <exception cref="ArgumentException"> Exception on invalid level number when loading a level. </exception>
+    void HandleGameStateChange(object sender, GameManager.GameStateChangeEventArgs e)
+    {
+        
     }
 
     /// <summary>
