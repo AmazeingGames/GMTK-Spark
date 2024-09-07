@@ -101,7 +101,7 @@ public class AudioManager : MonoBehaviour
     }
 
     /// <summary>
-    ///     Plays sfx for corresponding game state actions
+    ///     Plays sfx for corresponding game state change.
     /// </summary>
     void HandleGameStateChange(object sender, GameManager.GameStateChangeEventArgs e)
     {
@@ -127,6 +127,9 @@ public class AudioManager : MonoBehaviour
         Debug.Log($"AudioManager: Handled game state change {(music == null ? "" : $"and changed music track to : {music}")}");
     }
 
+    /// <summary>
+    ///     Plays a SFX corresponding to a game action
+    /// </summary>
     void HandleGameAction(object sender, GameManager.GameActionEventArgs e)
     {
         if (GameActionToSFX.TryGetValue(e.gameAction, out var sfx) && sfx != null)

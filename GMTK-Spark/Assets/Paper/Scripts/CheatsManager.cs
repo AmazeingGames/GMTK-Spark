@@ -29,8 +29,8 @@ public class CheatsManager : MonoBehaviour
     void Update()
     {
 #if DEBUG
+        // Checks if a player types in a code, which corresponds to a cheat or game command
         playerInput.Append(Input.inputString);
-
         if (Input.GetKeyDown(KeyCode.Return))
         {
             playerInput.Remove(playerInput.Length - 1, 1);
@@ -46,6 +46,11 @@ public class CheatsManager : MonoBehaviour
 #endif
     }
 
+    /// <summary>
+    ///     Notifies systems we performed a cheat.
+    /// </summary>
+    /// <param name="gameAction"></param>
+    /// <param name="cheatCommand"></param>
     void OnCheat(GameManager.GameAction gameAction = GameManager.GameAction.None, CheatCommands cheatCommand = CheatCommands.None)
         => CheatEventHandler?.Invoke(this, new(gameAction, cheatCommand));
 

@@ -28,8 +28,7 @@ public class MovePaper : MonoBehaviour
     Paper mouseOverPaper;
 
     RaycastHit2D[] hits;
-    List<Paper> sortedPapers = new();
-    List<Paper> unsortedPapers = new();
+    List<Paper> listOfPapersMouseOver = new();
 
     public static event EventHandler<PaperActionEventArgs> PaperActionEventHandler;
     public static event EventHandler<GetMatchingPaperEventArgs> GetMatchingPaperEventHandler;
@@ -155,16 +154,14 @@ public class MovePaper : MonoBehaviour
         if (GameManager.Instance.LevelData == null)
             return;
 
-        // Checks if mouse is over paper every frame
-        // Alternatively this could be done only when the player clicks, to save on performance
+        // Checks what papers the mouse is over every frame
         mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mousePosition.z = -10;
         hits = Physics2D.RaycastAll(mousePosition, transform.TransformDirection(Vector3.forward), Mathf.Infinity, paperLayer);
 
-        unsortedPapers.Clear();
-        sortedPapers.Clear();
-
+        listOfPapersMouseOver.Clear();
         mouseOverPaper = null;
+
         if (hits.Length > 0)
         {
             Debug.DrawRay(mousePosition, transform.TransformDirection(Vector3.forward) * 1000, Color.yellow);
@@ -174,27 +171,27 @@ public class MovePaper : MonoBehaviour
             {
                 var paperGameObject = hit.collider.gameObject;
                 Paper hitPaper = OnGetPaper(paperGameObject).MatchingPaper;
-                sortedPapers.Add(hitPaper);
-                unsortedPapers.Add(hitPaper);
+                listOfPapersMouseOver.Add(hitPaper);
 
                 if (hitPaper == null)
                     throw new NullReferenceException("Hit paper is null. This means no paper handled the GetPaper event hander, even though we hit a gameobject with the paper layermask.");
             }
 
             // Grabs the paper with the highest sorting layer
-            mouseOverPaper = sortedPapers
+            mouseOverPaper = listOfPapersMouseOver
                 .OrderBy(p => p.SpriteRenderer.sortingOrder)
                 .LastOrDefault();
         }
         else
             Debug.DrawRay(mousePosition, transform.TransformDirection(Vector3.forward) * 1000, Color.white);
         
-        // Paper Grab & Drop
+        // Grab paper on mouse click and over
         if (mouseOverPaper != null)
         {
             if (Input.GetMouseButtonDown(0))
                 HandlePaperInteraction(InteractionType.Click, mouseOverPaper.GetComponent<Paper>());
         }
+        // Drop the paper we're holding on mouse up
         if (Input.GetMouseButtonUp(0))
             HandlePaperInteraction(InteractionType.Release, paperValues.HoldingPaper);
 

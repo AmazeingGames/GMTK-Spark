@@ -15,13 +15,10 @@ public class DiaryManager : MonoBehaviour
     List<TextMeshProUGUI> DiaryTexts;
 
     private void OnEnable()
-    {
-        MenuManager.MenuChangeEventHandler += HandleMenuChange;
-    }
+        => MenuManager.MenuChangeEventHandler += HandleMenuChange;
     private void OnDisable()
-    {
-        MenuManager.MenuChangeEventHandler -= HandleMenuChange;
-    }
+        => MenuManager.MenuChangeEventHandler -= HandleMenuChange;
+
     private void Start()
     {
         DiaryTexts = new()
@@ -34,6 +31,9 @@ public class DiaryManager : MonoBehaviour
         };
     }
 
+    /// <summary>
+    ///     Loads the next page of the diary
+    /// </summary>
     void HandleMenuChange(object sender, MenuManager.MenuChangeEventArgs e)
     {
         if (e.newMenuType == MenuManager.MenuTypes.Diary)

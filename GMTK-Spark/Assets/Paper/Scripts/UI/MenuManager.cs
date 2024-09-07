@@ -126,6 +126,9 @@ public class MenuManager : Singleton<MenuManager>
     {
     }
 
+    /// <summary>
+    ///     Loads a menu appropraite to the current game action.
+    /// </summary>
     void UpdateMenusToGameAction(GameManager.GameAction action)
     {
         Menu menuToLoad = action switch
@@ -157,10 +160,10 @@ public class MenuManager : Singleton<MenuManager>
     }
 
     /// <summary>
-    ///     Loads the contents for a given menu type, while unloading the last loaded menu.
+    ///     Loads a menu type, while unloading the previous menu.
     /// </summary>
     /// <param name="menu"> Menu to load. </param>
-    /// <param name="addToHistory" </param>
+    /// <param name="addToHistory"> If we are entering a nested menu. </param>
     void LoadMenu(MenuTypes menuType, bool addToHistory = true)
     {
         if (MenuTypeToMenu.TryGetValue(menuType, out Menu menu))
@@ -173,10 +176,10 @@ public class MenuManager : Singleton<MenuManager>
     }
 
     /// <summary>
-    ///     Loads the contents for a given menu while unloading the last loaded menu.
+    ///     Loads a menu while unloading the previous menu.
     /// </summary>
     /// <param name="menu"> Menu to load. </param>
-    /// <param name="addToHistory" </param>
+    /// <param name="addToHistory"> If we are entering a nested menu.  </param>
     void LoadMenu(Menu menu, bool addToHistory = true)
     {
         if (addToHistory)
@@ -186,9 +189,7 @@ public class MenuManager : Singleton<MenuManager>
         }
 
         if (menu == currentMenu)
-        {
             Debug.LogWarning("Menu Manager: Should not be trying to load an already loaded menu");
-        }
 
         previousMenu = currentMenu;
         currentMenu = menu;
@@ -216,7 +217,7 @@ public class MenuManager : Singleton<MenuManager>
         => MenuChangeEventHandler?.Invoke(this, new(newMenuType, previousMenuType));
 
     /// <summary>
-    ///     Loads the menu of the previous index in the menu history
+    ///     Loads the last loaded menu.
     /// </summary>
     void LoadPreviousMenu()
     {
