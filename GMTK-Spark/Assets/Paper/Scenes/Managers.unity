@@ -1775,6 +1775,9 @@ MonoBehaviour:
     m_RotationOrder: 4
   lerpSpeed: 7.5
   fixedSpeed: 0
+  paperLayer:
+    serializedVersion: 2
+    m_Bits: 64
   autoSnap: 0
 --- !u!1 &1595230883
 GameObject:

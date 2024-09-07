@@ -45,7 +45,6 @@ public class MenuManager : Singleton<MenuManager>
     MenuTypes previousMenuType;
 
     readonly Menu emptyMenu = new();
-    readonly List<Menu> menusToClear = new();
     readonly List<Menu> menuHistory = new();
     int currentHistoryIndex = -1;
 
@@ -79,7 +78,7 @@ public class MenuManager : Singleton<MenuManager>
     {
         MenuTypeToMenu = new()
         {
-            { MenuTypes.MainMenu,           mainMenu },
+            { MenuTypes.MainMenu,       mainMenu },
             { MenuTypes.Pause,          pauseMenu},
             { MenuTypes.GameEndScreen,  gameEndScreen},
             { MenuTypes.Settings,       settingsMenu},
@@ -91,6 +90,12 @@ public class MenuManager : Singleton<MenuManager>
         };
 
         MenuToMenuType = MenuTypeToMenu.ToDictionary(x => x.Value, x => x.Key);
+
+        foreach (var menu in MenuTypeToMenu.Values)
+        {
+            if (menu.Canvas != null)
+                emptyMenu.DisableOnReady.Add(menu.Canvas.gameObject);
+        }
 
         // Ignores following MenuTypes: 'Previous', 'None', 
         if (MenuTypeToMenu.Count < Enum.GetNames(typeof(MenuTypes)).Length - 2)
@@ -123,7 +128,6 @@ public class MenuManager : Singleton<MenuManager>
 
     void UpdateMenusToGameAction(GameManager.GameAction action)
     {
-        Debug.Log($"Menu Manager: Handled Game Action {action}");
         Menu menuToLoad = action switch
         {
             GameManager.GameAction.EnterMainMenu => mainMenu,
@@ -132,6 +136,7 @@ public class MenuManager : Singleton<MenuManager>
             GameManager.GameAction.CompleteLevel => beatLevelScreen,
             _ => emptyMenu,
         };
+        Debug.Log($"Menu Manager: Handled Game Action {action} and loaded menu of type: {MenuToMenuType[menuToLoad]}");
         LoadMenu(menuToLoad);
     }
 
@@ -164,6 +169,7 @@ public class MenuManager : Singleton<MenuManager>
             LoadPreviousMenu();
         else
             Debug.LogWarning($"Menu Type: {menuType} not covered by conditional statements");
+
     }
 
     /// <summary>
@@ -179,6 +185,11 @@ public class MenuManager : Singleton<MenuManager>
             currentHistoryIndex++;
         }
 
+        if (menu == currentMenu)
+        {
+            Debug.LogWarning("Menu Manager: Should not be trying to load an already loaded menu");
+        }
+
         previousMenu = currentMenu;
         currentMenu = menu;
 
@@ -187,15 +198,15 @@ public class MenuManager : Singleton<MenuManager>
         if (previousMenu != null && MenuToMenuType.TryGetValue(previousMenu, out MenuTypes previousType))
             previousMenuType = previousType;
 
+        previousMenu?.SetReady(false);
         menu.SetReady(true);
         
-        previousMenu?.SetReady(false);
         
-        if (!menusToClear.Contains(menu))
+        if (menu.Canvas != null && !emptyMenu.DisableOnReady.Contains(menu.Canvas.gameObject))
         {
             foreach (GameObject menuObject in menu.EnableOnReady)
                 emptyMenu.DisableOnReady.Add(menuObject);
-            menusToClear.Add(menu);
+            emptyMenu.DisableOnReady.Add(menu.Canvas.gameObject);
         }
         
         OnMenuChange(currentMenuType, previousMenuType);   

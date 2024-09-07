@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6596159528440674443}
   - component: {fileID: 1100278161739333742}
   - component: {fileID: 1586170376108724187}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Paper
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -99,7 +99,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <SpriteRenderer>k__BackingField: {fileID: 6596159528440674443}
-  polygonCollider: {fileID: 1586170376108724187}
 --- !u!60 &1586170376108724187
 PolygonCollider2D:
   m_ObjectHideFlags: 0

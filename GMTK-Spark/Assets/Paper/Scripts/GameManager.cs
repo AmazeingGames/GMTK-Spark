@@ -55,7 +55,7 @@ public class GameManager : Singleton<GameManager>
 
     void OnEnable()
     {
-        MovePaper.PaperAction += HandlePaperAction;
+        MovePaper.PaperActionEventHandler += HandlePaperAction;
         ScenesManager.BeatLastLevelEventHandler += HandleBeatLastLevel;
         LevelData.LoadLevelDataEventHandler += HandleLoadLevelData;
         UIButton.UIInteractEventHandler += HandleUIInteract;
@@ -64,7 +64,7 @@ public class GameManager : Singleton<GameManager>
 
     void OnDisable()
     {
-        MovePaper.PaperAction -= HandlePaperAction;
+        MovePaper.PaperActionEventHandler -= HandlePaperAction;
         ScenesManager.BeatLastLevelEventHandler -= HandleBeatLastLevel;
         LevelData.LoadLevelDataEventHandler -= HandleLoadLevelData;
         UIButton.UIInteractEventHandler -= HandleUIInteract;
@@ -142,17 +142,18 @@ public class GameManager : Singleton<GameManager>
         if (e.actionType != MovePaper.PaperActionEventArgs.PaperActionType.Snap)
             return;
         
-        StartCoroutine(CheckVictory());
+        Invoke(nameof(CheckVictory), .1f);
     }
 
-    IEnumerator CheckVictory()
+    void CheckVictory()
     {
-        yield return new WaitForSeconds(.1f);
-
         foreach (var paper in paperList)
         {
             if (!paper.IsInPlace)
-                yield break;
+            {
+                Debug.Log($"Paper {paper.name} is not in place");
+                return;
+            }
         }
         PerformGameAction(GameAction.CompleteLevel);
     }
@@ -185,6 +186,7 @@ public class GameManager : Singleton<GameManager>
         }
 
         LevelData = e.levelData;
+        paperList.Clear();
 
         for (int i = 0; i < LevelData.PuzzleParent.transform.childCount; i++)
             paperList.Add(LevelData.PuzzleParent.transform.GetChild(i).GetComponent<Paper>());

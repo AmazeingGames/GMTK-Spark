@@ -42,14 +42,14 @@ public class AudioManager : MonoBehaviour
 
     private void OnEnable()
     {
-        MovePaper.PaperAction += HandlePaperAction;
+        MovePaper.PaperActionEventHandler += HandlePaperAction;
         GameManager.GameStateChangeEventHandler += HandleGameStateChange;
         UIButton.UIInteractEventHandler += HandleUIInteract;
     }
     
     private void OnDisable()
     {
-        MovePaper.PaperAction -= HandlePaperAction;
+        MovePaper.PaperActionEventHandler -= HandlePaperAction;
         GameManager.GameStateChangeEventHandler -= HandleGameStateChange;
         UIButton.UIInteractEventHandler -= HandleUIInteract;
     }

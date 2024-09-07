@@ -1,11 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UIElements;
 using static MovePaper.PaperActionEventArgs;
-using static Paper.PaperInteractionEventArgs;
 
 public class MovePaper : MonoBehaviour
 {
@@ -19,18 +18,47 @@ public class MovePaper : MonoBehaviour
     [SerializeField] float lerpSpeed;
     [SerializeField] bool fixedSpeed;
 
+    [Header("Paper Propertiers")]
+    [SerializeField] LayerMask paperLayer;
+
     [Header("Cheats")]
     [SerializeField] bool autoSnap;
 
-    public static event EventHandler<PaperActionEventArgs> PaperAction;
+    Vector3 mousePosition;
+    Paper mouseOverPaper;
+
+    RaycastHit2D[] hits;
+    List<Paper> sortedPapers = new();
+    List<Paper> unsortedPapers = new();
+
+    public static event EventHandler<PaperActionEventArgs> PaperActionEventHandler;
+    public static event EventHandler<GetMatchingPaperEventArgs> GetMatchingPaperEventHandler;
 
     Transform rememberParent;
     int order = 0;
 
     LevelData levelData;
 
-    protected virtual void OnPaperAction(Paper paper, PaperActionType paperAction)
-        => PaperAction?.Invoke(this, new(paper, paperAction));
+    GetMatchingPaperEventArgs OnGetPaper(GameObject paperGameObject)
+    {
+        var paperEventArgs = new GetMatchingPaperEventArgs(paperGameObject);
+        GetMatchingPaperEventHandler?.Invoke(this, paperEventArgs);
+        return paperEventArgs;
+    }
+        void OnPaperAction(Paper paper, PaperActionType paperAction)
+        => PaperActionEventHandler?.Invoke(this, new(paper, paperAction));
+
+    public class GetMatchingPaperEventArgs : EventArgs
+    {
+        public readonly GameObject paperGameObject;
+        public Paper MatchingPaper { get; private set; }
+
+        public GetMatchingPaperEventArgs(GameObject paperGameObject)
+            => this.paperGameObject = paperGameObject;
+
+        public void WriteResults(Paper paper)
+            => MatchingPaper = paper;
+    }
 
     public class PaperActionEventArgs : EventArgs
     {
@@ -53,7 +81,6 @@ public class MovePaper : MonoBehaviour
 
     void OnEnable()
     {
-        Paper.PaperInteraction += HandlePaperInteraction;
         LevelData.LoadLevelDataEventHandler += HandleLoadLevelData;
         CheatsManager.CheatEventHandler += HandleCheat;
         paperValues.OnEnable();
@@ -61,7 +88,6 @@ public class MovePaper : MonoBehaviour
 
     void OnDisable()
     {
-        Paper.PaperInteraction -= HandlePaperInteraction;
         LevelData.LoadLevelDataEventHandler -= HandleLoadLevelData;
         CheatsManager.CheatEventHandler -= HandleCheat;
         paperValues.OnDisable();
@@ -86,52 +112,98 @@ public class MovePaper : MonoBehaviour
     ///     Grabs the paper on mouse down, and drops on mouse up.
     ///     </para>
     /// </summary>
-    void HandlePaperInteraction(object sender, Paper.PaperInteractionEventArgs e)
+    void HandlePaperInteraction(InteractionType interactionType, Paper paper)
     {
-        switch (e.interaction)
+        Transform dragParent = GameManager.Instance.LevelData.DragParent;
+        switch (interactionType)
         {
             // Grab Paper
             case InteractionType.Click:
+                Debug.Log("handle click on paper");
                 if (paperValues.HoldingPaper != null)
-                    break;
+                    return;
+
+                for (int i = 0; i < GameManager.Instance.LevelData.DragParent.childCount; i++)
+                {
+                    GameManager.Instance.LevelData.DragParent.GetChild(i).SetParent(rememberParent);
+                    Debug.LogWarning("Set parent to remember parent. This should normally not happen. ");
+                }
 
                 // Sets the paper's parent to the mouse and informs listeners of any state changes.
-                rememberParent = e.paper.transform.parent;
-                e.paper.transform.SetParent(GameManager.Instance.LevelData.DragParent, worldPositionStays);
-                e.paper.SpriteRenderer.sortingOrder = order++;
-                OnPaperAction(e.paper, PaperActionType.Grab);
+                rememberParent = paper.transform.parent;
+                paper.transform.SetParent(dragParent, worldPositionStays);
+                paper.SpriteRenderer.sortingOrder = order++;
+                OnPaperAction(paper, PaperActionType.Grab);
             break;
 
             // Drop Paper
             case InteractionType.Release:
-                if (paperValues.HoldingPaper != e.paper)
-                    break;
+                if (paperValues.HoldingPaper != paper || paperValues.HoldingPaper == null)
+                    return;
 
                 // Resets the paper's parent and informs listeners of any state changes.
-                e.paper.transform.SetParent(rememberParent, worldPositionStays);
-                PaperActionType paperActionType = CheckPosition(e.paper) ? PaperActionType.StartSnap : PaperActionType.Drop;
-                OnPaperAction(e.paper, paperActionType);
+                paper.transform.SetParent(rememberParent, worldPositionStays);
+                PaperActionType paperActionType = CheckPosition(paper) ? PaperActionType.StartSnap : PaperActionType.Drop;
+                OnPaperAction(paper, paperActionType);
             break;
         }
     }
 
+    enum InteractionType { Click, Release }
     void Update()
     {
         if (GameManager.Instance.LevelData == null)
             return;
 
-        // Moves & Rotates Paper
+        // Checks if mouse is over paper every frame
+        // Alternatively this could be done only when the player clicks, to save on performance
+        mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        mousePosition.z = -10;
+        hits = Physics2D.RaycastAll(mousePosition, transform.TransformDirection(Vector3.forward), Mathf.Infinity, paperLayer);
+
+        unsortedPapers.Clear();
+        sortedPapers.Clear();
+
+        mouseOverPaper = null;
+        if (hits.Length > 0)
+        {
+            Debug.DrawRay(mousePosition, transform.TransformDirection(Vector3.forward) * 1000, Color.yellow);
+            
+            // Gets the 'Paper' component from each gameobject hit with the raycast
+            foreach (var hit in hits)
+            {
+                var paperGameObject = hit.collider.gameObject;
+                Paper hitPaper = OnGetPaper(paperGameObject).MatchingPaper;
+                sortedPapers.Add(hitPaper);
+                unsortedPapers.Add(hitPaper);
+
+                if (hitPaper == null)
+                    throw new NullReferenceException("Hit paper is null. This means no paper handled the GetPaper event hander, even though we hit a gameobject with the paper layermask.");
+            }
+
+            // Grabs the paper with the highest sorting layer
+            mouseOverPaper = sortedPapers
+                .OrderBy(p => p.SpriteRenderer.sortingOrder)
+                .LastOrDefault();
+        }
+        else
+            Debug.DrawRay(mousePosition, transform.TransformDirection(Vector3.forward) * 1000, Color.white);
+        
+        // Paper Grab & Drop
+        if (mouseOverPaper != null)
+        {
+            if (Input.GetMouseButtonDown(0))
+                HandlePaperInteraction(InteractionType.Click, mouseOverPaper.GetComponent<Paper>());
+        }
+        if (Input.GetMouseButtonUp(0))
+            HandlePaperInteraction(InteractionType.Release, paperValues.HoldingPaper);
+
+        // Moves & Rotates Parent
         GameManager.Instance.LevelData.DragParent.transform.position = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Clamper.CalculateBounds(GameManager.Instance.LevelData.DragParentSpriteRenderer, out float width, out float height, out Vector2 screenBounds);
         Clamper.ClampToScreenOrthographic(GameManager.Instance.LevelData.DragParent, width, height, screenBounds);
         if (Input.mouseScrollDelta.y != 0)
             GameManager.Instance.LevelData.DragParent.transform.Rotate(Input.mouseScrollDelta.y * rotationSpeed * Time.deltaTime * Vector3.forward, space);
-
-        // Debug
-        if (paperValues.HoldingPaper == null)
-            return;
-        Quaternion rotation = paperValues.HoldingPaper.transform.rotation;
-        Debug.Log($"Rotation is : (z){rotation.z} | (w){rotation.w}");
     }
 
     bool isXClose;
@@ -186,8 +258,6 @@ public class MovePaper : MonoBehaviour
             StartCoroutine(LerpSnap(paper));
             return true;
         }
-        
-
         return false;
     }
 
@@ -204,12 +274,16 @@ public class MovePaper : MonoBehaviour
             if (paperValues.HoldingPaper == paper)
                 yield break;
 
+            if (paper.transform.parent == GameManager.Instance.LevelData.DragParent)
+                paper.transform.SetParent(rememberParent);
+
             paper.transform.SetPositionAndRotation(Vector3.Lerp(startingPosition, Vector3.zero, lerpCurve.Evaluate(time)), Quaternion.Slerp(startingRotation, Quaternion.Euler(0, 0, 0), lerpCurve.Evaluate(time)));
             time += Time.deltaTime * lerpSpeed;
             
             yield return null;
         }
 
+        paper.SpriteRenderer.sortingOrder = 0;
         OnPaperAction(paper, PaperActionType.Snap);
     }
 
@@ -218,20 +292,17 @@ public class MovePaper : MonoBehaviour
     {
         public Paper HoldingPaper { get; private set; }
         public Paper DroppedPaper {get; private set; }
-        public Paper LerpPaper {get; private set; }
-
 
         public void OnEnable()
-            => PaperAction += HandlePaperAction;
+            => PaperActionEventHandler += HandlePaperAction;
 
         public void OnDisable()
-            => PaperAction -= HandlePaperAction;
+            => PaperActionEventHandler -= HandlePaperAction;
 
         void HandlePaperAction(object sender, PaperActionEventArgs e)
         {
             HoldingPaper = null;
             DroppedPaper = null;
-            LerpPaper = null;
 
             switch (e.actionType)
             {
@@ -241,14 +312,6 @@ public class MovePaper : MonoBehaviour
 
                 case PaperActionType.Drop:
                     DroppedPaper = e.paper;
-                break;
-
-                case PaperActionType.StartSnap:
-                    LerpPaper = e.paper;
-                break;
-
-                case PaperActionType.Snap:
-                case PaperActionType.Shuffle:
                 break;
             }
         }

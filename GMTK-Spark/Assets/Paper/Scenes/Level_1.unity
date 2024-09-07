@@ -3358,6 +3358,8 @@ MonoBehaviour:
   <PuzzleParent>k__BackingField: {fileID: 346007348}
   <DragParent>k__BackingField: {fileID: 1476590304}
   <DragParentSpriteRenderer>k__BackingField: {fileID: 1476590305}
+  <PositionalLeniency>k__BackingField: 0.45
+  <RotationalLeniency>k__BackingField: 0.1
 --- !u!1001 &792124668
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -12,17 +12,14 @@ public class DiaryManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI page4;
     [SerializeField] TextMeshProUGUI page5;
 
-    int lastLoadedLevel = -1;
     List<TextMeshProUGUI> DiaryTexts;
 
     private void OnEnable()
     {
-        GameManager.GameActionEventHandler += HandleGameAction;
         MenuManager.MenuChangeEventHandler += HandleMenuChange;
     }
     private void OnDisable()
     {
-        GameManager.GameActionEventHandler -= HandleGameAction;
         MenuManager.MenuChangeEventHandler -= HandleMenuChange;
     }
     private void Start()
@@ -37,21 +34,13 @@ public class DiaryManager : MonoBehaviour
         };
     }
 
-    void HandleGameAction(object sender, GameManager.GameActionEventArgs e)
-    {
-        if (e.gameAction == GameManager.GameAction.LoadNextLevel)
-            lastLoadedLevel++;
-        else if (e.levelToLoad != -1)
-            lastLoadedLevel = e.levelToLoad;
-    }
-
     void HandleMenuChange(object sender, MenuManager.MenuChangeEventArgs e)
     {
         if (e.newMenuType == MenuManager.MenuTypes.Diary)
         {
             foreach(var text in DiaryTexts) 
                 text.gameObject.SetActive(false);
-            DiaryTexts[lastLoadedLevel - 1].gameObject.SetActive(true);
+            DiaryTexts[ScenesManager.Instance.CurrentLevel - 1].gameObject.SetActive(true);
         }
     }
 }

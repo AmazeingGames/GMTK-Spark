@@ -8,49 +8,25 @@ public class Paper : MonoBehaviour
 {
     [field: SerializeField] public SpriteRenderer SpriteRenderer { get; private set; }
 
-    public static event EventHandler<PaperInteractionEventArgs> PaperInteraction;
-
-    public bool IsInPlace { get; private set; } = false;
-
-    bool isHolding;
-
-    public class PaperInteractionEventArgs : EventArgs
-    {
-        public enum InteractionType { Click, Release }
-
-        public readonly InteractionType interaction;
-        public readonly Paper paper;
-
-        public PaperInteractionEventArgs(Paper paper, InteractionType interaction)
-        {
-            this.interaction = interaction;
-            this.paper = paper;
-        }    
-    }
-
-    public void OnPaperInteraction(PaperInteractionEventArgs.InteractionType interaction)
-        => PaperInteraction?.Invoke(this, new (this, interaction));
-
+    public bool IsInPlace { get; private set; }
     private void OnEnable()
-        => MovePaper.PaperAction += HandlePaperAction;
-
-    private void OnDisable()
-        => MovePaper.PaperAction -= HandlePaperAction;
-
-    private void OnMouseDown()
     {
-        //if (isHolding)
-          // return;
-
-        OnPaperInteraction(PaperInteractionEventArgs.InteractionType.Click);
+        MovePaper.GetMatchingPaperEventHandler += HandleGetMatchingPaper;
+        MovePaper.PaperActionEventHandler += HandlePaperAction;
+    }
+    private void OnDisable()
+    {
+        MovePaper.GetMatchingPaperEventHandler -= HandleGetMatchingPaper;
+        MovePaper.PaperActionEventHandler -= HandlePaperAction;
     }
 
-    private void OnMouseUp()
+    // Returns a reference to the Paper class if the given game object is a match
+    void HandleGetMatchingPaper(object sender, MovePaper.GetMatchingPaperEventArgs e)
     {
-        //if (!isHolding)
-            //return;
+        if (e.paperGameObject != gameObject)
+            return;
 
-        OnPaperInteraction(PaperInteractionEventArgs.InteractionType.Release);
+        e.WriteResults(this);
     }
 
     /// <summary>
@@ -65,23 +41,14 @@ public class Paper : MonoBehaviour
 
         switch (e.actionType)
         {
-            case MovePaper.PaperActionEventArgs.PaperActionType.Grab:
-                isHolding = true;
-                IsInPlace = false;
-            break;
-
             case MovePaper.PaperActionEventArgs.PaperActionType.Drop:
-                isHolding = false;
-            break;
-
             case MovePaper.PaperActionEventArgs.PaperActionType.StartSnap:
+            case MovePaper.PaperActionEventArgs.PaperActionType.Grab:
                 IsInPlace = false;
-                isHolding = false;
             break;
 
             case MovePaper.PaperActionEventArgs.PaperActionType.Snap:
                 IsInPlace = true;
-                isHolding = false;
             break;
         }
     }

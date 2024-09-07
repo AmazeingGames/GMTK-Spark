@@ -33,20 +33,22 @@ public class ScenesManager : Singleton<ScenesManager>
         GameManager.GameStateChangeEventHandler -= HandleGameStateChange;
     }
 
+    private void Start()
+    {
+        string menu = "Menus";
+        if (!IsSceneLoaded(menu))
+            LoadScene(menu);
+    }
+
     void HandleGameAction(object sender, GameManager.GameActionEventArgs e)
     {
         switch (e.gameAction)
         {
             case GameManager.GameAction.EnterMainMenu:
-                string menu = "Menus";
-                if (!IsSceneLoaded(menu))
-                    LoadScene(menu);
-
                 UnloadLevel(CurrentLevel);
             break;
 
             case GameManager.GameAction.StartLevel:
-
                 if (e.levelToLoad == -1)
                     throw new ArgumentException("Level to load should not be -1. ");
                 LoadLevel(e.levelToLoad);
