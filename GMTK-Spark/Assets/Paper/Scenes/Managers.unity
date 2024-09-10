@@ -261,7 +261,7 @@ GameObject:
   - component: {fileID: 329452199}
   - component: {fileID: 329452200}
   m_Layer: 0
-  m_Name: Win
+  m_Name: BeatLevel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -425,7 +425,7 @@ GameObject:
   - component: {fileID: 446168310}
   - component: {fileID: 446168311}
   m_Layer: 0
-  m_Name: Start
+  m_Name: StartLevel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1038,7 +1038,8 @@ MonoBehaviour:
   buttonClick: {fileID: 0}
   buttonUp: {fileID: 0}
   buttonExit: {fileID: 0}
-  win: {fileID: 329452200}
+  startLevel: {fileID: 446168311}
+  beatLevel: {fileID: 329452200}
   gameplayMusic: {fileID: 2026915894}
   mainMenuMusic: {fileID: 1925923745}
   pauseMenuMusic: {fileID: 1925923745}
@@ -1123,7 +1124,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1115379896}
   m_Layer: 0
-  m_Name: GameState
+  m_Name: GameActions
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1142,8 +1143,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 329452199}
   - {fileID: 446168310}
+  - {fileID: 329452199}
   m_Father: {fileID: 1102216127}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1125191336

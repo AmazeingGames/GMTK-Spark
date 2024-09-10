@@ -20,8 +20,9 @@ public class AudioManager : MonoBehaviour
     [SerializeField] AudioSource buttonUp;
     [SerializeField] AudioSource buttonExit;
 
-    [Header("Game States")]
-    [SerializeField] AudioSource win;
+    [Header("Game Actions")]
+    [SerializeField] AudioSource startLevel;
+    [SerializeField] AudioSource beatLevel;
 
     [Header("Music")]
     [SerializeField] AudioSource gameplayMusic;
@@ -45,6 +46,7 @@ public class AudioManager : MonoBehaviour
         MovePaper.PaperActionEventHandler += HandlePaperAction;
         GameManager.GameStateChangeEventHandler += HandleGameStateChange;
         UIButton.UIInteractEventHandler += HandleUIInteract;
+        GameManager.GameActionEventHandler += HandleGameAction;
     }
     
     private void OnDisable()
@@ -52,6 +54,7 @@ public class AudioManager : MonoBehaviour
         MovePaper.PaperActionEventHandler -= HandlePaperAction;
         GameManager.GameStateChangeEventHandler -= HandleGameStateChange;
         UIButton.UIInteractEventHandler -= HandleUIInteract;
+        GameManager.GameActionEventHandler -= HandleGameAction;
     }
 
     private void Start()
@@ -61,7 +64,6 @@ public class AudioManager : MonoBehaviour
             { PaperActionType.Grab,     grabPaper   },
             { PaperActionType.Drop,     dropPaper   },
             { PaperActionType.Snap,     snap        },
-            { PaperActionType.Shuffle,  shuffle     },
         };
 
         UIInteractToSFX = new()
@@ -74,11 +76,11 @@ public class AudioManager : MonoBehaviour
 
         GameActionToSFX = new()
         {
-            { GameAction.StartLevel,       shuffle },
-            { GameAction.RestartLevel,     null    },
-            { GameAction.CompleteLevel,    win     },
-            { GameAction.EnterMainMenu,    null    },
-            { GameAction.BeatGame,         null    },
+            { GameAction.StartLevel,       shuffle      },
+            { GameAction.RestartLevel,     null         },
+            { GameAction.CompleteLevel,    beatLevel    },
+            { GameAction.EnterMainMenu,    null         },
+            { GameAction.BeatGame,         null         },
         };
 
         GameStateToMusic = new()
@@ -146,6 +148,5 @@ public class AudioManager : MonoBehaviour
         if (UIInteractToSFX.TryGetValue(e.buttonInteraction, out var sfx) && sfx != null)
             sfx.Play();
         Debug.Log($"AudioManager: Handled UI interaction {e.buttonInteraction} {(sfx == null ? "" : $"and played sfx : {sfx}")}");
-
     }
 }

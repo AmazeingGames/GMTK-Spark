@@ -61,7 +61,7 @@ public class MovePaper : MonoBehaviour
 
     public class PaperActionEventArgs : EventArgs
     {
-        public enum PaperActionType { Grab, Drop, StartSnap, Snap, Shuffle }
+        public enum PaperActionType { Grab, Drop, StartSnap, Snap }
 
         public readonly PaperActionType actionType;
         public readonly Paper paper;
