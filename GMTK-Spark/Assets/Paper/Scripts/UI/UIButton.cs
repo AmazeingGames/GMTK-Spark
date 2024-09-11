@@ -1,8 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
+using static MovePaper.PaperActionEventArgs;
 
 public class UIButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler, IPointerUpHandler
 {
@@ -19,10 +22,17 @@ public class UIButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
     [SerializeField] GameManager.GameAction newGameAction;
     [SerializeField] int levelToLoad = -1;
 
+    [Header("Components")]
+    [SerializeField] TextMeshProUGUI text;
+    [SerializeField] Image underline;
+
     public enum UIEventTypes { None, UI, GameAction }
     public enum UIInteractionTypes { Enter, Click, Up, Exit }
 
     public static EventHandler<UIInteractEventArgs> UIInteractEventHandler;
+
+    Coroutine lerpButtonCoroutine = null;
+    Coroutine lerpUnderlineCoroutine = null;
 
     public class UIInteractEventArgs : EventArgs
     {
@@ -67,14 +77,103 @@ public class UIButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
         }
     }
 
+    IEnumerator Start()
+    {
+        while (MenuManager.Instance == null)
+            yield return null;
+
+        text.alpha = MenuManager.Instance.RegularOpacity;
+
+        var regularScale = MenuManager.Instance.RegularScale;
+
+        var rect = transform as RectTransform;
+        text.transform.localScale = new Vector3(regularScale, regularScale, text.transform.localScale.z);
+        underline.rectTransform.sizeDelta = new Vector2(rect.sizeDelta.x, underline.rectTransform.sizeDelta.y);
+        underline.fillAmount = 0;
+    }
+
+    /// <summary>
+    ///     Moves the last held paper to the correct position over time.
+    /// </summary>
+    IEnumerator LerpButton(bool isSelected)
+    {
+        float time = 0;
+        
+        float startingScale = text.transform.localScale.x;
+        float targetScale = isSelected ? MenuManager.Instance.HoverScale : MenuManager.Instance.RegularScale;
+
+        float startingOpacity = text.alpha;
+        float targetOpacity = isSelected ? MenuManager.Instance.HoverOpacity : MenuManager.Instance.RegularOpacity;
+
+        while (time < 1)
+        {
+            var lerpCurve = MenuManager.Instance.ButtonLerpCurve;
+            
+            float newScale = Mathf.Lerp(startingScale, targetScale, lerpCurve.Evaluate(time));
+            text.transform.localScale = new Vector3 (newScale, newScale, text.transform.localScale.z);
+
+            float newOpacity = Mathf.Lerp(startingOpacity, targetOpacity, lerpCurve.Evaluate(time));
+            text.alpha = newOpacity;
+
+            time += Time.deltaTime * MenuManager.Instance.ButtonLerpSpeed;
+            yield return null;
+        }
+    }
+
+    IEnumerator LerpUnderline(bool isSelected)
+    {
+        float time = 0;
+
+        float startingFill = underline.fillAmount;
+        float targetFill = isSelected ? 1 : 0;
+
+        while (time < 1)
+        {
+            var lerpCurve = MenuManager.Instance.UnderlineLerpCurve;
+
+            float newFillAmount = Mathf.Lerp(startingFill, targetFill, lerpCurve.Evaluate(time));
+            underline.fillAmount = newFillAmount;
+
+            time += Time.deltaTime * MenuManager.Instance.UnderlineLerpSpeed;
+            yield return null;
+        }
+    }
+
+
     public void OnPointerClick(PointerEventData pointerEventData)
-        => OnUIInteract(pointerEventData, UIInteractionTypes.Click);
+    {
+        OnUIInteract(pointerEventData, UIInteractionTypes.Click);
 
+        OnButtonInteract(false);
+    }
     public void OnPointerEnter(PointerEventData pointerEventData)
-        => OnUIInteract(pointerEventData, UIInteractionTypes.Enter);
+    {
+        OnUIInteract(pointerEventData, UIInteractionTypes.Enter);
 
+        OnButtonInteract(true);
+    }
     public void OnPointerExit(PointerEventData pointerEventData)
-        => OnUIInteract(pointerEventData, UIInteractionTypes.Exit);
+    {
+        OnUIInteract(pointerEventData, UIInteractionTypes.Exit);
+
+        OnButtonInteract(false);
+    }
+
+    void OnButtonInteract(bool isSelected)
+    {
+        if (!gameObject.activeInHierarchy)
+            return;
+
+        if (lerpButtonCoroutine != null)
+            StopCoroutine(lerpButtonCoroutine);
+
+        lerpButtonCoroutine = StartCoroutine(LerpButton(isSelected));
+
+        if (lerpUnderlineCoroutine != null)
+            StopCoroutine(lerpUnderlineCoroutine);
+
+        lerpUnderlineCoroutine = StartCoroutine(LerpUnderline(isSelected));
+    }
 
     public void OnPointerUp(PointerEventData pointerEventData)
         => OnUIInteract(pointerEventData, UIInteractionTypes.Up);

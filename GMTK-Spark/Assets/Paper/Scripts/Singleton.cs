@@ -6,14 +6,14 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
 {
     public static T Instance { get; private set; }
 
-    private void Awake()
+    protected void Awake()
     {
         if (Instance != null)
             Destroy(gameObject);
         Instance = this as T;
     }
 
-    private void OnApplicationQuit()
+    protected void OnApplicationQuit()
     {
         Instance = null;
         Destroy(gameObject);

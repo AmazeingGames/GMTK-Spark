@@ -21,6 +21,20 @@ public class MenuManager : Singleton<MenuManager>
     [Header("Cameras")]
     [SerializeField] Camera userInterfaceCamera;
 
+
+    [field: Header("Button Properties")]
+    [field: SerializeField] public float RegularScale { get; private set; } = 1.0f;
+    [field: SerializeField] public float HoverScale { get; private set; } = 1.1f;
+
+    [field: Range(0, 1)][field: SerializeField] public float RegularOpacity { get; private set; } = .66f;
+    [field: Range(0, 1)][field: SerializeField] public float HoverOpacity { get; private set; } = 1;
+
+    [field: Header("Button Lerp Properties")]
+    [field: SerializeField] public float ButtonLerpSpeed { get; private set; } = 8;
+    [field: SerializeField] public float UnderlineLerpSpeed { get; private set; } = 8;
+    [field: SerializeField] public AnimationCurve ButtonLerpCurve { get; private set; }
+    [field: SerializeField] public AnimationCurve UnderlineLerpCurve { get; private set; }
+
     public enum MenuTypes { None, Previous, MainMenu, Credits, Pause, Settings, LevelSelect, BeatLevel, GameEndScreen, Empty, Diary }
 
     public static event EventHandler<MenuChangeEventArgs> MenuChangeEventHandler;
@@ -74,8 +88,10 @@ public class MenuManager : Singleton<MenuManager>
         [field: SerializeField] public List<GameObject> DisableOnReady { get; private set; } = new();
     }
 
-    void Start()
+    void Awake()
     {
+        base.Awake();
+
         MenuTypeToMenu = new()
         {
             { MenuTypes.MainMenu,       mainMenu },
@@ -139,7 +155,8 @@ public class MenuManager : Singleton<MenuManager>
             GameManager.GameAction.CompleteLevel => beatLevelScreen,
             _ => emptyMenu,
         };
-        Debug.Log($"Menu Manager: Handled Game Action {action} and loaded menu of type: {MenuToMenuType[menuToLoad]}");
+
+        Debug.Log($"Menu Manager: Handled Game Action {action} and loaded menu of type: {(MenuToMenuType.TryGetValue(menuToLoad, out MenuTypes value) == true ? value : MenuTypes.None)}");
         LoadMenu(menuToLoad);
     }
 
