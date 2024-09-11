@@ -14,11 +14,14 @@ public class AudioManager : MonoBehaviour
     [SerializeField] AudioSource grabPaper;
     [SerializeField] AudioSource snap;
 
-    [Header("UI")]
+    [Header("UI Buttons")]
     [SerializeField] AudioSource buttonEnter;
     [SerializeField] AudioSource buttonClick;
     [SerializeField] AudioSource buttonUp;
     [SerializeField] AudioSource buttonExit;
+
+    [Header("UI Menus")]
+    [SerializeField] AudioSource openDiary;
 
     [Header("Game Actions")]
     [SerializeField] AudioSource startLevel;
@@ -40,6 +43,7 @@ public class AudioManager : MonoBehaviour
     public Dictionary<UIButton.UIInteractionTypes, AudioSource> UIInteractToSFX;
     public Dictionary<GameManager.GameAction, AudioSource> GameActionToSFX;
     public Dictionary<GameManager.GameState, AudioSource> GameStateToMusic;
+    public Dictionary<MenuManager.MenuTypes, AudioSource> OpenMenuToSFX;
 
     private void OnEnable()
     {
@@ -47,6 +51,7 @@ public class AudioManager : MonoBehaviour
         GameManager.GameStateChangeEventHandler += HandleGameStateChange;
         UIButton.UIInteractEventHandler += HandleUIInteract;
         GameManager.GameActionEventHandler += HandleGameAction;
+        MenuManager.MenuChangeEventHandler += HandleMenuChange;
     }
     
     private void OnDisable()
@@ -55,6 +60,7 @@ public class AudioManager : MonoBehaviour
         GameManager.GameStateChangeEventHandler -= HandleGameStateChange;
         UIButton.UIInteractEventHandler -= HandleUIInteract;
         GameManager.GameActionEventHandler -= HandleGameAction;
+        MenuManager.MenuChangeEventHandler -= HandleMenuChange;
     }
 
     private void Start()
@@ -77,6 +83,7 @@ public class AudioManager : MonoBehaviour
         GameActionToSFX = new()
         {
             { GameAction.StartLevel,       shuffle      },
+            { GameAction.LoadNextLevel,     shuffle     },
             { GameAction.RestartLevel,     null         },
             { GameAction.CompleteLevel,    beatLevel    },
             { GameAction.EnterMainMenu,    null         },
@@ -90,6 +97,11 @@ public class AudioManager : MonoBehaviour
             { GameState.Paused,   pauseMenuMusic }
         };
 
+        OpenMenuToSFX = new()
+        {
+            { MenuManager.MenuTypes.Diary, openDiary },
+        };
+
     }
 
     /// <summary>
@@ -100,6 +112,14 @@ public class AudioManager : MonoBehaviour
         if (ActionsToSFX.TryGetValue(e.actionType, out var sfx) && sfx != null)
             sfx.Play();
         Debug.Log($"AudioManager: Handled paper action {e.actionType} {(sfx == null ? "" : $"and played sfx : {sfx}")}");
+    }
+
+    void HandleMenuChange(object sender, MenuManager.MenuChangeEventArgs e)
+    {
+        if (OpenMenuToSFX.TryGetValue(e.newMenuType, out var sfx) && sfx != null)
+            sfx.Play();
+
+        Debug.Log($"AudioManager: Handled game action {e.newMenuType}{(sfx == null ? "" : $"and played sfx : {sfx}")}");
     }
 
     /// <summary>

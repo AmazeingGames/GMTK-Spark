@@ -77,12 +77,31 @@ public class UIButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
         }
     }
 
+    void OnEnable()
+    {
+        if (MenuManager.Instance != null)
+            StartCoroutine(LerpButton(false));
+    }
+
+    void OnDisable()
+    {
+        if (MenuManager.Instance == null)
+            return;
+
+        text.transform.localScale = new (MenuManager.Instance.RegularScale, MenuManager.Instance.RegularScale);
+
+        text.alpha = MenuManager.Instance.RegularOpacity;
+
+        underline.fillAmount = 0;
+    }
+
     IEnumerator Start()
     {
         while (MenuManager.Instance == null)
             yield return null;
 
         text.alpha = MenuManager.Instance.RegularOpacity;
+        text.gameObject.SetActive(true);
 
         var regularScale = MenuManager.Instance.RegularScale;
 
@@ -90,6 +109,24 @@ public class UIButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
         text.transform.localScale = new Vector3(regularScale, regularScale, text.transform.localScale.z);
         underline.rectTransform.sizeDelta = new Vector2(rect.sizeDelta.x, underline.rectTransform.sizeDelta.y);
         underline.fillAmount = 0;
+
+        StartCoroutine(SetUnderlineLength());
+
+        Debug.Log($"Underline: size set to {underline.rectTransform.sizeDelta.x}");
+    }
+
+    // Why is it setting to 0 to begin with?
+    IEnumerator SetUnderlineLength()
+    {
+        underline.rectTransform.sizeDelta = new Vector2(0, underline.rectTransform.sizeDelta.y);
+
+        while (underline.rectTransform.sizeDelta.x == 0)
+        {
+            var rect = transform as RectTransform;
+            underline.rectTransform.sizeDelta = new Vector2(rect.sizeDelta.x, underline.rectTransform.sizeDelta.y);
+            Debug.Log($"Underline: size set to {underline.rectTransform.sizeDelta.x}");
+            yield return null;
+        }
     }
 
     /// <summary>
