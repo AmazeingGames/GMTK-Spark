@@ -105,22 +105,18 @@ public class MovePaper : MonoBehaviour
     // WHY DOES MOVE PAPER HAVE ITS OWN REFERENCE TO LEVEL DATA IF IT JUST USE GAMEMANAGER'S ANYWAYS?!
     void HandleLoadLevelData(object sender, LevelData.LoadLevelDataEventArgs e)
     {
-        Debug.Log($"Level Data Loaded responded to : is loading in {e.isLoadingIn}");
+        //Debug.Log($"Level Data Loaded responded to : is loading in {e.isLoadingIn}");
         
         if (levelData == e.levelData && !e.isLoadingIn)
         {
-            Debug.Log("set level data null");
+            //Debug.Log("set level data null");
             levelData = null;
         }
         else if (levelData != e.levelData && e.isLoadingIn)
         {
-            Debug.Log("Set new level data");
+            //Debug.Log("Set new level data");
             levelData = e.levelData;
         }
-        else 
-            Debug.Log("did nothing to level data");
-
-        //levelData = e.isLoadingIn ? e.levelData : null;
     }
 
     /// <summary>

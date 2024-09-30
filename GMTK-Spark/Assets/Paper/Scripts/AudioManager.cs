@@ -39,6 +39,9 @@ public class AudioManager : MonoBehaviour
     [SerializeField] bool shortPickup;
     [SerializeField] bool snap1;
 
+    [Header("Debug")]
+    [SerializeField] bool debugLog;
+
     public Dictionary<PaperActionEventArgs.PaperActionType, AudioSource> ActionsToSFX;
     public Dictionary<UIButton.UIInteractionTypes, AudioSource> UIInteractToSFX;
     public Dictionary<GameManager.GameAction, AudioSource> GameActionToSFX;
@@ -111,7 +114,9 @@ public class AudioManager : MonoBehaviour
     {
         if (ActionsToSFX.TryGetValue(e.actionType, out var sfx) && sfx != null)
             sfx.Play();
-        Debug.Log($"AudioManager: Handled paper action {e.actionType} {(sfx == null ? "" : $"and played sfx : {sfx}")}");
+
+        if (debugLog)
+            Debug.Log($"AudioManager: Handled paper action {e.actionType} {(sfx == null ? "" : $"and played sfx : {sfx}")}");
     }
 
     void HandleMenuChange(object sender, MenuManager.MenuChangeEventArgs e)
@@ -119,7 +124,8 @@ public class AudioManager : MonoBehaviour
         if (OpenMenuToSFX.TryGetValue(e.newMenuType, out var sfx) && sfx != null)
             sfx.Play();
 
-        Debug.Log($"AudioManager: Handled game action {e.newMenuType}{(sfx == null ? "" : $"and played sfx : {sfx}")}");
+        if (debugLog)
+            Debug.Log($"AudioManager: Handled game action {e.newMenuType}{(sfx == null ? "" : $"and played sfx : {sfx}")}");
     }
 
     /// <summary>
@@ -146,7 +152,8 @@ public class AudioManager : MonoBehaviour
                 currentMusic.Play();
         }
 
-        Debug.Log($"AudioManager: Handled game state change {(music == null ? "" : $"and changed music track to : {music}")}");
+        if (debugLog)
+            Debug.Log($"AudioManager: Handled game state change {(music == null ? "" : $"and changed music track to : {music}")}");
     }
 
     /// <summary>
@@ -157,7 +164,8 @@ public class AudioManager : MonoBehaviour
         if (GameActionToSFX.TryGetValue(e.gameAction, out var sfx) && sfx != null)
             sfx.Play();
 
-        Debug.Log($"AudioManager: Handled game action {e.gameAction}{(sfx == null ? "" : $"and played sfx : {sfx}")}");
+        if (debugLog)
+            Debug.Log($"AudioManager: Handled game action {e.gameAction}{(sfx == null ? "" : $"and played sfx : {sfx}")}");
     }
 
     /// <summary>
@@ -167,6 +175,8 @@ public class AudioManager : MonoBehaviour
     {
         if (UIInteractToSFX.TryGetValue(e.buttonInteraction, out var sfx) && sfx != null)
             sfx.Play();
-        Debug.Log($"AudioManager: Handled UI interaction {e.buttonInteraction} {(sfx == null ? "" : $"and played sfx : {sfx}")}");
+
+        if (debugLog)
+            Debug.Log($"AudioManager: Handled UI interaction {e.buttonInteraction} {(sfx == null ? "" : $"and played sfx : {sfx}")}");
     }
 }

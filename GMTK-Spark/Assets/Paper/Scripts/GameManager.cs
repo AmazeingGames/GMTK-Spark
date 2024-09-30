@@ -116,7 +116,8 @@ public class GameManager : Singleton<GameManager>
 
     private void Update()
     {
-        if (Input.GetKeyDown(pauseKey))
+        // In the future, I would like the game to acknowledge this, and be able to smoothly transition between the 2 quickly
+        if (Input.GetKeyDown(pauseKey) && !ScreenTransitions.Instance.IsTransitioning)
         {
             switch (CurrentState)
             {
