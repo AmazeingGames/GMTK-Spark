@@ -42,6 +42,8 @@ public class MenuManager : Singleton<MenuManager>
 
     public static event EventHandler<MenuChangeEventArgs> MenuChangeEventHandler;
 
+    MenuTypes nextInQueue;
+
     public class MenuChangeEventArgs
     {
         public readonly MenuTypes newMenuType;
@@ -199,6 +201,15 @@ public class MenuManager : Singleton<MenuManager>
 
     }
 
+    private void Update()
+    {
+        if (nextInQueue != MenuTypes.None && !ScreenTransitions.Instance.IsTransitioning)
+        {
+            LoadMenu(nextInQueue);
+            nextInQueue = MenuTypes.None;
+        }    
+    }
+
     void OnEnable()
     {
         GameStateChangeEventHandler += HandleGameStateChange;
@@ -290,12 +301,14 @@ public class MenuManager : Singleton<MenuManager>
     /// </summary>
     /// <param name="menu"> Menu to load. </param>
     /// <param name="addToHistory"> If we are entering a nested menu. </param>
-    void LoadMenu(MenuTypes menuType, bool addToHistory = true)
+    void LoadMenu(MenuTypes menuType, bool addToHistory = true, bool addToQueue = true)
     {
         // In the future I would like the game to smoothly switch between screen transitions
         if (ScreenTransitions.Instance.IsTransitioning)
         {
-            Debug.LogWarning("Can not change menus during screen transition");
+            Debug.LogWarning("Can not change menus during screen transition.");
+            if (addToQueue)
+                nextInQueue = menuType;
             return;
         }
 
