@@ -25,8 +25,10 @@ public class LevelData : MonoBehaviour
     }
 
     private void OnEnable()
-        => OnLoadLevelData(true);
-
+    {
+        Debug.Log("Level Data Loaded");
+        OnLoadLevelData(true);
+    }
     private void OnDisable()
         => OnLoadLevelData(false);
 

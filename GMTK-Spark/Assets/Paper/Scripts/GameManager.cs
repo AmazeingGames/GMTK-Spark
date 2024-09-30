@@ -97,7 +97,7 @@ public class GameManager : Singleton<GameManager>
             levelToLoad = levelNumber;
         }
 
-        // Loads the first found level and unloads the rest
+        // If there are, we load the first level and unload the rest
         if (ScenesManager.IsLevelInBuildPath(levelToLoad))
         {
             foundTestLevel = true;
@@ -189,17 +189,24 @@ public class GameManager : Singleton<GameManager>
     /// </summary>
     void HandleLoadLevelData(object sender, LevelData.LoadLevelDataEventArgs e)
     {
-        if (!e.isLoadingIn)
+        if (LevelData == e.levelData && !e.isLoadingIn)
         {
+            Debug.Log("set level data null");
             LevelData = null;
             return;
         }
+        
+        if (LevelData != e.levelData && e.isLoadingIn)
+        {
+            Debug.Log("Set new level data");
+            LevelData = e.levelData;
+            paperList.Clear();
 
-        LevelData = e.levelData;
-        paperList.Clear();
-
-        for (int i = 0; i < LevelData.PuzzleParent.transform.childCount; i++)
-            paperList.Add(LevelData.PuzzleParent.transform.GetChild(i).GetComponent<Paper>());
+            for (int i = 0; i < LevelData.PuzzleParent.transform.childCount; i++)
+                paperList.Add(LevelData.PuzzleParent.transform.GetChild(i).GetComponent<Paper>());
+        }
+        else
+            Debug.Log("did nothing to level data");
     }
 
     /// <summary>

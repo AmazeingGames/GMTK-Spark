@@ -1,26 +1,43 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Unity;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
+/// <summary>
+///     Responsible for loading all scenes and contains all the functionality for scene loading.
+/// </summary>
 public class ScenesManager : Singleton<ScenesManager>
 {
     [SerializeField] string levelConvention = "Level_";
-    public class LevelLoadStartEventArgs : EventArgs
+    public class SceneLoadEventArgs : EventArgs
     {
+        public enum Progress { Start, Loading, Finish }
+
         public readonly AsyncOperation asyncOperation;
 
-        public LevelLoadStartEventArgs(AsyncOperation _asyncOperation)
-            => asyncOperation = _asyncOperation;
+        public readonly Progress progress;
+
+        public readonly bool isLevel;
+        public readonly int levelNumber;
+
+        public SceneLoadEventArgs(AsyncOperation asyncOperation, Progress progress)
+        {
+            this.asyncOperation = asyncOperation;
+            this.progress = progress;
+        }
     }
 
     public int CurrentLevel { get; private set; }
 
     string lastLoadedLevel = null;
 
-    public static event EventHandler<LevelLoadStartEventArgs> StartLevelLoadEventHandler;
-    public static event EventHandler<LevelLoadStartEventArgs> FinishLevelLoadEventHandler;
+    public static event EventHandler<SceneLoadEventArgs> SceneLoadEventHandler;
     public static event EventHandler BeatLastLevelEventHandler;
+
+    readonly List<(AsyncOperation, int)> preloadedLevels = new();
 
     private void OnEnable()
     {
@@ -62,6 +79,10 @@ public class ScenesManager : Singleton<ScenesManager>
                 if (!LoadLevel(CurrentLevel + 1))
                     Invoke(nameof(OnBeatLastLevel), .01f);
             break;
+
+            case GameManager.GameAction.CompleteLevel:
+                PreloadLevel(CurrentLevel + 1);
+            break;
         }
     }
 
@@ -75,18 +96,50 @@ public class ScenesManager : Singleton<ScenesManager>
     }
 
     /// <summary>
-    ///     Asyrnchously loads a level and unloads the previous level.
+    ///     Called when we know we're going to need a scene/level, and loads it disabled in advance.
+    ///     The next time we load a level, we'll first check to see if it's preloaded before attempting to load it.
+    /// </summary>
+    /// <param name="level"></param>
+    void PreloadLevel(int level)
+    {
+        if (!IsLevelInBuildPath(level))
+        {
+            Debug.Log("No level exists to ready");
+            return;
+        }
+
+        var scene = SceneManager.LoadSceneAsync($"{levelConvention}{level}", LoadSceneMode.Additive);
+        scene.allowSceneActivation = false;
+        preloadedLevels.Add((scene, level));
+    }
+
+    /// <summary>
+    ///     Asyrnchously readies or loads a level and unloads the previous level.
     /// </summary>
     /// <param name="level"> The number of the level to unload. </param>
     /// <returns> True if level is found. </returns>
-    public bool LoadLevel(int level)
+    bool LoadLevel(int level)
     {
         UnloadScene(lastLoadedLevel);
 
-        lastLoadedLevel = $"{levelConvention}{level}";
         CurrentLevel = level;
+        lastLoadedLevel = $"{levelConvention}{CurrentLevel}";
 
-       return LoadScene($"{levelConvention}{level}");
+        // Loading Screen
+
+        // If the level is preloaded, only readies it
+        var levelToReady = preloadedLevels.Find(i => i.Item2 == level);
+        if (levelToReady.Item1 != null)
+        {
+            Debug.Log("Found and allowed scene actication");
+            levelToReady.Item1.allowSceneActivation = true;
+            preloadedLevels.Remove(levelToReady);
+            return true;
+        }
+        
+        // Otherwise loads it
+        Debug.Log("Couldn't find readied scene");
+        return LoadScene($"{levelConvention}{CurrentLevel}");
     }
 
     /// <summary>
@@ -97,29 +150,54 @@ public class ScenesManager : Singleton<ScenesManager>
     bool LoadScene(string sceneName)
     {
         if (SceneUtility.GetBuildIndexByScenePath(sceneName) == -1)
-            return false;
-
-        AsyncOperation levelLoadAsyncOperation = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
-
-        OnStartLevelLoad(levelLoadAsyncOperation);
+            return false; 
+        
+        SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
         return true;
     }
 
+    /*
     /// <summary>
     ///     Called when we begin asynchronously loading a level.
     /// </summary>
     /// <param name="levelLoadAsyncOperation"> The level loading operation. </param>
-    public void OnStartLevelLoad(AsyncOperation levelLoadAsyncOperation)
+    void OnStartSceneLoad(AsyncOperation levelLoadAsyncOperation)
     {
-        LevelLoadStartEventArgs eventArgs = new(levelLoadAsyncOperation);
-        StartLevelLoadEventHandler?.Invoke(this, eventArgs);
+        SceneLoadEventArgs eventArgs = new(levelLoadAsyncOperation, SceneLoadEventArgs.Progress.Start);
+        SceneLoadEventHandler?.Invoke(this, eventArgs);
+        
+        StartCoroutine(SceneLoading(levelLoadAsyncOperation));
+
+        Debug.Log("Start Level load!");
     }
 
-    public void OnBeatLastLevel()
+    
+    void OnFinishSceneLoad(AsyncOperation levelLoadAsyncOperation)
+    {
+        SceneLoadEventArgs eventArgs = new(levelLoadAsyncOperation, SceneLoadEventArgs.Progress.Finish);
+        SceneLoadEventHandler?.Invoke(this, eventArgs);
+
+        Debug.Log("Finish Level load!");
+    }
+
+    IEnumerator SceneLoading(AsyncOperation levelLoadOperation)
+    {
+        while (!levelLoadOperation.isDone)
+            yield return null;
+
+        OnFinishSceneLoad(levelLoadOperation);
+    }
+
+    void OnCompleteLevelLoad(AsyncOperation levelLoadOperation)
+    {
+
+    }*/
+
+    void OnBeatLastLevel()
         => BeatLastLevelEventHandler?.Invoke(this, new());
 
     /// <summary>
-    ///     Checks if a level is in the build path.
+    ///     Checks if a level is in the build path and can be loaded in.
     /// </summary>
     /// <param name="levelnumber"> The nummber of the level to check. </param>
     /// <returns> True if a scene is successfully found. </returns>
@@ -131,10 +209,14 @@ public class ScenesManager : Singleton<ScenesManager>
         return SceneUtility.GetBuildIndexByScenePath($"{Instance.levelConvention}{levelnumber}") != -1;
     }
 
-    public static bool IsLevelLoaded(int levelnumber)
+    static bool IsLevelLoaded(int levelnumber)
         => IsSceneLoaded($"{Instance.levelConvention}{levelnumber}");
 
-    public static bool IsSceneLoaded(string sceneName)
+    /// <summary>
+    ///     Checks if there is a matching scene name currently loaded in.
+    /// </summary>
+    /// <returns> True if the scene is currently loaded in the project. </returns>
+    static bool IsSceneLoaded(string sceneName)
     {
         for (int i = 0; i < SceneManager.sceneCount; i++)
         {
@@ -152,7 +234,7 @@ public class ScenesManager : Singleton<ScenesManager>
     /// </summary>
     /// <param name="levelnumber"> The number of the level to unload </param>
     /// <returns> True if the level starts to unload. </returns>
-    public bool UnloadLevel(int levelnumber)
+    bool UnloadLevel(int levelnumber)
         => UnloadScene($"{levelConvention}{levelnumber}");
 
     /// <summary>
@@ -160,7 +242,7 @@ public class ScenesManager : Singleton<ScenesManager>
     /// </summary>
     /// <param name="sceneName"> The name of the scene to unload. </param>
     /// <returns> True if the scene starts to unload. </returns>
-    public bool UnloadScene(string sceneName)
+    bool UnloadScene(string sceneName)
     {
         if (SceneUtility.GetBuildIndexByScenePath(sceneName) == -1)
             return false;

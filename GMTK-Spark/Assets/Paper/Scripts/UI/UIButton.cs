@@ -115,17 +115,19 @@ public class UIButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
         Debug.Log($"Underline: size set to {underline.rectTransform.sizeDelta.x}");
     }
 
+    
+
     // Why is it setting to 0 to begin with?
     IEnumerator SetUnderlineLength()
     {
         underline.rectTransform.sizeDelta = new Vector2(0, underline.rectTransform.sizeDelta.y);
 
-        while (underline.rectTransform.sizeDelta.x == 0)
+        while (true)
         {
             var rect = transform as RectTransform;
             underline.rectTransform.sizeDelta = new Vector2(rect.sizeDelta.x, underline.rectTransform.sizeDelta.y);
             Debug.Log($"Underline: size set to {underline.rectTransform.sizeDelta.x}");
-            yield return null;
+            yield return new WaitForSeconds(.1f);
         }
     }
 
