@@ -122,6 +122,8 @@ public class GameManager : Singleton<GameManager>
             switch (CurrentState)
             {
                 case GameState.Running:
+                    if (LastGameAction == GameAction.CompleteLevel)
+                        return;
                     PerformGameAction(GameAction.PauseGame);
                 break;
 
@@ -131,6 +133,8 @@ public class GameManager : Singleton<GameManager>
             }
         }
     }
+
+    bool hasBeatLevel;
 
     /// <summary>
     ///     Checks if we beat the level when we snap a piece into place.
@@ -156,6 +160,7 @@ public class GameManager : Singleton<GameManager>
                 return;
             }
         }
+
         PerformGameAction(GameAction.CompleteLevel);
     }
 
