@@ -1,13 +1,17 @@
+using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using static GameManager;
 using static MovePaper;
 using static MovePaper.PaperActionEventArgs;
+using static ScreenTransitions;
 using static UIButton;
 
 
 public class AudioManager : MonoBehaviour
 {
+
     [Header("Paper Sounds")]
     [SerializeField] AudioSource dropPaper;
     [SerializeField] AudioSource shuffle;
@@ -31,7 +35,12 @@ public class AudioManager : MonoBehaviour
     [SerializeField] AudioSource gameplayMusic;
     [SerializeField] AudioSource mainMenuMusic;
     [SerializeField] AudioSource pauseMenuMusic;
+
+    [Header("Music Fade")]
     [SerializeField] bool stopMusicByMute = false;
+    [SerializeField] float maxMusicVolume;
+    [SerializeField] public AnimationCurve fadeCurve;
+    [SerializeField] public float fadeSpeed;
 
     AudioSource currentMusic;
 
@@ -136,24 +145,36 @@ public class AudioManager : MonoBehaviour
         if (GameStateToMusic.TryGetValue(e.newState, out var music) && music != null)
         {
             if (currentMusic != null)
-            {
-                if (stopMusicByMute)
-                    currentMusic.mute = true;
-                else
-                    currentMusic.Stop();
-
-            }
-            currentMusic = music;
-            currentMusic.mute = false;
-
+                StartCoroutine(LerpTrackVolume(currentMusic, fadeCurve, fadeSpeed, true, true));
             if (!stopMusicByMute)
                 currentMusic.Play();
-            else if (!currentMusic.isPlaying)
-                currentMusic.Play();
+            currentMusic = music;
+            StartCoroutine(LerpTrackVolume(currentMusic, fadeCurve, fadeSpeed, false, true));
         }
 
         if (debugLog)
             Debug.Log($"AudioManager: Handled game state change {(music == null ? "" : $"and changed music track to : {music}")}");
+    }
+
+    bool isFading = false;
+    IEnumerator LerpTrackVolume(AudioSource track, AnimationCurve curve, float speed, bool isMuting, bool waitUntilFade)
+    {
+        // Slide UI elements using lerp and an animation curve
+
+        float startingVolume = track.volume;
+        float targetVolume = isMuting ? 0 : maxMusicVolume;
+
+        float current = 0;
+
+        while (current < 1)
+        {
+            isFading = true;
+            current = Mathf.MoveTowards(current, 1, speed * Time.deltaTime);
+
+            track.volume = Mathf.Lerp(startingVolume, targetVolume, curve.Evaluate(current));
+            yield return null;
+        }
+        isFading = false;
     }
 
     /// <summary>

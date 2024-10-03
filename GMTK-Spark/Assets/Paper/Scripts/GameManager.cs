@@ -220,6 +220,8 @@ public class GameManager : Singleton<GameManager>
     /// </summary>
     /// <param name="action"> The game action to perform. </param>
     /// <param name="levelToLoad"> If we should load a level, otherwise leave at -1. </param>
+    
+    // Update game state in response to menu changes
     void PerformGameAction(GameAction action, int levelToLoad = -1)
     {
         if (action == GameAction.None)
@@ -235,6 +237,8 @@ public class GameManager : Singleton<GameManager>
         switch (action)
         {
             case GameAction.EnterMainMenu:
+            case GameAction.CompleteLevel:
+            case GameAction.BeatGame:
                 UpdateGameState(GameState.InMenu);
             break;
 

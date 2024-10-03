@@ -1079,8 +1079,35 @@ MonoBehaviour:
   mainMenuMusic: {fileID: 1925923745}
   pauseMenuMusic: {fileID: 1925923745}
   stopMusicByMute: 1
+  maxMusicVolume: 0.2
+  fadeCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  fadeSpeed: 1
   shortPickup: 0
   snap1: 0
+  debugLog: 0
 --- !u!1 &1084846869
 GameObject:
   m_ObjectHideFlags: 0
@@ -2225,7 +2252,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   <Speed>k__BackingField: 1.25
-  distanceToMove: 450
+  distanceToMove: 500
 --- !u!1 &1738074768
 GameObject:
   m_ObjectHideFlags: 0
@@ -2306,7 +2333,7 @@ GameObject:
   - component: {fileID: 1925923744}
   - component: {fileID: 1925923745}
   m_Layer: 0
-  m_Name: PauseMusic
+  m_Name: UIMusic
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2337,9 +2364,9 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 0}
-  m_PlayOnAwake: 0
-  m_Volume: 0.2
+  m_audioClip: {fileID: 8300000, guid: 2898abae147989645910036c81652133, type: 3}
+  m_PlayOnAwake: 1
+  m_Volume: 0
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -2451,8 +2478,8 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 54bde822ca593024099a5d6e3808a778, type: 3}
-  m_PlayOnAwake: 0
-  m_Volume: 0.2
+  m_PlayOnAwake: 1
+  m_Volume: 0
   m_Pitch: 1
   Loop: 1
   Mute: 0
