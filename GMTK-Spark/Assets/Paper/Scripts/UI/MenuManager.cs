@@ -66,7 +66,8 @@ public class MenuManager : Singleton<MenuManager>
     MenuTypes previousMenuType;
 
     readonly Menu emptyMenu = new();
-    readonly List<Menu> menuHistory = new();
+    List<Menu> menuHistory = new();
+    List<Menu> nestedMenuHistory = new();
     int currentHistoryIndex = -1;
 
     Dictionary<MenuTypes, Menu> MenuTypeToMenu;
@@ -78,76 +79,89 @@ public class MenuManager : Singleton<MenuManager>
     class Menu
     {
         [field: SerializeField] public Canvas Canvas { get; private set; } = new();
-        [field: SerializeField] public List<GameObject> EnableOnReady { get; private set; } = new();
-        [field: SerializeField] public List<GameObject> DisableOnReady { get; private set; } = new();
+        [field: SerializeField] public List<GameObject> ObjectsToEnableOnReady { get; private set; } = new();
+        [field: SerializeField] public List<Menu> MenusToDisableOnReady { get; private set; } = new();
         [field: SerializeField] public ScreenTransitions.OthogonalDirection SlideDirection { get; private set; }
         [field: SerializeField] public bool canSeePaper { get; private set; }
-        public Transform Elements { get; private set; }
+        public Transform CanvasElements { get; private set; }
+        public MenuTypes menuType { get; private set; }
 
         bool isReady = false;
 
-        public static event Action<bool> SetCanvas;
+        public static event Action<Menu, bool> SetCanvasAction;
 
-        public void SetReady(bool ready)
+        /// <summary>
+        ///    Plays a transition animation before enabling/disabling the canvas.
+        /// </summary>
+        /// <param name="setActive"></param>
+        public void SetCanvas(bool setActive, bool needsToMoveOutOfFrame = false, bool wasNested = false)
         {              
-            if (ready == isReady)
+            if (setActive == isReady)
             {
-                Debug.Log($"Trying to set ready to {ready}, when ready is already {isReady}");
+                Debug.Log($"Trying to {(setActive ? "enable" : "disable")} canvas, when canvas is already {(isReady ? "enabled" : "disabled")}");
                 return;
             }
 
-            isReady = ready;
-            if (Canvas != null)
+            isReady = setActive;
+            if (CanvasElements != null)
             {
-                Debug.Log($"{Canvas.name} starting transition to being set : {ready}");
-                ScreenTransitions.Instance.StartTransition(Elements, ready, SlideDirection);
+                Debug.Log($"{Canvas.name} starting transition to being set : {setActive} | direction : {SlideDirection} | needsToMoveOutOfFrame : {needsToMoveOutOfFrame} | wasNested : {wasNested}");
+                ScreenTransitions.Instance.StartTransition(CanvasElements, setActive, SlideDirection, needsToMoveOutOfFrame, wasNested);
             }
-            ScreenTransitions.Instance.StartCoroutine(SetObjectsAndCanvas(ready));
 
-            if (!ready)
-                return;
+            ScreenTransitions.Instance.StartCoroutine(SetObjectsAndCanvas(setActive));
 
-            string disabledObjects = string.Empty;
-            foreach (GameObject obj in DisableOnReady)
+            if (setActive)
             {
-                disabledObjects += obj.name + ", ";
-                obj.SetActive(false);
+                string disabledMenus = string.Empty;
+                foreach (Menu menu in MenusToDisableOnReady)
+                {
+                    disabledMenus += menu.Canvas.name + ", ";
+                    menu.SetCanvas(false);
+                }
+                Debug.Log($"Disabled the following menus on ready: {(disabledMenus == string.Empty ? "none" : disabledMenus[..^2])}");
             }
-            Debug.Log($"Disabled the following objects on ready: {(disabledObjects == string.Empty ? "none" : disabledObjects[..^2])}");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ready"></param>
+        /// <returns></returns>
         IEnumerator SetObjectsAndCanvas(bool ready)
         {
+            // Instantly enables the canvas
             if (ready)
             {
                 if (Canvas != null)
                 {
                     Canvas.gameObject.SetActive(ready);
                     Debug.Log($"Invoked set canvas {ready}");
-                    SetCanvas?.Invoke(ready);
+                    SetCanvasAction?.Invoke(this, ready);
                 }
-                foreach (GameObject obj in EnableOnReady)
+                foreach (GameObject obj in ObjectsToEnableOnReady)
                     obj.SetActive(ready);
             }
                
             while (ScreenTransitions.Instance.IsTransitioning)
                 yield return null;
 
+            // Waits until the canvas moves out of frame 
             if (!ready)
             {
                 if (Canvas != null)
                 {
                     Canvas.gameObject.SetActive(ready);
                     Debug.Log($"Invoked set canvas {ready}");
-                    SetCanvas?.Invoke(ready);
+                    SetCanvasAction?.Invoke(this, ready);
                     Debug.Log($"Disabled canvas: {Canvas.name}");
                 }
-                foreach (GameObject obj in EnableOnReady)
+                foreach (GameObject obj in ObjectsToEnableOnReady)
                     obj.SetActive(ready);
             }
         }
 
-       public void Init()
+       public void Init(MenuTypes menuType)
         {
             if (Canvas == null)
             {
@@ -160,8 +174,10 @@ public class MenuManager : Singleton<MenuManager>
                 var child = Canvas.transform.GetChild(i);
 
                 if (child.name == "Elements")
-                    Elements = child;
+                    CanvasElements = child;
             }
+
+            this.menuType = menuType;
         }
     }
 
@@ -188,17 +204,26 @@ public class MenuManager : Singleton<MenuManager>
         foreach (var menu in MenuTypeToMenu.Values)
         {
             if (menu.Canvas != null)
-                emptyMenu.DisableOnReady.Add(menu.Canvas.gameObject);
+                emptyMenu.MenusToDisableOnReady.Add(menu);
         }
 
+        // Initializes each menu
+        // Makes sure only the main menu is open on start
         foreach (var menu in menus)
-            menu.Init();
+        {
+            if (!MenuToMenuType.TryGetValue(menu, out var menuType))
+                menuType = MenuTypes.None;
+            menu.Init(menuType);
+
+            if (menu.Canvas != null && menu.menuType != MenuTypes.MainMenu)
+                menu.Canvas.gameObject.SetActive(false);
+        }
 
         // Ignores following MenuTypes: 'Previous', 'None', 'Empty'
         if (MenuTypeToMenu.Count < Enum.GetNames(typeof(MenuTypes)).Length - 3)
             throw new Exception("Not all enums are counted for in the MenuTypeToMenu dictionary");
-        UpdateMenusToGameAction(GameManager.Instance.LastGameAction);
 
+        UpdateMenusToGameAction(GameManager.Instance.LastGameAction);
     }
 
     private void Update()
@@ -215,14 +240,15 @@ public class MenuManager : Singleton<MenuManager>
         GameStateChangeEventHandler += HandleGameStateChange;
         UIButton.UIInteractEventHandler += HandleUIButtonInteract;
         GameManager.GameActionEventHandler += HandleGameAction;
-        Menu.SetCanvas += HandleSetCanvas;
+        Menu.SetCanvasAction += HandleSetCanvas;
     }
+
     void OnDisable()
     {
         GameStateChangeEventHandler -= HandleGameStateChange;
         UIButton.UIInteractEventHandler -= HandleUIButtonInteract;
         GameManager.GameActionEventHandler -= HandleGameAction;
-        Menu.SetCanvas -= HandleSetCanvas;
+        Menu.SetCanvasAction -= HandleSetCanvas;
     }
 
     void HandleGameAction(object sender, GameActionEventArgs e)
@@ -239,23 +265,23 @@ public class MenuManager : Singleton<MenuManager>
     ///     Checks if there's currently an active canvas in the scene.
     ///     Sets the UI camera and level camera active based on that.
     /// </summary>
-    /// <param name="ready"> The SetActive() property the canvas was set to. </param>
-    void HandleSetCanvas(bool ready)
+    /// <param name="setActive"> The SetActive() property the canvas was set to. </param>
+    void HandleSetCanvas(Menu menu, bool setActive)
     {
         bool isAMenuEnabled = false;
 
         string activeCanvases = string.Empty;
 
         // We could save performance by skipping the loop on (ready == true)
-        foreach (var menu in menus)
+        foreach (var m in menus)
         {
-            if (menu.Canvas.gameObject.activeInHierarchy)
+            if (m.Canvas.gameObject.activeInHierarchy)
             {
-                activeCanvases += menu.Canvas.name;
+                activeCanvases += m.Canvas.name;
                 isAMenuEnabled = true;
             }
         }
-        Debug.Log($"The following canvases are active: {(activeCanvases == string.Empty ? "none" : activeCanvases[..^2])}");
+        Debug.Log($"The following canvases are currently active: {(activeCanvases == string.Empty ? "no active canvases" : activeCanvases[..^2])}");
 
         userInterfaceCamera.gameObject.SetActive(isAMenuEnabled);
         OnMenuChange(currentMenuType, previousMenuType, isAMenuEnabled);
@@ -316,10 +342,14 @@ public class MenuManager : Singleton<MenuManager>
             LoadMenu(menu, addToHistory);
         else if (menuType == MenuTypes.Previous)
             LoadPreviousMenu();
+
         // Unload all menus
         else if (menuType == MenuTypes.Empty)
+        {
             foreach (var current in menus)
-                current.SetReady(false);
+                current.SetCanvas(false, needsToMoveOutOfFrame: true);
+            nestedMenuHistory.Clear();
+        }
         else
             Debug.LogWarning($"Menu Type: {menuType} not covered by conditional statements");
     }
@@ -331,6 +361,16 @@ public class MenuManager : Singleton<MenuManager>
     /// <param name="addToHistory"> If we are entering a nested menu.  </param>
     void LoadMenu(Menu menu, bool addToHistory = true)
     {
+        // We also need to ensure that the menu we just loaded is at the end of the list
+        bool transitioningToMenuUnderStack = false;
+        if (nestedMenuHistory.Contains(menu))
+        {
+            transitioningToMenuUnderStack = true;
+            nestedMenuHistory.RemoveAt(nestedMenuHistory.Count() - 1);
+        }
+        else
+            nestedMenuHistory.Add(menu);
+
         if (addToHistory)
         {
             menuHistory.Add(menu);
@@ -348,22 +388,14 @@ public class MenuManager : Singleton<MenuManager>
         if (previousMenu != null && MenuToMenuType.TryGetValue(previousMenu, out MenuTypes previousType))
             previousMenuType = previousType;
 
-        previousMenu?.SetReady(false);
-        menu.SetReady(true);
+        previousMenu?.SetCanvas(false, false, !transitioningToMenuUnderStack);
+        menu.SetCanvas(true, false, transitioningToMenuUnderStack);
 
 
         if (menu.canSeePaper)
             userInterfaceCamera.cullingMask = allSeeingCullingMask;
         else
             userInterfaceCamera.cullingMask = uIOnlyCullingMask;
-
-        if (menu.Canvas != null && !emptyMenu.DisableOnReady.Contains(menu.Canvas.gameObject))
-        {
-            foreach (GameObject menuObject in menu.EnableOnReady)
-                emptyMenu.DisableOnReady.Add(menuObject);
-
-            emptyMenu.DisableOnReady.Add(menu.Canvas.gameObject);
-        }
     }
 
     void OnMenuChange(MenuTypes newMenuType, MenuTypes previousMenuType, bool isAMenuEnabled)
