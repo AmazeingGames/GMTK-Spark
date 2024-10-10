@@ -7,6 +7,7 @@ using UnityEngine;
 public class Paper : MonoBehaviour
 {
     [field: SerializeField] public SpriteRenderer SpriteRenderer { get; private set; }
+    [field: SerializeField] public PolygonCollider2D PolygonCollider2D { get; private set; }
 
     public bool IsInPlace { get; private set; }
     private void OnEnable()
@@ -18,6 +19,11 @@ public class Paper : MonoBehaviour
     {
         MovePaper.GetMatchingPaperEventHandler -= HandleGetMatchingPaper;
         MovePaper.PaperActionEventHandler -= HandlePaperAction;
+    }
+
+    private void Start()
+    {
+        PolygonCollider2D = GetComponent<PolygonCollider2D>();
     }
 
     // Returns a reference to the Paper class if the given game object is a match

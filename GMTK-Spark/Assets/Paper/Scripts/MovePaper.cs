@@ -38,6 +38,16 @@ public class MovePaper : MonoBehaviour
 
     LevelData levelData;
 
+    bool isXClose;
+    bool isYClose;
+    bool isZRotationBetweenZeroAndPositiveLeniency;
+    bool isZRotationBetweenZeroAndNegativeLeniency;
+    bool isWRotationBetweenOneAndPositiveLeniency;
+    bool isWRotationBetweenOneAndNegativeLeniency;
+
+    bool isFlippedWRotationBetweenNegativeOneAndNegativeLeniency; // Close to 1
+    bool isFlippedWRotationBetweenNegativeOneAndPositiveLeniency; // Close to 1
+
     GetMatchingPaperEventArgs OnGetPaper(GameObject paperGameObject)
     {
         var paperEventArgs = new GetMatchingPaperEventArgs(paperGameObject);
@@ -45,7 +55,7 @@ public class MovePaper : MonoBehaviour
         return paperEventArgs;
     }
         void OnPaperAction(Paper paper, PaperActionType paperAction)
-        => PaperActionEventHandler?.Invoke(this, new(paper, paperAction));
+            => PaperActionEventHandler?.Invoke(this, new(paper, paperAction));
 
     public class GetMatchingPaperEventArgs : EventArgs
     {
@@ -102,21 +112,13 @@ public class MovePaper : MonoBehaviour
         }
     }
 
-    // WHY DOES MOVE PAPER HAVE ITS OWN REFERENCE TO LEVEL DATA IF IT JUST USE GAMEMANAGER'S ANYWAYS?!
+    // WHY DOES MOVE PAPER HAVE ITS OWN REFERENCE TO LEVEL DATA IF IT JUST USES GAMEMANAGER'S?!
     void HandleLoadLevelData(object sender, LevelData.LoadLevelDataEventArgs e)
     {
-        //Debug.Log($"Level Data Loaded responded to : is loading in {e.isLoadingIn}");
-        
         if (levelData == e.levelData && !e.isLoadingIn)
-        {
-            //Debug.Log("set level data null");
             levelData = null;
-        }
         else if (levelData != e.levelData && e.isLoadingIn)
-        {
-            //Debug.Log("Set new level data");
             levelData = e.levelData;
-        }
     }
 
     /// <summary>
@@ -125,7 +127,7 @@ public class MovePaper : MonoBehaviour
     ///     Grabs the paper on mouse down, and drops on mouse up.
     ///     </para>
     /// </summary>
-    void HandlePaperInteraction(InteractionType interactionType, Paper paper)
+    void PaperInteraction(InteractionType interactionType, Paper paper)
     {
         Transform dragParent = GameManager.Instance.LevelData.DragParent;
         switch (interactionType)
@@ -143,6 +145,7 @@ public class MovePaper : MonoBehaviour
                 }
 
                 // Sets the paper's parent to the mouse and informs listeners of any state changes.
+
                 rememberParent = paper.transform.parent;
                 paper.transform.SetParent(dragParent, worldPositionStays);
                 paper.SpriteRenderer.sortingOrder = order++;
@@ -170,8 +173,7 @@ public class MovePaper : MonoBehaviour
             return;
 
         // Checks what papers the mouse is over every frame
-        mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        mousePosition.z = -10;
+        mousePosition = InteractionMath.GetMousePosition();
         hits = Physics2D.RaycastAll(mousePosition, transform.TransformDirection(Vector3.forward), Mathf.Infinity, paperLayer);
 
         listOfPapersMouseOver.Clear();
@@ -200,15 +202,11 @@ public class MovePaper : MonoBehaviour
         else
             Debug.DrawRay(mousePosition, transform.TransformDirection(Vector3.forward) * 1000, Color.white);
         
-        // Grab paper on mouse click and over
-        if (mouseOverPaper != null)
-        {
-            if (Input.GetMouseButtonDown(0))
-                HandlePaperInteraction(InteractionType.Click, mouseOverPaper.GetComponent<Paper>());
-        }
-        // Drop the paper we're holding on mouse up
-        if (Input.GetMouseButtonUp(0))
-            HandlePaperInteraction(InteractionType.Release, paperValues.HoldingPaper);
+        if (mouseOverPaper != null && Input.GetMouseButtonDown(0))
+            PaperInteraction(InteractionType.Click, mouseOverPaper.GetComponent<Paper>());
+
+        else if (Input.GetMouseButtonUp(0))
+            PaperInteraction(InteractionType.Release, paperValues.HoldingPaper);
 
         // Moves & Rotates Parent
         GameManager.Instance.LevelData.DragParent.transform.position = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -217,16 +215,6 @@ public class MovePaper : MonoBehaviour
         if (Input.mouseScrollDelta.y != 0)
             GameManager.Instance.LevelData.DragParent.transform.Rotate(Input.mouseScrollDelta.y * rotationSpeed * Time.deltaTime * Vector3.forward, space);
     }
-
-    bool isXClose;
-    bool isYClose;
-    bool isZRotationBetweenZeroAndPositiveLeniency;
-    bool isZRotationBetweenZeroAndNegativeLeniency;
-    bool isWRotationBetweenOneAndPositiveLeniency;
-    bool isWRotationBetweenOneAndNegativeLeniency;
-    
-    bool isFlippedWRotationBetweenNegativeOneAndNegativeLeniency; // Close to 1
-    bool isFlippedWRotationBetweenNegativeOneAndPositiveLeniency; // Close to 1
 
     /// <summary>
     ///     <para>
