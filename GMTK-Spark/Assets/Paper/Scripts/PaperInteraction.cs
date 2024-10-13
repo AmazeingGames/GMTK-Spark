@@ -38,7 +38,7 @@ public class PaperInteraction : MonoBehaviour
             case MovePaper.PaperActionEventArgs.PaperActionType.Grab:
                 holdingPaper = e.paper;
                 if (InteractionMath.IsCloseToEdge(holdingPaper.PolygonCollider2D, edgeLeniency, paperLayer))
-                    StartCoroutine(InteractionMath.LerpColliderToCenter(holdingPaper.PolygonCollider2D, speed, lerpCurve));
+                    StartCoroutine(InteractionMath.LerpColliderToCenter(holdingPaper.PolygonCollider2D, speed, lerpCurve, true));
             break;
             
             case MovePaper.PaperActionEventArgs.PaperActionType.StartSnap:

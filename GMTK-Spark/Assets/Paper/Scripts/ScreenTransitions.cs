@@ -64,7 +64,6 @@ public class ScreenTransitions : Singleton<ScreenTransitions>
         neededToMoveOutOfFrame = needsToMoveOutOfFrame;
         this.wasNested = wasNested;
 
-
         if (elements == null)
         {
             Debug.Log("Could not transition due to null elements");
@@ -79,10 +78,10 @@ public class ScreenTransitions : Singleton<ScreenTransitions>
         {
             elements.localPosition = slideInDirection switch
             {
-                OthogonalDirection.Up => new(position.x, position.y - distance),
-                OthogonalDirection.Down => new(position.x, position.y + distance),
-                OthogonalDirection.Left => new(position.x + distance, position.y),
-                OthogonalDirection.Right => new(position.x - distance, position.y),
+                OthogonalDirection.Up => new(position.x, -distance),
+                OthogonalDirection.Down => new(position.x, distance),
+                OthogonalDirection.Left => new(distance, position.y),
+                OthogonalDirection.Right => new(-distance, position.y),
                 _ => throw new NotImplementedException($"Othogonal Direction {slideInDirection} not implemented")
             };
         }

@@ -62,27 +62,35 @@ public static class InteractionMath
     /// <param name="polygon"></param>
     /// <param name="speed"> How fast to move the polygon. The higher the faster. </param>
     /// <param name="curve"> The animation curve used to fade speed smoothly. </param>
-    public static IEnumerator LerpColliderToCenter(PolygonCollider2D polygon, float speed, AnimationCurve curve)
+    public static IEnumerator LerpColliderToCenter(PolygonCollider2D polygon, float speed, AnimationCurve curve, bool stopOnMouseUp)
     {
-        var centroid = GetCentroid(polygon);
-        var amountToMove = GetAmountToMoveBetweenPoints(centroid, GetMousePosition());
+        var mousePosition = (Vector2)GetMousePosition();
 
+        var centroidPosition = GetCentroid(polygon);
+
+        var amountToMove = GetAmountToMoveBetweenPoints(centroidPosition, GetMousePosition());
         var startPosition = (Vector2)polygon.transform.position;
-        //float current = 0;
-
-        Debug.Log("Started Lerp!");
-
         var goalPosition = startPosition + amountToMove;
+
         float distance = Vector3.Distance(startPosition, goalPosition);
         float remainingDistance = distance;
-        while (remainingDistance > 0)
+        while (GetTotalDistanceBetweenPoints(centroidPosition, mousePosition) > .1f)
         {
-            amountToMove = GetAmountToMoveBetweenPoints(centroid, GetMousePosition());
-            goalPosition = startPosition + amountToMove;
+            if (Input.GetMouseButtonUp(0) && stopOnMouseUp)
+                break;
+
+            mousePosition = (Vector2)GetMousePosition();
+            centroidPosition = GetCentroid(polygon);
+
+            Debug.Log($"Distance between centroid ({centroidPosition.x}, {centroidPosition.y}) and mouse position ({mousePosition.x}, {mousePosition.y}): {GetTotalDistanceBetweenPoints(centroidPosition, mousePosition)}");
+
+            amountToMove = GetAmountToMoveBetweenPoints(centroidPosition, mousePosition);
+            goalPosition = (Vector2)polygon.transform.position + amountToMove;
+
             // current = Mathf.MoveTowards(current, 1, speed * Time.deltaTime);
             // polygon.transform.position = Vector3.Lerp(startPosition, goalPosition, curve.Evaluate(current));
-            polygon.transform.position = Vector3.Lerp(startPosition, goalPosition, curve.Evaluate(1 - (remainingDistance / distance)));
 
+            polygon.transform.position = Vector3.Lerp(startPosition, goalPosition, curve.Evaluate(1 - (remainingDistance / distance)));
             remainingDistance -= speed * Time.deltaTime;
 
             Debug.Log((1 - (remainingDistance / distance)));
