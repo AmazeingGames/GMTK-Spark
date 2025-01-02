@@ -97,7 +97,7 @@ public class GameManager : Singleton<GameManager>
             levelToLoad = levelNumber;
         }
 
-        // Loads the first found level and unloads the rest
+        // If there are, we load the first level and unload the rest
         if (ScenesManager.IsLevelInBuildPath(levelToLoad))
         {
             foundTestLevel = true;
@@ -116,11 +116,14 @@ public class GameManager : Singleton<GameManager>
 
     private void Update()
     {
-        if (Input.GetKeyDown(pauseKey))
+        // In the future, I would like the game to acknowledge this, and be able to smoothly transition between the 2 quickly
+        if (Input.GetKeyDown(pauseKey) && !ScreenTransitions.Instance.IsTransitioning)
         {
             switch (CurrentState)
             {
                 case GameState.Running:
+                    if (LastGameAction == GameAction.CompleteLevel)
+                        return;
                     PerformGameAction(GameAction.PauseGame);
                 break;
 
@@ -130,6 +133,8 @@ public class GameManager : Singleton<GameManager>
             }
         }
     }
+
+    bool hasBeatLevel;
 
     /// <summary>
     ///     Checks if we beat the level when we snap a piece into place.
@@ -155,6 +160,7 @@ public class GameManager : Singleton<GameManager>
                 return;
             }
         }
+
         PerformGameAction(GameAction.CompleteLevel);
     }
 
@@ -189,17 +195,24 @@ public class GameManager : Singleton<GameManager>
     /// </summary>
     void HandleLoadLevelData(object sender, LevelData.LoadLevelDataEventArgs e)
     {
-        if (!e.isLoadingIn)
+        if (LevelData == e.levelData && !e.isLoadingIn)
         {
+            Debug.Log("set level data null");
             LevelData = null;
             return;
         }
+        
+        if (LevelData != e.levelData && e.isLoadingIn)
+        {
+            Debug.Log("Set new level data");
+            LevelData = e.levelData;
+            paperList.Clear();
 
-        LevelData = e.levelData;
-        paperList.Clear();
-
-        for (int i = 0; i < LevelData.PuzzleParent.transform.childCount; i++)
-            paperList.Add(LevelData.PuzzleParent.transform.GetChild(i).GetComponent<Paper>());
+            for (int i = 0; i < LevelData.PuzzleParent.transform.childCount; i++)
+                paperList.Add(LevelData.PuzzleParent.transform.GetChild(i).GetComponent<Paper>());
+        }
+        else
+            Debug.Log("did nothing to level data");
     }
 
     /// <summary>
@@ -207,6 +220,8 @@ public class GameManager : Singleton<GameManager>
     /// </summary>
     /// <param name="action"> The game action to perform. </param>
     /// <param name="levelToLoad"> If we should load a level, otherwise leave at -1. </param>
+    
+    // Update game state in response to menu changes
     void PerformGameAction(GameAction action, int levelToLoad = -1)
     {
         if (action == GameAction.None)
@@ -222,6 +237,8 @@ public class GameManager : Singleton<GameManager>
         switch (action)
         {
             case GameAction.EnterMainMenu:
+            case GameAction.CompleteLevel:
+            case GameAction.BeatGame:
                 UpdateGameState(GameState.InMenu);
             break;
 

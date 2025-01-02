@@ -1,33 +1,46 @@
+using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using static GameManager;
 using static MovePaper;
 using static MovePaper.PaperActionEventArgs;
+using static ScreenTransitions;
 using static UIButton;
 
 
 public class AudioManager : MonoBehaviour
 {
+
     [Header("Paper Sounds")]
     [SerializeField] AudioSource dropPaper;
     [SerializeField] AudioSource shuffle;
     [SerializeField] AudioSource grabPaper;
     [SerializeField] AudioSource snap;
 
-    [Header("UI")]
+    [Header("UI Buttons")]
     [SerializeField] AudioSource buttonEnter;
     [SerializeField] AudioSource buttonClick;
     [SerializeField] AudioSource buttonUp;
     [SerializeField] AudioSource buttonExit;
 
-    [Header("Game States")]
-    [SerializeField] AudioSource win;
+    [Header("UI Menus")]
+    [SerializeField] AudioSource openDiary;
+
+    [Header("Game Actions")]
+    [SerializeField] AudioSource startLevel;
+    [SerializeField] AudioSource beatLevel;
 
     [Header("Music")]
     [SerializeField] AudioSource gameplayMusic;
     [SerializeField] AudioSource mainMenuMusic;
     [SerializeField] AudioSource pauseMenuMusic;
+
+    [Header("Music Fade")]
     [SerializeField] bool stopMusicByMute = false;
+    [SerializeField] float maxMusicVolume;
+    [SerializeField] public AnimationCurve fadeCurve;
+    [SerializeField] public float fadeSpeed;
 
     AudioSource currentMusic;
 
@@ -35,16 +48,22 @@ public class AudioManager : MonoBehaviour
     [SerializeField] bool shortPickup;
     [SerializeField] bool snap1;
 
+    [Header("Debug")]
+    [SerializeField] bool debugLog;
+
     public Dictionary<PaperActionEventArgs.PaperActionType, AudioSource> ActionsToSFX;
     public Dictionary<UIButton.UIInteractionTypes, AudioSource> UIInteractToSFX;
     public Dictionary<GameManager.GameAction, AudioSource> GameActionToSFX;
     public Dictionary<GameManager.GameState, AudioSource> GameStateToMusic;
+    public Dictionary<MenuManager.MenuTypes, AudioSource> OpenMenuToSFX;
 
     private void OnEnable()
     {
         MovePaper.PaperActionEventHandler += HandlePaperAction;
         GameManager.GameStateChangeEventHandler += HandleGameStateChange;
         UIButton.UIInteractEventHandler += HandleUIInteract;
+        GameManager.GameActionEventHandler += HandleGameAction;
+        MenuManager.MenuChangeEventHandler += HandleMenuChange;
     }
     
     private void OnDisable()
@@ -52,6 +71,8 @@ public class AudioManager : MonoBehaviour
         MovePaper.PaperActionEventHandler -= HandlePaperAction;
         GameManager.GameStateChangeEventHandler -= HandleGameStateChange;
         UIButton.UIInteractEventHandler -= HandleUIInteract;
+        GameManager.GameActionEventHandler -= HandleGameAction;
+        MenuManager.MenuChangeEventHandler -= HandleMenuChange;
     }
 
     private void Start()
@@ -61,7 +82,6 @@ public class AudioManager : MonoBehaviour
             { PaperActionType.Grab,     grabPaper   },
             { PaperActionType.Drop,     dropPaper   },
             { PaperActionType.Snap,     snap        },
-            { PaperActionType.Shuffle,  shuffle     },
         };
 
         UIInteractToSFX = new()
@@ -74,11 +94,12 @@ public class AudioManager : MonoBehaviour
 
         GameActionToSFX = new()
         {
-            { GameAction.StartLevel,       shuffle },
-            { GameAction.RestartLevel,     null    },
-            { GameAction.CompleteLevel,    win     },
-            { GameAction.EnterMainMenu,    null    },
-            { GameAction.BeatGame,         null    },
+            { GameAction.StartLevel,       shuffle      },
+            { GameAction.LoadNextLevel,     shuffle     },
+            { GameAction.RestartLevel,     null         },
+            { GameAction.CompleteLevel,    beatLevel    },
+            { GameAction.EnterMainMenu,    null         },
+            { GameAction.BeatGame,         null         },
         };
 
         GameStateToMusic = new()
@@ -86,6 +107,11 @@ public class AudioManager : MonoBehaviour
             { GameState.InMenu,   mainMenuMusic },
             { GameState.Running,   gameplayMusic },
             { GameState.Paused,   pauseMenuMusic }
+        };
+
+        OpenMenuToSFX = new()
+        {
+            { MenuManager.MenuTypes.Diary, openDiary },
         };
 
     }
@@ -97,7 +123,18 @@ public class AudioManager : MonoBehaviour
     {
         if (ActionsToSFX.TryGetValue(e.actionType, out var sfx) && sfx != null)
             sfx.Play();
-        Debug.Log($"AudioManager: Handled paper action {e.actionType} {(sfx == null ? "" : $"and played sfx : {sfx}")}");
+
+        if (debugLog)
+            Debug.Log($"AudioManager: Handled paper action {e.actionType} {(sfx == null ? "" : $"and played sfx : {sfx}")}");
+    }
+
+    void HandleMenuChange(object sender, MenuManager.MenuChangeEventArgs e)
+    {
+        if (OpenMenuToSFX.TryGetValue(e.newMenuType, out var sfx) && sfx != null)
+            sfx.Play();
+
+        if (debugLog)
+            Debug.Log($"AudioManager: Handled game action {e.newMenuType}{(sfx == null ? "" : $"and played sfx : {sfx}")}");
     }
 
     /// <summary>
@@ -108,23 +145,36 @@ public class AudioManager : MonoBehaviour
         if (GameStateToMusic.TryGetValue(e.newState, out var music) && music != null)
         {
             if (currentMusic != null)
-            {
-                if (stopMusicByMute)
-                    currentMusic.mute = true;
-                else
-                    currentMusic.Stop();
-
-            }
-            currentMusic = music;
-            currentMusic.mute = false;
-
+                StartCoroutine(LerpTrackVolume(currentMusic, fadeCurve, fadeSpeed, true, true));
             if (!stopMusicByMute)
                 currentMusic.Play();
-            else if (!currentMusic.isPlaying)
-                currentMusic.Play();
+            currentMusic = music;
+            StartCoroutine(LerpTrackVolume(currentMusic, fadeCurve, fadeSpeed, false, true));
         }
 
-        Debug.Log($"AudioManager: Handled game state change {(music == null ? "" : $"and changed music track to : {music}")}");
+        if (debugLog)
+            Debug.Log($"AudioManager: Handled game state change {(music == null ? "" : $"and changed music track to : {music}")}");
+    }
+
+    bool isFading = false;
+    IEnumerator LerpTrackVolume(AudioSource track, AnimationCurve curve, float speed, bool isMuting, bool waitUntilFade)
+    {
+        // Slide UI elements using lerp and an animation curve
+
+        float startingVolume = track.volume;
+        float targetVolume = isMuting ? 0 : maxMusicVolume;
+
+        float current = 0;
+
+        while (current < 1)
+        {
+            isFading = true;
+            current = Mathf.MoveTowards(current, 1, speed * Time.deltaTime);
+
+            track.volume = Mathf.Lerp(startingVolume, targetVolume, curve.Evaluate(current));
+            yield return null;
+        }
+        isFading = false;
     }
 
     /// <summary>
@@ -135,7 +185,8 @@ public class AudioManager : MonoBehaviour
         if (GameActionToSFX.TryGetValue(e.gameAction, out var sfx) && sfx != null)
             sfx.Play();
 
-        Debug.Log($"AudioManager: Handled game action {e.gameAction}{(sfx == null ? "" : $"and played sfx : {sfx}")}");
+        if (debugLog)
+            Debug.Log($"AudioManager: Handled game action {e.gameAction}{(sfx == null ? "" : $"and played sfx : {sfx}")}");
     }
 
     /// <summary>
@@ -145,7 +196,8 @@ public class AudioManager : MonoBehaviour
     {
         if (UIInteractToSFX.TryGetValue(e.buttonInteraction, out var sfx) && sfx != null)
             sfx.Play();
-        Debug.Log($"AudioManager: Handled UI interaction {e.buttonInteraction} {(sfx == null ? "" : $"and played sfx : {sfx}")}");
 
+        if (debugLog)
+            Debug.Log($"AudioManager: Handled UI interaction {e.buttonInteraction} {(sfx == null ? "" : $"and played sfx : {sfx}")}");
     }
 }

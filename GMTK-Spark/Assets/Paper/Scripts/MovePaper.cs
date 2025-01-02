@@ -61,7 +61,7 @@ public class MovePaper : MonoBehaviour
 
     public class PaperActionEventArgs : EventArgs
     {
-        public enum PaperActionType { Grab, Drop, StartSnap, Snap, Shuffle }
+        public enum PaperActionType { Grab, Drop, StartSnap, Snap }
 
         public readonly PaperActionType actionType;
         public readonly Paper paper;
@@ -102,8 +102,22 @@ public class MovePaper : MonoBehaviour
         }
     }
 
+    // WHY DOES MOVE PAPER HAVE ITS OWN REFERENCE TO LEVEL DATA IF IT JUST USE GAMEMANAGER'S ANYWAYS?!
     void HandleLoadLevelData(object sender, LevelData.LoadLevelDataEventArgs e)
-        => levelData = e.isLoadingIn ? e.levelData : null;
+    {
+        //Debug.Log($"Level Data Loaded responded to : is loading in {e.isLoadingIn}");
+        
+        if (levelData == e.levelData && !e.isLoadingIn)
+        {
+            //Debug.Log("set level data null");
+            levelData = null;
+        }
+        else if (levelData != e.levelData && e.isLoadingIn)
+        {
+            //Debug.Log("Set new level data");
+            levelData = e.levelData;
+        }
+    }
 
     /// <summary>
     ///     <para>
@@ -151,6 +165,7 @@ public class MovePaper : MonoBehaviour
     enum InteractionType { Click, Release }
     void Update()
     {
+        // WHY DOES MOVE PAPER HAVE ITS OWN REFERENCE TO LEVEL DATA IF IT JUST USE GAMEMANAGER'S ANYWAYS?!
         if (GameManager.Instance.LevelData == null)
             return;
 

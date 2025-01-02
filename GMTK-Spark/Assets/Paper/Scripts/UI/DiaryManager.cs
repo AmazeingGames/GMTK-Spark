@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using System;
 
 public class DiaryManager : MonoBehaviour
 {
@@ -29,6 +30,12 @@ public class DiaryManager : MonoBehaviour
             { page4 },
             { page5 },
         };
+
+        foreach (var text in DiaryTexts)
+        {
+            if (text == null)
+                throw new NullReferenceException("Page text hasn't been set.");
+        }
     }
 
     /// <summary>
@@ -38,7 +45,7 @@ public class DiaryManager : MonoBehaviour
     {
         if (e.newMenuType == MenuManager.MenuTypes.Diary)
         {
-            foreach(var text in DiaryTexts) 
+            foreach (var text in DiaryTexts)
                 text.gameObject.SetActive(false);
             DiaryTexts[ScenesManager.Instance.CurrentLevel - 1].gameObject.SetActive(true);
         }
