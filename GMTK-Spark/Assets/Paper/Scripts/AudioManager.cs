@@ -7,6 +7,10 @@ using static MovePaper;
 using static MovePaper.PaperActionEventArgs;
 using static ScreenTransitions;
 using static UIButton;
+using System.Data;
+using UnityEditor;
+using UnityEngine.Timeline;
+using UnityEngine.UIElements;
 
 
 public class AudioManager : MonoBehaviour
@@ -223,5 +227,8 @@ public class AudioManager : MonoBehaviour
 
         if (debugLog)
             Debug.Log($"AudioManager: Handled UI interaction {e.buttonInteraction} {(sfx == null ? "" : $"and played sfx : {sfx}")}");
+
+        throw new Exception("Logger: Create logger script and check if logger.loggingObject.Contains(gameObject)");
     }
 }
+
