@@ -31,10 +31,10 @@ public class CheatsManager : MonoBehaviour
     void Update()
     {
 #if DEBUG
-        // Checks if a player types in a code, which corresponds to a cheat or game command
         playerInput.Append(Input.inputString);
         textMeshPro.text = playerInput.ToString();
 
+        // Checks if a player types in a cheat code or game command
         if (Input.GetKeyDown(KeyCode.Return))
         {
             playerInput.Remove(playerInput.Length - 1, 1);

@@ -228,7 +228,7 @@ public class AudioManager : MonoBehaviour
         if (debugLog)
             Debug.Log($"AudioManager: Handled UI interaction {e.buttonInteraction} {(sfx == null ? "" : $"and played sfx : {sfx}")}");
 
-        throw new Exception("Logger: Create logger script and check if logger.loggingObject.Contains(gameObject)");
+        // throw new Exception("Logger: Create logger script and check if logger.loggingObject.Contains(gameObject)");
     }
 }
 
