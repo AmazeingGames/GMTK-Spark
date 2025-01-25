@@ -3,10 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using TMPro;
 
 public class CheatsManager : MonoBehaviour
 {
     [SerializeField] List<CheatCode> cheats = new();
+    [SerializeField] TextMeshProUGUI textMeshPro;
     public enum CheatCommands { None, AutoSnap }
 
     readonly StringBuilder playerInput = new();
@@ -31,6 +33,8 @@ public class CheatsManager : MonoBehaviour
 #if DEBUG
         // Checks if a player types in a code, which corresponds to a cheat or game command
         playerInput.Append(Input.inputString);
+        textMeshPro.text = playerInput.ToString();
+
         if (Input.GetKeyDown(KeyCode.Return))
         {
             playerInput.Remove(playerInput.Length - 1, 1);

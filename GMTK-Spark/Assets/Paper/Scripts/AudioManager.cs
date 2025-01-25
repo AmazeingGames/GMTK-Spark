@@ -7,16 +7,20 @@ using static MovePaper;
 using static MovePaper.PaperActionEventArgs;
 using static ScreenTransitions;
 using static UIButton;
+using System.Data;
+using UnityEditor;
+using UnityEngine.Timeline;
+using UnityEngine.UIElements;
 
 
 public class AudioManager : MonoBehaviour
 {
 
     [Header("Paper Sounds")]
-    [SerializeField] AudioSource dropPaper;
     [SerializeField] AudioSource shuffle;
-    [SerializeField] AudioSource grabPaper;
-    [SerializeField] AudioSource snap;
+    [SerializeField] List<AudioSource> dropPaper;
+    [SerializeField] List<AudioSource> grabPaper;
+    [SerializeField] List<AudioSource> snap;
 
     [Header("UI Buttons")]
     [SerializeField] AudioSource buttonEnter;
@@ -51,7 +55,8 @@ public class AudioManager : MonoBehaviour
     [Header("Debug")]
     [SerializeField] bool debugLog;
 
-    public Dictionary<PaperActionEventArgs.PaperActionType, AudioSource> ActionsToSFX;
+    readonly Dictionary<List<AudioSource>, int> sfxsToLastIndex = new();
+    public Dictionary<PaperActionEventArgs.PaperActionType, List<AudioSource>> ActionsToSFX;
     public Dictionary<UIButton.UIInteractionTypes, AudioSource> UIInteractToSFX;
     public Dictionary<GameManager.GameAction, AudioSource> GameActionToSFX;
     public Dictionary<GameManager.GameState, AudioSource> GameStateToMusic;
@@ -117,12 +122,35 @@ public class AudioManager : MonoBehaviour
     }
 
     /// <summary>
+    ///     Given a list of random audio sources, randomly selects one item in the list to play.
+    ///     Never repeats the same item in the list twice.
+    /// </summary>
+    /// <param name="sfx"> The list containing the sfx we would like to play. </param>
+    void PlayRandom(List<AudioSource> sfxList)
+    {
+        int lastIndex = -1;
+        
+        if (sfxsToLastIndex.ContainsKey(sfxList))
+            lastIndex = sfxsToLastIndex[sfxList];
+        else
+            sfxsToLastIndex.Add(sfxList, lastIndex);
+
+        int random;
+        do
+            random = UnityEngine.Random.Range(0, sfxList.Count);
+         while (lastIndex != random && sfxList.Count > 1);
+
+        sfxList[random].Play();
+        sfxsToLastIndex[sfxList] = random;
+    }
+
+    /// <summary>
     ///     Plays audio for corresponding paper actions
     /// </summary>
     void HandlePaperAction(object sender, MovePaper.PaperActionEventArgs e)
     {
         if (ActionsToSFX.TryGetValue(e.actionType, out var sfx) && sfx != null)
-            sfx.Play();
+            PlayRandom(sfx);
 
         if (debugLog)
             Debug.Log($"AudioManager: Handled paper action {e.actionType} {(sfx == null ? "" : $"and played sfx : {sfx}")}");
@@ -199,5 +227,8 @@ public class AudioManager : MonoBehaviour
 
         if (debugLog)
             Debug.Log($"AudioManager: Handled UI interaction {e.buttonInteraction} {(sfx == null ? "" : $"and played sfx : {sfx}")}");
+
+        throw new Exception("Logger: Create logger script and check if logger.loggingObject.Contains(gameObject)");
     }
 }
+
