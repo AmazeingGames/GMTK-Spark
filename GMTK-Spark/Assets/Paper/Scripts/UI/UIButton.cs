@@ -174,13 +174,13 @@ public class UIButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
         }
     }
 
-
     public void OnPointerClick(PointerEventData pointerEventData)
     {
         OnUIInteract(pointerEventData, UIInteractionTypes.Click);
 
         OnButtonInteract(false);
     }
+
     public void OnPointerEnter(PointerEventData pointerEventData)
     {
         OnUIInteract(pointerEventData, UIInteractionTypes.Enter);
