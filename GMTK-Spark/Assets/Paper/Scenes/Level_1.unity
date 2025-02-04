@@ -13,7 +13,7 @@ OcclusionCullingSettings:
 --- !u!104 &2
 RenderSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 9
+  serializedVersion: 10
   m_Fog: 0
   m_FogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   m_FogMode: 3
@@ -42,8 +42,8 @@ RenderSettings:
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 12
-  m_GIWorkflowMode: 1
+  serializedVersion: 13
+  m_BakeOnSceneLoad: 0
   m_GISettings:
     serializedVersion: 2
     m_BounceScale: 1
@@ -66,9 +66,6 @@ LightmapSettings:
     m_LightmapParameters: {fileID: 0}
     m_LightmapsBakeMode: 1
     m_TextureCompression: 1
-    m_FinalGather: 0
-    m_FinalGatherFiltering: 1
-    m_FinalGatherRayCount: 256
     m_ReflectionCompression: 2
     m_MixedBakeMode: 2
     m_BakeBackend: 1
@@ -186,6 +183,14 @@ PrefabInstance:
       propertyPath: <Type>k__BackingField
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 1100278161739333742, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
+      propertyPath: <PolygonCollider2D>k__BackingField
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1100278161739333742, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
+      propertyPath: <PaperPolygonCollider2D>k__BackingField
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 1275957116309977441, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
       propertyPath: m_Enabled
       value: 1
@@ -290,6 +295,7 @@ PolygonCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 22642190}
   m_Enabled: 1
+  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -313,7 +319,8 @@ PolygonCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
@@ -464,6 +471,14 @@ PrefabInstance:
       propertyPath: <Type>k__BackingField
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 1100278161739333742, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
+      propertyPath: <PolygonCollider2D>k__BackingField
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1100278161739333742, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
+      propertyPath: <PaperPolygonCollider2D>k__BackingField
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 1275957116309977441, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
       propertyPath: m_Enabled
       value: 1
@@ -568,6 +583,7 @@ PolygonCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 34892902}
   m_Enabled: 1
+  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -591,7 +607,8 @@ PolygonCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
@@ -844,6 +861,7 @@ PolygonCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 37158483}
   m_Enabled: 1
+  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -867,7 +885,8 @@ PolygonCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
@@ -1138,6 +1157,7 @@ PolygonCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 103180582}
   m_Enabled: 1
+  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -1161,7 +1181,8 @@ PolygonCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
@@ -1519,6 +1540,7 @@ PolygonCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 132226163}
   m_Enabled: 1
+  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -1542,7 +1564,8 @@ PolygonCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
@@ -1684,6 +1707,14 @@ PrefabInstance:
       propertyPath: <Type>k__BackingField
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 1100278161739333742, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
+      propertyPath: <PolygonCollider2D>k__BackingField
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1100278161739333742, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
+      propertyPath: <PaperPolygonCollider2D>k__BackingField
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 1275957116309977441, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
       propertyPath: m_Enabled
       value: 1
@@ -1788,6 +1819,7 @@ PolygonCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 235485241}
   m_Enabled: 1
+  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -1811,7 +1843,8 @@ PolygonCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
@@ -2092,6 +2125,7 @@ PolygonCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 278523509}
   m_Enabled: 1
+  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -2115,7 +2149,8 @@ PolygonCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
@@ -2303,6 +2338,14 @@ PrefabInstance:
       propertyPath: <Type>k__BackingField
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 1100278161739333742, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
+      propertyPath: <PolygonCollider2D>k__BackingField
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1100278161739333742, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
+      propertyPath: <PaperPolygonCollider2D>k__BackingField
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 1275957116309977441, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
       propertyPath: m_Enabled
       value: 1
@@ -2407,6 +2450,7 @@ PolygonCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 379650764}
   m_Enabled: 1
+  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -2430,7 +2474,8 @@ PolygonCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
@@ -2642,6 +2687,7 @@ PolygonCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 522830563}
   m_Enabled: 1
+  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -2665,7 +2711,8 @@ PolygonCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
@@ -2862,6 +2909,14 @@ PrefabInstance:
       propertyPath: <Type>k__BackingField
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 1100278161739333742, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
+      propertyPath: <PolygonCollider2D>k__BackingField
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1100278161739333742, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
+      propertyPath: <PaperPolygonCollider2D>k__BackingField
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 1275957116309977441, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
       propertyPath: m_Enabled
       value: 1
@@ -2966,6 +3021,7 @@ PolygonCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 652279748}
   m_Enabled: 1
+  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -2989,7 +3045,8 @@ PolygonCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
@@ -3103,6 +3160,14 @@ PrefabInstance:
       propertyPath: <Type>k__BackingField
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 1100278161739333742, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
+      propertyPath: <PolygonCollider2D>k__BackingField
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1100278161739333742, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
+      propertyPath: <PaperPolygonCollider2D>k__BackingField
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 1275957116309977441, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
       propertyPath: m_Enabled
       value: 1
@@ -3207,6 +3272,7 @@ PolygonCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 727838084}
   m_Enabled: 1
+  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -3230,7 +3296,8 @@ PolygonCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
@@ -3371,7 +3438,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <PuzzleParent>k__BackingField: {fileID: 346007348}
-  <DragParent>k__BackingField: {fileID: 1476590304}
+  <PaperParent>k__BackingField: {fileID: 1476590304}
   <DragParentSpriteRenderer>k__BackingField: {fileID: 1476590305}
   <PositionalLeniency>k__BackingField: 0.45
   <RotationalLeniency>k__BackingField: 0.1
@@ -3438,6 +3505,14 @@ PrefabInstance:
     - target: {fileID: 1100278161739333742, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
       propertyPath: <Type>k__BackingField
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1100278161739333742, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
+      propertyPath: <PolygonCollider2D>k__BackingField
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1100278161739333742, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
+      propertyPath: <PaperPolygonCollider2D>k__BackingField
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 1275957116309977441, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
       propertyPath: m_Enabled
@@ -3543,6 +3618,7 @@ PolygonCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 792124670}
   m_Enabled: 1
+  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -3566,7 +3642,8 @@ PolygonCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
@@ -3788,6 +3865,7 @@ PolygonCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1024556421}
   m_Enabled: 1
+  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -3811,7 +3889,8 @@ PolygonCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
@@ -4032,6 +4111,7 @@ PolygonCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1076292549}
   m_Enabled: 1
+  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -4055,7 +4135,8 @@ PolygonCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
@@ -4185,6 +4266,14 @@ PrefabInstance:
       propertyPath: <Type>k__BackingField
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 1100278161739333742, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
+      propertyPath: <PolygonCollider2D>k__BackingField
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1100278161739333742, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
+      propertyPath: <PaperPolygonCollider2D>k__BackingField
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 1275957116309977441, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
       propertyPath: m_Enabled
       value: 1
@@ -4289,6 +4378,7 @@ PolygonCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1125370643}
   m_Enabled: 1
+  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -4312,7 +4402,8 @@ PolygonCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
@@ -4563,6 +4654,7 @@ PolygonCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1136088037}
   m_Enabled: 1
+  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -4586,7 +4678,8 @@ PolygonCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
@@ -4756,6 +4849,14 @@ PrefabInstance:
       propertyPath: <Type>k__BackingField
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 1100278161739333742, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
+      propertyPath: <PolygonCollider2D>k__BackingField
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1100278161739333742, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
+      propertyPath: <PaperPolygonCollider2D>k__BackingField
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 1275957116309977441, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
       propertyPath: m_Enabled
       value: 1
@@ -4860,6 +4961,7 @@ PolygonCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1180053107}
   m_Enabled: 1
+  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -4883,7 +4985,8 @@ PolygonCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
@@ -5032,6 +5135,14 @@ PrefabInstance:
       propertyPath: <Type>k__BackingField
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 1100278161739333742, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
+      propertyPath: <PolygonCollider2D>k__BackingField
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1100278161739333742, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
+      propertyPath: <PaperPolygonCollider2D>k__BackingField
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 1275957116309977441, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
       propertyPath: m_Enabled
       value: 1
@@ -5136,6 +5247,7 @@ PolygonCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1304950577}
   m_Enabled: 1
+  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -5159,7 +5271,8 @@ PolygonCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
@@ -5309,6 +5422,14 @@ PrefabInstance:
       propertyPath: <Type>k__BackingField
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 1100278161739333742, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
+      propertyPath: <PolygonCollider2D>k__BackingField
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1100278161739333742, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
+      propertyPath: <PaperPolygonCollider2D>k__BackingField
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 1275957116309977441, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
       propertyPath: m_Enabled
       value: 1
@@ -5413,6 +5534,7 @@ PolygonCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1402937766}
   m_Enabled: 1
+  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -5436,7 +5558,8 @@ PolygonCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
@@ -5668,6 +5791,7 @@ PolygonCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1443787421}
   m_Enabled: 1
+  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -5691,7 +5815,8 @@ PolygonCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
@@ -5910,6 +6035,7 @@ PolygonCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1463666436}
   m_Enabled: 1
+  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -5933,7 +6059,8 @@ PolygonCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
@@ -6032,6 +6159,9 @@ SpriteRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -6130,6 +6260,14 @@ PrefabInstance:
     - target: {fileID: 1100278161739333742, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
       propertyPath: <Type>k__BackingField
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1100278161739333742, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
+      propertyPath: <PolygonCollider2D>k__BackingField
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1100278161739333742, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
+      propertyPath: <PaperPolygonCollider2D>k__BackingField
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 1275957116309977441, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
       propertyPath: m_Enabled
@@ -6235,6 +6373,7 @@ PolygonCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1572480749}
   m_Enabled: 1
+  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -6258,7 +6397,8 @@ PolygonCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
@@ -6368,6 +6508,14 @@ PrefabInstance:
       propertyPath: <Type>k__BackingField
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 1100278161739333742, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
+      propertyPath: <PolygonCollider2D>k__BackingField
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1100278161739333742, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
+      propertyPath: <PaperPolygonCollider2D>k__BackingField
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 1275957116309977441, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
       propertyPath: m_Enabled
       value: 1
@@ -6472,6 +6620,7 @@ PolygonCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1604245572}
   m_Enabled: 1
+  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -6495,7 +6644,8 @@ PolygonCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
@@ -6736,6 +6886,7 @@ PolygonCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1636516093}
   m_Enabled: 1
+  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -6759,7 +6910,8 @@ PolygonCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
@@ -6971,6 +7123,7 @@ PolygonCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1719188872}
   m_Enabled: 1
+  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -6994,7 +7147,8 @@ PolygonCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
@@ -7143,6 +7297,14 @@ PrefabInstance:
       propertyPath: <Type>k__BackingField
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 1100278161739333742, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
+      propertyPath: <PolygonCollider2D>k__BackingField
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1100278161739333742, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
+      propertyPath: <PaperPolygonCollider2D>k__BackingField
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 1275957116309977441, guid: db4dad8694b3cba46b3042a4ea5647cf, type: 3}
       propertyPath: m_Enabled
       value: 1
@@ -7247,6 +7409,7 @@ PolygonCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1967587315}
   m_Enabled: 1
+  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -7270,7 +7433,8 @@ PolygonCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
@@ -7363,6 +7527,9 @@ SpriteRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -7573,6 +7740,7 @@ PolygonCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1975088425}
   m_Enabled: 1
+  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -7596,7 +7764,8 @@ PolygonCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
@@ -7849,6 +8018,7 @@ PolygonCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1976975729}
   m_Enabled: 1
+  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -7872,7 +8042,8 @@ PolygonCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
@@ -8099,6 +8270,7 @@ PolygonCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1995271674}
   m_Enabled: 1
+  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -8122,7 +8294,8 @@ PolygonCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
@@ -8354,6 +8527,7 @@ PolygonCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2047577721}
   m_Enabled: 1
+  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -8377,7 +8551,8 @@ PolygonCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}

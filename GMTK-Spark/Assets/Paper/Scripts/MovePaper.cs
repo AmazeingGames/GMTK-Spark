@@ -90,14 +90,14 @@ public class MovePaper : MonoBehaviour
 
     void OnEnable()
     {
-        LevelData.LoadLevelDataEventHandler += HandleLoadLevelData;
+        LevelData.LoadLevelData += HandleLoadLevelData;
         CheatsManager.CheatEventHandler += HandleCheat;
         paperValues.OnEnable();
     }
 
     void OnDisable()
     {
-        LevelData.LoadLevelDataEventHandler -= HandleLoadLevelData;
+        LevelData.LoadLevelData -= HandleLoadLevelData;
         CheatsManager.CheatEventHandler -= HandleCheat;
         paperValues.OnDisable();
     }
@@ -129,7 +129,7 @@ public class MovePaper : MonoBehaviour
     /// </summary>
     void PaperInteraction(InteractionType interactionType, Paper paper)
     {
-        Transform dragParent = GameManager.Instance.LevelData.DragParent;
+        Transform dragParent = GameManager.Instance.LevelData.PaperParent;
         switch (interactionType)
         {
             // Grab Paper
@@ -138,9 +138,9 @@ public class MovePaper : MonoBehaviour
                 if (paperValues.HoldingPaper != null)
                     return;
 
-                for (int i = 0; i < GameManager.Instance.LevelData.DragParent.childCount; i++)
+                for (int i = 0; i < GameManager.Instance.LevelData.PaperParent.childCount; i++)
                 {
-                    GameManager.Instance.LevelData.DragParent.GetChild(i).SetParent(rememberParent);
+                    GameManager.Instance.LevelData.PaperParent.GetChild(i).SetParent(rememberParent);
                     Debug.LogWarning("Set parent to remember parent. This should normally not happen. ");
                 }
 
@@ -209,11 +209,11 @@ public class MovePaper : MonoBehaviour
             PaperInteraction(InteractionType.Release, paperValues.HoldingPaper);
 
         // Moves & Rotates Parent
-        GameManager.Instance.LevelData.DragParent.transform.position = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        GameManager.Instance.LevelData.PaperParent.transform.position = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Clamper.CalculateBounds(GameManager.Instance.LevelData.DragParentSpriteRenderer, out float width, out float height, out Vector2 screenBounds);
-        Clamper.ClampToScreenOrthographic(GameManager.Instance.LevelData.DragParent, width, height, screenBounds);
+        Clamper.ClampToScreenOrthographic(GameManager.Instance.LevelData.PaperParent, width, height, screenBounds);
         if (Input.mouseScrollDelta.y != 0)
-            GameManager.Instance.LevelData.DragParent.transform.Rotate(Input.mouseScrollDelta.y * rotationSpeed * Time.deltaTime * Vector3.forward, space);
+            GameManager.Instance.LevelData.PaperParent.transform.Rotate(Input.mouseScrollDelta.y * rotationSpeed * Time.deltaTime * Vector3.forward, space);
     }
 
     /// <summary>
@@ -274,7 +274,7 @@ public class MovePaper : MonoBehaviour
             if (paperValues.HoldingPaper == paper)
                 yield break;
 
-            if (paper.transform.parent == GameManager.Instance.LevelData.DragParent)
+            if (paper.transform.parent == GameManager.Instance.LevelData.PaperParent)
                 paper.transform.SetParent(rememberParent);
 
             paper.transform.SetPositionAndRotation(Vector3.Lerp(startingPosition, Vector3.zero, lerpCurve.Evaluate(time)), Quaternion.Slerp(startingRotation, Quaternion.Euler(0, 0, 0), lerpCurve.Evaluate(time)));

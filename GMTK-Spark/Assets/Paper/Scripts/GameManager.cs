@@ -55,7 +55,7 @@ public class GameManager : Singleton<GameManager>
     {
         MovePaper.PaperActionEventHandler += HandlePaperAction;
         ScenesManager.BeatLastLevelEventHandler += HandleBeatLastLevel;
-        LevelData.LoadLevelDataEventHandler += HandleLoadLevelData;
+        LevelData.LoadLevelData += HandleLoadLevelData;
         UIButton.UIInteractEventHandler += HandleUIInteract;
         CheatsManager.CheatEventHandler += HandleCheat;
     }
@@ -64,7 +64,7 @@ public class GameManager : Singleton<GameManager>
     {
         MovePaper.PaperActionEventHandler -= HandlePaperAction;
         ScenesManager.BeatLastLevelEventHandler -= HandleBeatLastLevel;
-        LevelData.LoadLevelDataEventHandler -= HandleLoadLevelData;
+        LevelData.LoadLevelData -= HandleLoadLevelData;
         UIButton.UIInteractEventHandler -= HandleUIInteract;
         CheatsManager.CheatEventHandler -= HandleCheat;
     }
