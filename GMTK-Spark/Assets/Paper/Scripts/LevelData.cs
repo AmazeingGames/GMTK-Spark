@@ -20,18 +20,18 @@ public class LevelData : MonoBehaviour
     [field: SerializeField] public float RotationalLeniency { get; private set; } = .1f;
 
     /// <summary> Notifies listeners when this object is being loaded in, as part of loading/unloading levels. /// </summary>
-    public static event Action<LoadLevelDataEventArgs> LoadLevelData;
+    public static EventHandler<LoadLevelDataEventArgs> LoadLevelData;
 
     private void Start() => 
         PaperParentSpriteRenderer = PaperParent.gameObject.GetComponent<SpriteRenderer>();
 
     /// <summary> Tells listeners to save the new level data as its being loaded in. </summary>
     private void OnEnable() =>
-        LoadLevelData?.Invoke(new(this, isLoadingIn: true));
+        LoadLevelData?.Invoke(this, new LoadLevelDataEventArgs(this, isLoadingIn: true));
 
     /// <summary> Tells listeners to forget data as its being unloaded. </summary>
     private void OnDisable() =>
-        LoadLevelData?.Invoke(new(this, isLoadingIn: false));
+        LoadLevelData?.Invoke(this, new LoadLevelDataEventArgs(this, isLoadingIn: false));
 
     public class LoadLevelDataEventArgs : EventArgs
     {

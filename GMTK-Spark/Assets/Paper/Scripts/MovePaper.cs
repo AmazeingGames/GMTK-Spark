@@ -28,7 +28,7 @@ public class MovePaper : MonoBehaviour
     Paper mouseOverPaper;
 
     RaycastHit2D[] hits;
-    List<Paper> listOfPapersMouseOver = new();
+    readonly List<Paper> listOfPapersMouseOver = new();
 
     public static event EventHandler<PaperActionEventArgs> PaperActionEventHandler;
     public static event EventHandler<GetMatchingPaperEventArgs> GetMatchingPaperEventHandler;
@@ -210,7 +210,7 @@ public class MovePaper : MonoBehaviour
 
         // Moves & Rotates Parent
         GameManager.Instance.LevelData.PaperParent.transform.position = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Clamper.CalculateBounds(GameManager.Instance.LevelData.DragParentSpriteRenderer, out float width, out float height, out Vector2 screenBounds);
+        Clamper.CalculateBounds(GameManager.Instance.LevelData.PaperParentSpriteRenderer, out float width, out float height, out Vector2 screenBounds);
         Clamper.ClampToScreenOrthographic(GameManager.Instance.LevelData.PaperParent, width, height, screenBounds);
         if (Input.mouseScrollDelta.y != 0)
             GameManager.Instance.LevelData.PaperParent.transform.Rotate(Input.mouseScrollDelta.y * rotationSpeed * Time.deltaTime * Vector3.forward, space);
