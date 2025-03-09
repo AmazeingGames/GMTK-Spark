@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 /// <summary>
 ///     Level Data serves as a central point for other objects to access important data, which changes from scene to scene.
@@ -11,8 +12,8 @@ public class LevelData : MonoBehaviour
     /// <summary> The parent object of all the puzzle pieces in the level. </summary>
     [field: SerializeField] public Transform PuzzleParent { get; private set; }
 
-    /// <summary> Serves as a temporary parent for grabbed paper objects, so that rotation properly functions. </summary>
-    [field: SerializeField] public Transform PaperParent { get; private set ; }
+    /// <summary> Serves as a temporary parent for grabbed paper objects that follows the mouse, so that rotation and movement properly functions. </summary>
+    [field: SerializeField] public Transform MousePosition { get; private set ; }
     public SpriteRenderer PaperParentSpriteRenderer { get; private set; }
 
     /// <summary> Leniency refers to how close a puzzle piece needs to be to its origin to snap into place. </summary>
@@ -23,7 +24,7 @@ public class LevelData : MonoBehaviour
     public static EventHandler<LoadLevelDataEventArgs> LoadLevelData;
 
     private void Start() => 
-        PaperParentSpriteRenderer = PaperParent.gameObject.GetComponent<SpriteRenderer>();
+        PaperParentSpriteRenderer = MousePosition.gameObject.GetComponent<SpriteRenderer>();
 
     /// <summary> Tells listeners to save the new level data as its being loaded in. </summary>
     private void OnEnable() =>

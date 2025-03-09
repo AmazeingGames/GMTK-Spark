@@ -11,6 +11,7 @@ using System.Data;
 using UnityEditor;
 using UnityEngine.Timeline;
 using UnityEngine.UIElements;
+using UnityEngine.Audio;
 
 
 public class AudioManager : MonoBehaviour
@@ -210,6 +211,22 @@ public class AudioManager : MonoBehaviour
     /// </summary>
     void HandleGameAction(object sender, GameManager.GameActionEventArgs e)
     {
+        // I could potentially change this to a class containing a predicate and a sfx, where each sound can have its own condition of when to play, given certain circumstances, which could potentially be a bit less clunky of a solution
+        switch (e.gameAction)
+        {
+            case GameAction.StartLevel:
+            case GameAction.RestartLevel:
+            case GameAction.LoadNextLevel:
+                foreach (var audioSource in snap)
+                    audioSource.mute = false;
+            break;
+
+            case GameAction.CompleteLevel:
+                foreach (var audioSource in snap)
+                    audioSource.mute = true;
+            break;
+        }
+
         if (GameActionToSFX.TryGetValue(e.gameAction, out var sfx) && sfx != null)
             sfx.Play();
 

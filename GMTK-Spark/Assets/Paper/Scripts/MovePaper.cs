@@ -33,7 +33,7 @@ public class MovePaper : MonoBehaviour
     public static event EventHandler<PaperActionEventArgs> PaperActionEventHandler;
     public static event EventHandler<GetMatchingPaperEventArgs> GetMatchingPaperEventHandler;
 
-    Transform rememberParent;
+    Transform levelHolder;
     int order = 0;
 
     LevelData levelData;
@@ -92,6 +92,7 @@ public class MovePaper : MonoBehaviour
     {
         LevelData.LoadLevelData += HandleLoadLevelData;
         CheatsManager.CheatEventHandler += HandleCheat;
+        GameManager.GameActionEventHandler += HandleGameAction;
         paperValues.OnEnable();
     }
 
@@ -99,6 +100,7 @@ public class MovePaper : MonoBehaviour
     {
         LevelData.LoadLevelData -= HandleLoadLevelData;
         CheatsManager.CheatEventHandler -= HandleCheat;
+        GameManager.GameActionEventHandler -= HandleGameAction;
         paperValues.OnDisable();
     }
 
@@ -121,15 +123,29 @@ public class MovePaper : MonoBehaviour
             levelData = e.levelData;
     }
 
-    /// <summary>
-    ///     <para>
-    ///     Called on mouse interaction on paper scraps. <br/>
-    ///     Grabs the paper on mouse down, and drops on mouse up.
-    ///     </para>
-    /// </summary>
-    void PaperInteraction(InteractionType interactionType, Paper paper)
+    void HandleGameAction(object sender, GameManager.GameActionEventArgs e)
     {
-        Transform dragParent = GameManager.Instance.LevelData.PaperParent;
+        switch (e.gameAction)
+        {
+            case GameManager.GameAction.StartLevel:
+            case GameManager.GameAction.RestartLevel:
+            case GameManager.GameAction.LoadNextLevel:
+                autoSnap = false;
+            break;
+
+            case GameManager.GameAction.CompleteLevel:
+                autoSnap = true;
+            break;
+        }
+    }
+
+    /// <summary> 
+    ///     Handles mouse clicks and mouse releases with paper scraps.
+    ///     Grabs paper on mouse down; drops paper on mouse up. 
+    /// </summary>
+    void PaperInteraction(InteractionType interactionType, Paper paperInteraction)
+    {
+        Transform dragParent = GameManager.Instance.LevelData.MousePosition;
         switch (interactionType)
         {
             // Grab Paper
@@ -138,29 +154,33 @@ public class MovePaper : MonoBehaviour
                 if (paperValues.HoldingPaper != null)
                     return;
 
-                for (int i = 0; i < GameManager.Instance.LevelData.PaperParent.childCount; i++)
+                if (!paperInteraction.CanBeGrabbed)
+                    return;
+
+                for (int i = 0; i < GameManager.Instance.LevelData.MousePosition.childCount; i++)
                 {
-                    GameManager.Instance.LevelData.PaperParent.GetChild(i).SetParent(rememberParent);
                     Debug.LogWarning("Set parent to remember parent. This should normally not happen. ");
+                    GameManager.Instance.LevelData.MousePosition.GetChild(i).SetParent(levelHolder);
                 }
 
                 // Sets the paper's parent to the mouse and informs listeners of any state changes.
+                levelHolder = paperInteraction.transform.parent;
+                paperInteraction.transform.SetParent(dragParent, worldPositionStays);
+                paperInteraction.SpriteRenderer.sortingOrder = order++;
 
-                rememberParent = paper.transform.parent;
-                paper.transform.SetParent(dragParent, worldPositionStays);
-                paper.SpriteRenderer.sortingOrder = order++;
-                OnPaperAction(paper, PaperActionType.Grab);
+                // The way this is set up with events is the stupidest thing I've ever seen
+                OnPaperAction(paperInteraction, PaperActionType.Grab);
             break;
 
             // Drop Paper
             case InteractionType.Release:
-                if (paperValues.HoldingPaper != paper || paperValues.HoldingPaper == null)
+                if (paperValues.HoldingPaper != paperInteraction || paperValues.HoldingPaper == null)
                     return;
 
                 // Resets the paper's parent and informs listeners of any state changes.
-                paper.transform.SetParent(rememberParent, worldPositionStays);
-                PaperActionType paperActionType = CheckPosition(paper) ? PaperActionType.StartSnap : PaperActionType.Drop;
-                OnPaperAction(paper, paperActionType);
+                paperInteraction.transform.SetParent(levelHolder, worldPositionStays);
+                PaperActionType paperActionType = CheckPosition(paperInteraction) ? PaperActionType.StartSnap : PaperActionType.Drop;
+                OnPaperAction(paperInteraction, paperActionType);
             break;
         }
     }
@@ -209,30 +229,25 @@ public class MovePaper : MonoBehaviour
             PaperInteraction(InteractionType.Release, paperValues.HoldingPaper);
 
         // Moves & Rotates Parent
-        GameManager.Instance.LevelData.PaperParent.transform.position = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        GameManager.Instance.LevelData.MousePosition.transform.position = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Clamper.CalculateBounds(GameManager.Instance.LevelData.PaperParentSpriteRenderer, out float width, out float height, out Vector2 screenBounds);
-        Clamper.ClampToScreenOrthographic(GameManager.Instance.LevelData.PaperParent, width, height, screenBounds);
+        Clamper.ClampToScreenOrthographic(GameManager.Instance.LevelData.MousePosition, width, height, screenBounds);
         if (Input.mouseScrollDelta.y != 0)
-            GameManager.Instance.LevelData.PaperParent.transform.Rotate(Input.mouseScrollDelta.y * rotationSpeed * Time.deltaTime * Vector3.forward, space);
+            GameManager.Instance.LevelData.MousePosition.transform.Rotate(Input.mouseScrollDelta.y * rotationSpeed * Time.deltaTime * Vector3.forward, space);
     }
 
-    /// <summary>
-    ///     <para>
-    ///     Should only be called when we drop a paper. <br/>
-    ///     Checks if we should snap the paper
-    ///     </para>
-    /// </summary>
+    /// <summary> Checks to snap a paper into place, on drop only. </summary>
     /// <returns> True if we start snapping the paper </returns>
-    bool CheckPosition(Paper paper)
+    bool CheckPosition(Paper droppedPaper)
     {
         // Checks Position
-        var position = paper.transform.localPosition;
+        var position = droppedPaper.transform.localPosition;
         
         isXClose = (position.x >= 0 && position.x <= levelData.PositionalLeniency) || (position.x <= 0 && position.x > -levelData.PositionalLeniency); // Close to 0
         isYClose = (position.y > 0 && position.y <= levelData.PositionalLeniency) || (position.y <= 0 && position.y > -levelData.PositionalLeniency); // Close to 0
 
         // Check Rotation
-        Quaternion rotation = paper.transform.rotation;
+        Quaternion rotation = droppedPaper.transform.rotation;
 
         isZRotationBetweenZeroAndPositiveLeniency = rotation.z > 0 && rotation.z <= levelData.RotationalLeniency;     // Close to 0
         isZRotationBetweenZeroAndNegativeLeniency = rotation.z <= 0 && rotation.z > -levelData.RotationalLeniency;    // Close to 0
@@ -248,14 +263,15 @@ public class MovePaper : MonoBehaviour
         bool isCloseW = (isWRotationBetweenOneAndNegativeLeniency || isWRotationBetweenOneAndPositiveLeniency) || (isFlippedWRotationBetweenNegativeOneAndNegativeLeniency || isFlippedWRotationBetweenNegativeOneAndPositiveLeniency);
 
         bool startSnap = isXClose && isYClose && isCloseZ && isCloseW;
-#if DEBUG
+
         if (autoSnap)
             startSnap = true;
-#endif
+
         if (startSnap)
         {
-            OnPaperAction(paper, PaperActionType.StartSnap);
-            StartCoroutine(LerpSnap(paper));
+            OnPaperAction(droppedPaper, PaperActionType.StartSnap);
+            Debug.Log($"started paper snap on {droppedPaper.name}");
+            StartCoroutine(LerpSnap(droppedPaper));
             return true;
         }
         return false;
@@ -264,29 +280,37 @@ public class MovePaper : MonoBehaviour
     /// <summary>
     ///     Moves the last held paper to the correct position over time.
     /// </summary>
-    IEnumerator LerpSnap(Paper paper)
+    IEnumerator LerpSnap(Paper lerpPaper)
     {
         float time = 0;
-        paper.transform.GetPositionAndRotation(out Vector3 startingPosition, out Quaternion startingRotation);
+        lerpPaper.transform.GetPositionAndRotation(out Vector3 startingPosition, out Quaternion startingRotation);
         
         while (time < 1)
         {
-            if (paperValues.HoldingPaper == paper)
+            if (paperValues.HoldingPaper == lerpPaper)
+            {
+                Debug.LogWarning("Holding the paper we're trying to lerp");
                 yield break;
+            }
 
-            if (paper.transform.parent == GameManager.Instance.LevelData.PaperParent)
-                paper.transform.SetParent(rememberParent);
+            if (lerpPaper.transform.parent == GameManager.Instance.LevelData.MousePosition)
+                lerpPaper.transform.SetParent(levelHolder);
 
-            paper.transform.SetPositionAndRotation(Vector3.Lerp(startingPosition, Vector3.zero, lerpCurve.Evaluate(time)), Quaternion.Slerp(startingRotation, Quaternion.Euler(0, 0, 0), lerpCurve.Evaluate(time)));
+            var newPosition = Vector3.Lerp(startingPosition, Vector3.zero, lerpCurve.Evaluate(time));
+            var newRotation = Quaternion.Slerp(startingRotation, Quaternion.Euler(0, 0, 0), lerpCurve.Evaluate(time));
+
+            lerpPaper.transform.SetPositionAndRotation(newPosition, newRotation);
             time += Time.deltaTime * lerpSpeed;
             
             yield return null;
         }
 
-        paper.SpriteRenderer.sortingOrder = 0;
-        OnPaperAction(paper, PaperActionType.Snap);
+        lerpPaper.SpriteRenderer.sortingOrder = 0;
+        lerpPaper.transform.SetPositionAndRotation(Vector3.zero, Quaternion.Euler(0, 0, 0));
+        OnPaperAction(lerpPaper, PaperActionType.Snap);
     }
 
+    // This 100% needs to be changed
     [Serializable]
     class PaperVariables
     {
@@ -299,20 +323,26 @@ public class MovePaper : MonoBehaviour
         public void OnDisable()
             => PaperActionEventHandler -= HandlePaperAction;
 
+        // If we can only interact with one paper at a time, then we should really only have a single paper value
         void HandlePaperAction(object sender, PaperActionEventArgs e)
         {
-            HoldingPaper = null;
             DroppedPaper = null;
-
             switch (e.actionType)
             {
                 case PaperActionType.Grab:
+                    Debug.Log($"Set holding paper to {e.paper}");
                     HoldingPaper = e.paper;
                 break;
 
                 case PaperActionType.Drop:
+                    Debug.Log($"Set dropped paper to {e.paper}");
                     DroppedPaper = e.paper;
+                    HoldingPaper = null;
                 break;
+
+                case PaperActionType.StartSnap:
+                    HoldingPaper = null;
+                    break;
             }
         }
     }

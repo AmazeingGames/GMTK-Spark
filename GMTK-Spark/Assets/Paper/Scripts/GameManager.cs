@@ -18,6 +18,9 @@ public class GameManager : Singleton<GameManager>
 
     public LevelData LevelData { get; private set; }
 
+    public bool HasBeatLevel { get; private set; }
+
+
     public static event EventHandler<GameStateChangeEventArgs> GameStateChangeEventHandler;
     public static event EventHandler<GameActionEventArgs> GameActionEventHandler;
 
@@ -134,8 +137,6 @@ public class GameManager : Singleton<GameManager>
         }
     }
 
-    bool hasBeatLevel;
-
     /// <summary>
     ///     Checks if we beat the level when we snap a piece into place.
     /// </summary>
@@ -152,6 +153,9 @@ public class GameManager : Singleton<GameManager>
     /// </summary>
     void CheckVictory()
     {
+        if (HasBeatLevel)
+            return;
+
         foreach (var paper in paperList)
         {
             if (!paper.IsInPlace)
@@ -197,7 +201,7 @@ public class GameManager : Singleton<GameManager>
     {
         if (LevelData == e.levelData && !e.isLoadingIn)
         {
-            Debug.Log("set level data null");
+            Debug.Log("Set level data null");
             LevelData = null;
             return;
         }
@@ -212,7 +216,7 @@ public class GameManager : Singleton<GameManager>
                 paperList.Add(LevelData.PuzzleParent.transform.GetChild(i).GetComponent<Paper>());
         }
         else
-            Debug.Log("did nothing to level data");
+            Debug.Log("Did nothing to level data");
     }
 
     /// <summary>
@@ -220,7 +224,6 @@ public class GameManager : Singleton<GameManager>
     /// </summary>
     /// <param name="action"> The game action to perform. </param>
     /// <param name="levelToLoad"> If we should load a level, otherwise leave at -1. </param>
-    
     // Update game state in response to menu changes
     void PerformGameAction(GameAction action, int levelToLoad = -1)
     {
@@ -229,9 +232,24 @@ public class GameManager : Singleton<GameManager>
             Debug.LogWarning("Cannont run comand 'none'.");
             return;
         }
-
+        Debug.Log($"Performed game action: {action}");
         LastGameAction = action;
         OnGameAction(action, levelToLoad);
+
+        Debug.LogWarning("Start level is only performed on game start.");
+        // Updates the game in response to certain game actions
+        switch (action)
+        {
+            case GameAction.StartLevel:
+            case GameAction.RestartLevel:
+            case GameAction.LoadNextLevel:
+                HasBeatLevel = false;
+            break;
+
+            case GameAction.CompleteLevel:
+                HasBeatLevel = true;
+            break;
+        }
 
         // Updates the game state to fit the action
         switch (action)

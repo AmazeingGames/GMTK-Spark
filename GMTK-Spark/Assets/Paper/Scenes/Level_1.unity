@@ -3438,8 +3438,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <PuzzleParent>k__BackingField: {fileID: 346007348}
-  <PaperParent>k__BackingField: {fileID: 1476590304}
-  <DragParentSpriteRenderer>k__BackingField: {fileID: 1476590305}
+  <MousePosition>k__BackingField: {fileID: 1476590304}
   <PositionalLeniency>k__BackingField: 0.45
   <RotationalLeniency>k__BackingField: 0.1
 --- !u!1001 &792124668
