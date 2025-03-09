@@ -8,12 +8,14 @@ using UnityEngine;
 public class Paper : MonoBehaviour
 {
     [Header("Paper")]
-    [SceneObjectsOnly] [field: SerializeField] public SpriteRenderer SpriteRenderer { get; private set; }
-    [SceneObjectsOnly] [field: SerializeField] public PolygonCollider2D PolygonCollider2D { get; private set; }
+    public SpriteRenderer SpriteRenderer { get; private set; }
+    public PolygonCollider2D PolygonCollider2D {get; private set; }
 
     public bool IsInPlace { get; private set; }
     private void OnEnable()
     {
+        SpriteRenderer = GetComponent<SpriteRenderer>();
+        PolygonCollider2D = GetComponent<PolygonCollider2D>();
         MovePaper.GetMatchingPaperEventHandler += HandleGetMatchingPaper;
         MovePaper.PaperActionEventHandler += HandlePaperAction;
     }
