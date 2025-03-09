@@ -1762,8 +1762,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <PuzzleParent>k__BackingField: {fileID: 375997137}
   <MousePosition>k__BackingField: {fileID: 1961313476}
-  <PositionalLeniency>k__BackingField: 1.75
-  <RotationalLeniency>k__BackingField: 0.1
+  <PositionalLeniency>k__BackingField: 1.8
+  <RotationalLeniency>k__BackingField: 0.13
 --- !u!4 &365110873
 Transform:
   m_ObjectHideFlags: 0
