@@ -99,9 +99,7 @@ public static class InteractionMath
         Debug.Log("Finished Lerp!");
     }
 
-    /// <summary>
-    ///     Gets the position of the mouse.
-    /// </summary>
+    /// <summary> Gets the position of the mouse. </summary>
     /// <returns> The mouse position translated to a world point with an adjusted z value. </returns>
     public static Vector3 GetMousePosition()
     {
@@ -110,9 +108,7 @@ public static class InteractionMath
         return mousePosition;
     }
     
-    /// <summary>
-    ///     Returns the total distance between two points.
-    /// </summary>
+    /// <summary> Returns the total distance between two points. </summary>
     /// <param name="point1"> Point to find the distance from. </param>
     /// <param name="point2"> Point to find the distance to. </param>
     /// <returns> The total distance from point1 to point2. </returns>

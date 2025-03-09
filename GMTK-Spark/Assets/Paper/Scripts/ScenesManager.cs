@@ -6,9 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-/// <summary>
-///     Responsible for loading all scenes and contains all the functionality for scene loading.
-/// </summary>
+/// <summary> Responsible for loading all scenes and contains all the functionality for scene loading. </summary>
 public class ScenesManager : Singleton<ScenesManager>
 {
     [SerializeField] string levelConvention = "Level_";
@@ -86,9 +84,7 @@ public class ScenesManager : Singleton<ScenesManager>
         }
     }
 
-    /// <summary>
-    ///     Handles scene and level loading for various game updates.
-    /// </summary>
+    /// <summary> Handles scene and level loading for various game updates. </summary>
     /// <exception cref="ArgumentException"> Exception on invalid level number when loading a level. </exception>
     void HandleGameStateChange(object sender, GameManager.GameStateChangeEventArgs e)
     {
@@ -113,9 +109,7 @@ public class ScenesManager : Singleton<ScenesManager>
         preloadedLevels.Add((scene, level));
     }
 
-    /// <summary>
-    ///     Asyrnchously readies or loads a level and unloads the previous level.
-    /// </summary>
+    /// <summary> Asyrnchously readies or loads a level and unloads the previous level. </summary>
     /// <param name="level"> The number of the level to unload. </param>
     /// <returns> True if level is found. </returns>
     bool LoadLevel(int level)
@@ -142,9 +136,7 @@ public class ScenesManager : Singleton<ScenesManager>
         return LoadScene($"{levelConvention}{CurrentLevel}");
     }
 
-    /// <summary>
-    ///     Asynchronously loads a scene.
-    /// </summary>
+    /// <summary> Asynchronously loads a scene. </summary>
     /// <param name="sceneName"> The name of the scene to load. </param>
     /// <returns> True if the scene starts loading. </returns>
     bool LoadScene(string sceneName)
@@ -196,9 +188,7 @@ public class ScenesManager : Singleton<ScenesManager>
     void OnBeatLastLevel()
         => BeatLastLevelEventHandler?.Invoke(this, new());
 
-    /// <summary>
-    ///     Checks if a level is in the build path and can be loaded in.
-    /// </summary>
+    /// <summary> Checks if a level is in the build path and can be loaded in. </summary>
     /// <param name="levelnumber"> The nummber of the level to check. </param>
     /// <returns> True if a scene is successfully found. </returns>
     public static bool IsLevelInBuildPath(int levelnumber)
@@ -212,9 +202,7 @@ public class ScenesManager : Singleton<ScenesManager>
     static bool IsLevelLoaded(int levelnumber)
         => IsSceneLoaded($"{Instance.levelConvention}{levelnumber}");
 
-    /// <summary>
-    ///     Checks if there is a matching scene name currently loaded in.
-    /// </summary>
+    /// <summary> Checks if there is a matching scene name currently loaded in. </summary>
     /// <returns> True if the scene is currently loaded in the project. </returns>
     static bool IsSceneLoaded(string sceneName)
     {
@@ -229,17 +217,13 @@ public class ScenesManager : Singleton<ScenesManager>
         return false;
     }
 
-    /// <summary>
-    ///     Asynchronously unloads a level.
-    /// </summary>
+    /// <summary> Asynchronously unloads a level. </summary>
     /// <param name="levelnumber"> The number of the level to unload </param>
     /// <returns> True if the level starts to unload. </returns>
     bool UnloadLevel(int levelnumber)
         => UnloadScene($"{levelConvention}{levelnumber}");
 
-    /// <summary>
-    ///     Asynchronously unloads a scene.
-    /// </summary>
+    /// <summary> Asynchronously unloads a scene. </summary>
     /// <param name="sceneName"> The name of the scene to unload. </param>
     /// <returns> True if the scene starts to unload. </returns>
     bool UnloadScene(string sceneName)

@@ -1011,7 +1011,7 @@ MonoBehaviour:
   m_BlockingObjects: 0
   m_BlockingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 119
 --- !u!114 &132521149
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1676,11 +1676,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "This is an incredibly small showcase of what we have planned \u2014 so
-    long as can keep at it \u2014 and a release is planned for November of this year!\n\nThank
-    you to all who allowed us to use their assets, which are availabe in the project's
-    description, and thank you you, the Player, for doing what you do best. \n\nSincerely,
-    thank you."
+  m_text: "This is a small showcase of what we have planned and so long as can keep
+    at it, a release is planned for November of this year!\n\nThank you to all who
+    allowed us to use their assets and to you, the Player, for doing what you do
+    best. \n\nSincerely, thank you."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 74574568a15f99447ba406b13c61960a, type: 2}
   m_sharedMaterial: {fileID: 1851792838490705866, guid: 74574568a15f99447ba406b13c61960a, type: 2}
@@ -4258,7 +4257,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 50, y: -50}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 197.3313, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &599974367
 MonoBehaviour:
@@ -5103,56 +5102,56 @@ MonoBehaviour:
     <ObjectsToEnableOnReady>k__BackingField: []
     <MenusToDisableOnReady>k__BackingField: []
     <SlideDirection>k__BackingField: 0
-    <canSeePaper>k__BackingField: 0
+    <CanSeePaper>k__BackingField: 0
   pauseMenu:
     <Canvas>k__BackingField: {fileID: 1976885524}
     <ObjectsToEnableOnReady>k__BackingField: []
     <MenusToDisableOnReady>k__BackingField: []
     <SlideDirection>k__BackingField: 0
-    <canSeePaper>k__BackingField: 0
+    <CanSeePaper>k__BackingField: 0
   settingsMenu:
     <Canvas>k__BackingField: {fileID: 47135519}
     <ObjectsToEnableOnReady>k__BackingField: []
     <MenusToDisableOnReady>k__BackingField: []
     <SlideDirection>k__BackingField: 0
-    <canSeePaper>k__BackingField: 0
+    <CanSeePaper>k__BackingField: 0
   levelSelectMenu:
     <Canvas>k__BackingField: {fileID: 1418408516}
     <ObjectsToEnableOnReady>k__BackingField: []
     <MenusToDisableOnReady>k__BackingField: []
     <SlideDirection>k__BackingField: 0
-    <canSeePaper>k__BackingField: 0
+    <CanSeePaper>k__BackingField: 0
   beatLevelScreen:
     <Canvas>k__BackingField: {fileID: 1733489927}
     <ObjectsToEnableOnReady>k__BackingField: []
     <MenusToDisableOnReady>k__BackingField: []
     <SlideDirection>k__BackingField: 0
-    <canSeePaper>k__BackingField: 1
+    <CanSeePaper>k__BackingField: 0
   diaryScreen:
     <Canvas>k__BackingField: {fileID: 767913169}
     <ObjectsToEnableOnReady>k__BackingField: []
     <MenusToDisableOnReady>k__BackingField: []
     <SlideDirection>k__BackingField: 0
-    <canSeePaper>k__BackingField: 0
+    <CanSeePaper>k__BackingField: 0
   creditsScreen:
     <Canvas>k__BackingField: {fileID: 132521150}
     <ObjectsToEnableOnReady>k__BackingField: []
     <MenusToDisableOnReady>k__BackingField: []
     <SlideDirection>k__BackingField: 0
-    <canSeePaper>k__BackingField: 0
+    <CanSeePaper>k__BackingField: 0
   gameEndScreen:
     <Canvas>k__BackingField: {fileID: 1245273652}
     <ObjectsToEnableOnReady>k__BackingField: []
     <MenusToDisableOnReady>k__BackingField: []
     <SlideDirection>k__BackingField: 0
-    <canSeePaper>k__BackingField: 0
+    <CanSeePaper>k__BackingField: 0
   userInterfaceCamera: {fileID: 1269386578}
   uIOnlyCullingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 119
   allSeeingCullingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 119
   <RegularScale>k__BackingField: 1
   <HoverScale>k__BackingField: 1.1
   <RegularOpacity>k__BackingField: 0.66

@@ -41,7 +41,7 @@ public class DiaryManager : MonoBehaviour
     /// <summary>
     ///     Loads the next page of the diary
     /// </summary>
-    void HandleMenuChange(object sender, MenuManager.MenuChangeEventArgs e)
+    void HandleMenuChange(object sender, MenuChangeEventArgs e)
     {
         if (e.newMenuType == MenuManager.MenuTypes.Diary)
         {

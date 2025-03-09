@@ -37,9 +37,7 @@ public class Paper : MonoBehaviour
         e.WriteResults(this);
     }
 
-    /// <summary>
-    ///     Updates properties to reflect any actions performed on this paper.
-    /// </summary>
+    /// <summary> Updates properties to reflect any actions performed on this paper. </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
     void HandlePaperAction(object sender, MovePaper.PaperActionEventArgs e)

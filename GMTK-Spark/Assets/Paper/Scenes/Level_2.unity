@@ -1788,6 +1788,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 375997137}
+  - component: {fileID: 375997138}
   m_Layer: 0
   m_Name: Random
   m_TagString: Untagged
@@ -1830,6 +1831,20 @@ Transform:
   - {fileID: 415403588}
   m_Father: {fileID: 437530581}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &375997138
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 375997136}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5dca4da554a8784b82b6942acb23893, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  errorMessage: Portrait parent needs to be at (0, 0), otherwise pieces won't snap
+    into place properly
 --- !u!1001 &401026657
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -15072,6 +15087,7 @@ GameObject:
   - component: {fileID: 1219817871}
   - component: {fileID: 1219817870}
   - component: {fileID: 1219817873}
+  - component: {fileID: 1219817874}
   m_Layer: 0
   m_Name: Main Camera (1)
   m_TagString: MainCamera
@@ -15167,6 +15183,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   levelCamera: {fileID: 1219817871}
   levelAudioListener: {fileID: 1219817870}
+--- !u!114 &1219817874
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1219817869}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5dca4da554a8784b82b6942acb23893, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  errorMessage: Camera needs to be at (0, 0), otherwise will jitter during UI transitions
 --- !u!1001 &1253556270
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -22842,8 +22871,8 @@ Transform:
   m_GameObject: {fileID: 2042559731}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.4034, y: -0.0045, z: 0}
-  m_LocalScale: {x: 8.193921, y: 11.785163, z: 1}
+  m_LocalPosition: {x: -0.4034, y: -0.000856, z: 0}
+  m_LocalScale: {x: 8.193921, y: 11.77788, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 437530581}

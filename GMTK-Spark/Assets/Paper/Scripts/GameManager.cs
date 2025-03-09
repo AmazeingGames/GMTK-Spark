@@ -137,9 +137,7 @@ public class GameManager : Singleton<GameManager>
         }
     }
 
-    /// <summary>
-    ///     Checks if we beat the level when we snap a piece into place.
-    /// </summary>
+    /// <summary> Checks if we beat the level when we snap a piece into place. </summary>
     void HandlePaperAction(object sender, MovePaper.PaperActionEventArgs e)
     {
         if (e.actionType != MovePaper.PaperActionEventArgs.PaperActionType.Snap)
@@ -148,9 +146,7 @@ public class GameManager : Singleton<GameManager>
         Invoke(nameof(CheckVictory), .1f);
     }
 
-    /// <summary>
-    ///     Checks if all papers are in the proper position.
-    /// </summary>
+    /// <summary> Checks if all papers are in the proper position. </summary>
     void CheckVictory()
     {
         if (HasBeatLevel)
@@ -168,9 +164,7 @@ public class GameManager : Singleton<GameManager>
         PerformGameAction(GameAction.CompleteLevel);
     }
 
-    /// <summary>
-    ///     Performs a game action given from a UI button.
-    /// </summary>
+    /// <summary> Performs a game action given from a UI button. </summary>
     void HandleUIInteract(object sender, UIButton.UIInteractEventArgs e)
     {
         if (e.buttonEvent != UIButton.UIEventTypes.GameAction || e.buttonInteraction != UIButton.UIInteractionTypes.Click)
@@ -179,24 +173,18 @@ public class GameManager : Singleton<GameManager>
         PerformGameAction(e.actionToPerform, e.levelToLoad);
     }
 
-    /// <summary>
-    ///     Updates the game to end when we beat the last level.
-    /// </summary>
+    /// <summary> Updates the game to end when we beat the last level. </summary>
     void HandleBeatLastLevel(object sender, EventArgs e)
         => PerformGameAction(GameAction.BeatGame);
 
-    /// <summary>
-    ///     Performs a game action given from the cheat menu.
-    /// </summary>
+    /// <summary> Performs a game action given from the cheat menu. </summary>
     void HandleCheat(object sender, CheatsManager.CheatEventArgs e)
     {
         if (e.gameAction != GameAction.None)
             PerformGameAction(e.gameAction);
     }
 
-    /// <summary>
-    ///     Saves level data when we finish loading a new level
-    /// </summary>
+    /// <summary> Saves level data when we finish loading a new level </summary>
     void HandleLoadLevelData(object sender, LevelData.LoadLevelDataEventArgs e)
     {
         if (LevelData == e.levelData && !e.isLoadingIn)
@@ -219,9 +207,7 @@ public class GameManager : Singleton<GameManager>
             Debug.Log("Did nothing to level data");
     }
 
-    /// <summary>
-    ///     Informs listerners of a game action and updates the game state accordingly.
-    /// </summary>
+    /// <summary> Informs listerners of a game action and updates the game state accordingly. </summary>
     /// <param name="action"> The game action to perform. </param>
     /// <param name="levelToLoad"> If we should load a level, otherwise leave at -1. </param>
     // Update game state in response to menu changes
@@ -276,9 +262,7 @@ public class GameManager : Singleton<GameManager>
     void OnGameAction(GameAction action, int levelToLoad)
         => GameActionEventHandler?.Invoke(this, new(this, action, levelToLoad));
 
-    /// <summary>
-    ///     Informs listeners on how to align with the current state of the game.
-    /// </summary>
+    /// <summary> Informs listeners on how to align with the current state of the game. </summary>
     /// <param name="newState"> The state of the game to update to. </param>
     void UpdateGameState(GameState newState, int levelToLoad = -1)
     {

@@ -127,9 +127,7 @@ public class UIButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
         }
     }
 
-    /// <summary>
-    ///     Moves the last held paper to the correct position over time.
-    /// </summary>
+    /// <summary> Moves the last held paper to the correct position over time. </summary>
     IEnumerator LerpButton(bool isSelected)
     {
         float time = 0;

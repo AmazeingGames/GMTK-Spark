@@ -50,9 +50,7 @@ public class CheatsManager : MonoBehaviour
 #endif
     }
 
-    /// <summary>
-    ///     Notifies systems we performed a cheat.
-    /// </summary>
+    /// <summary> Notifies systems we performed a cheat. </summary>
     /// <param name="gameAction"></param>
     /// <param name="cheatCommand"></param>
     void OnCheat(GameManager.GameAction gameAction = GameManager.GameAction.None, CheatCommands cheatCommand = CheatCommands.None)

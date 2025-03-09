@@ -19,7 +19,7 @@ public class LevelCamera : MonoBehaviour
         MenuManager.MenuChangeEventHandler -= HandleMenuChange;
     }
 
-    void HandleMenuChange(object sender, MenuManager.MenuChangeEventArgs e)
+    void HandleMenuChange(object sender, MenuChangeEventArgs e)
     {
         levelCamera.enabled = !e.isAMenuEnabled;
         levelAudioListener.enabled = !e.isAMenuEnabled;

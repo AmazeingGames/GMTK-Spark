@@ -157,7 +157,7 @@ public class AudioManager : MonoBehaviour
             Debug.Log($"AudioManager: Handled paper action {e.actionType} {(sfx == null ? "" : $"and played sfx : {sfx}")}");
     }
 
-    void HandleMenuChange(object sender, MenuManager.MenuChangeEventArgs e)
+    void HandleMenuChange(object sender, MenuChangeEventArgs e)
     {
         if (OpenMenuToSFX.TryGetValue(e.newMenuType, out var sfx) && sfx != null)
             sfx.Play();

@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -24,6 +25,11 @@ public class MovePaper : MonoBehaviour
     [Header("Cheats")]
     [SerializeField] bool autoSnap;
 
+    [Header("Debug Controls")]
+    [SerializeField] bool shouldClamp;
+    [SerializeField] bool shouldRay;
+    [SerializeField] bool shouldRotate;
+
     Vector3 mousePosition;
     Paper mouseOverPaper;
 
@@ -39,6 +45,8 @@ public class MovePaper : MonoBehaviour
     LevelData levelData;
 
     bool isXClose;
+    bool isYClosePositive;
+    bool isYCloseNegative;
     bool isYClose;
     bool isZRotationBetweenZeroAndPositiveLeniency;
     bool isZRotationBetweenZeroAndNegativeLeniency;
@@ -229,10 +237,29 @@ public class MovePaper : MonoBehaviour
             PaperInteraction(InteractionType.Release, paperValues.HoldingPaper);
 
         // Moves & Rotates Parent
-        GameManager.Instance.LevelData.MousePosition.transform.position = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Clamper.CalculateBounds(GameManager.Instance.LevelData.PaperParentSpriteRenderer, out float width, out float height, out Vector2 screenBounds);
-        Clamper.ClampToScreenOrthographic(GameManager.Instance.LevelData.MousePosition, width, height, screenBounds);
-        if (Input.mouseScrollDelta.y != 0)
+        
+        if (shouldRay)
+        {
+            var transformMousePosition = GameManager.Instance.LevelData.MousePosition;
+            var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out RaycastHit hitData))
+                transformMousePosition.position = hitData.point;
+            else
+            {
+                transformMousePosition.position = ray.origin;
+                Debug.Log("No hits");
+            }
+        }
+        else
+            GameManager.Instance.LevelData.MousePosition.transform.position = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+        if (shouldClamp)
+        {
+            Clamper.CalculateBounds(GameManager.Instance.LevelData.PaperParentSpriteRenderer, out float width, out float height, out Vector2 screenBounds);
+            Clamper.ClampToScreenOrthographic(GameManager.Instance.LevelData.MousePosition, width, height, screenBounds);
+        }
+        
+        if (shouldRotate && Input.mouseScrollDelta.y != 0)
             GameManager.Instance.LevelData.MousePosition.transform.Rotate(Input.mouseScrollDelta.y * rotationSpeed * Time.deltaTime * Vector3.forward, space);
     }
 
@@ -244,7 +271,11 @@ public class MovePaper : MonoBehaviour
         var position = droppedPaper.transform.localPosition;
         
         isXClose = (position.x >= 0 && position.x <= levelData.PositionalLeniency) || (position.x <= 0 && position.x > -levelData.PositionalLeniency); // Close to 0
-        isYClose = (position.y > 0 && position.y <= levelData.PositionalLeniency) || (position.y <= 0 && position.y > -levelData.PositionalLeniency); // Close to 0
+
+        isYClosePositive = position.y > 0 && position.y <= levelData.PositionalLeniency;
+        isYCloseNegative = position.y <= 0 && position.y > -levelData.PositionalLeniency;
+
+        isYClose = (isYClosePositive) || (isYCloseNegative); // Close to 0
 
         // Check Rotation
         Quaternion rotation = droppedPaper.transform.rotation;
@@ -277,9 +308,7 @@ public class MovePaper : MonoBehaviour
         return false;
     }
 
-    /// <summary>
-    ///     Moves the last held paper to the correct position over time.
-    /// </summary>
+    /// <summary> Moves the last held paper to the correct position over time. </summary>
     IEnumerator LerpSnap(Paper lerpPaper)
     {
         float time = 0;
@@ -342,7 +371,7 @@ public class MovePaper : MonoBehaviour
 
                 case PaperActionType.StartSnap:
                     HoldingPaper = null;
-                    break;
+                break;
             }
         }
     }
