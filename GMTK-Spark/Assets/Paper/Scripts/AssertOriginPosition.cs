@@ -1,5 +1,5 @@
-using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 public class AssertOriginPosition : MonoBehaviour
 {
@@ -8,6 +8,6 @@ public class AssertOriginPosition : MonoBehaviour
     void Start()
     {
         Debug.LogWarning("Convert error message into an enum and a dictionary to write the error message saved in the script, rather than in the inspector");
-        Assert.That((Vector2)transform.position, Is.EqualTo(Vector2.zero), errorMessage);   
+        Assert.AreEqual((Vector2)transform.position, Vector2.zero, errorMessage);
     }
 }
