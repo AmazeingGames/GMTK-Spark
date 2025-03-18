@@ -9,6 +9,9 @@ using UnityEngine.UIElements;
 using static GameManager;
 using static MenuManager;
 
+/// <summary>
+/// 
+/// </summary>
 public class MenuManager : Singleton<MenuManager>
 {
     [Header("Menus")]

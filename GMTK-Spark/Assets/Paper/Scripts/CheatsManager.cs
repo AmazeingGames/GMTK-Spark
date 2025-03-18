@@ -50,9 +50,9 @@ public class CheatsManager : MonoBehaviour
 #endif
     }
 
-    /// <summary> Notifies systems we performed a cheat. </summary>
-    /// <param name="gameAction"></param>
-    /// <param name="cheatCommand"></param>
+    /// <summary> Notifies systems we typed in a cheat code. </summary>
+    /// <param name="gameAction"> Activates or performs a certain action within the game, and has systems respond to it as they would normally. </param>
+    /// <param name="cheatCommand"> Activates a normally inacsessible, uniquely defined setting, to make beating the game easier. </param>
     void OnCheat(GameManager.GameAction gameAction = GameManager.GameAction.None, CheatCommands cheatCommand = CheatCommands.None)
         => CheatEventHandler?.Invoke(this, new(gameAction, cheatCommand));
 

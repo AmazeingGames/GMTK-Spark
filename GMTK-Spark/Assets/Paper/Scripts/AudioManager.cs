@@ -7,11 +7,6 @@ using static MovePaper;
 using static MovePaper.PaperActionEventArgs;
 using static ScreenTransitions;
 using static UIButton;
-using System.Data;
-using UnityEditor;
-using UnityEngine.Timeline;
-using UnityEngine.UIElements;
-using UnityEngine.Audio;
 
 
 public class AudioManager : MonoBehaviour
@@ -54,7 +49,7 @@ public class AudioManager : MonoBehaviour
     [SerializeField] bool snap1;
 
     [Header("Debug")]
-    [SerializeField] bool debugLog;
+    [SerializeField] bool logAudio;
 
     readonly Dictionary<List<AudioSource>, int> sfxsToLastIndex = new();
     public Dictionary<PaperActionEventArgs.PaperActionType, List<AudioSource>> ActionsToSFX;
@@ -100,19 +95,19 @@ public class AudioManager : MonoBehaviour
 
         GameActionToSFX = new()
         {
-            { GameAction.StartLevel,       shuffle      },
-            { GameAction.LoadNextLevel,     shuffle     },
-            { GameAction.RestartLevel,     null         },
-            { GameAction.CompleteLevel,    beatLevel    },
-            { GameAction.EnterMainMenu,    null         },
-            { GameAction.BeatGame,         null         },
+            { GameAction.StartLevel,    shuffle      },
+            { GameAction.LoadNextLevel, shuffle     },
+            { GameAction.RestartLevel,  null         },
+            { GameAction.CompleteLevel, beatLevel    },
+            { GameAction.EnterMainMenu, null         },
+            { GameAction.BeatGame,      null         },
         };
 
         GameStateToMusic = new()
         {
-            { GameState.InMenu,   mainMenuMusic },
-            { GameState.Running,   gameplayMusic },
-            { GameState.Paused,   pauseMenuMusic }
+            { GameState.InMenu,  mainMenuMusic },
+            { GameState.Running, gameplayMusic },
+            { GameState.Paused,  pauseMenuMusic }
         };
 
         OpenMenuToSFX = new()
@@ -123,10 +118,10 @@ public class AudioManager : MonoBehaviour
     }
 
     /// <summary>
-    ///     Given a list of random audio sources, randomly selects one item in the list to play.
-    ///     Never repeats the same item in the list twice.
+    ///     Given a list of audio sources, randomly selects one item in the list to play.
+    ///         Never repeats the same item in the list twice.
     /// </summary>
-    /// <param name="sfx"> The list containing the sfx we would like to play. </param>
+    /// <param name="sfx"> The list to choose from. </param>
     void PlayRandom(List<AudioSource> sfxList)
     {
         int lastIndex = -1;
@@ -145,70 +140,73 @@ public class AudioManager : MonoBehaviour
         sfxsToLastIndex[sfxList] = random;
     }
 
-    /// <summary>
-    ///     Plays audio for corresponding paper actions
-    /// </summary>
+    /// <summary> Plays audio for corresponding paper actions (grab, drop, snap, etc.). </summary>
     void HandlePaperAction(object sender, MovePaper.PaperActionEventArgs e)
     {
         if (ActionsToSFX.TryGetValue(e.actionType, out var sfx) && sfx != null)
             PlayRandom(sfx);
 
-        if (debugLog)
+        if (logAudio)
             Debug.Log($"AudioManager: Handled paper action {e.actionType} {(sfx == null ? "" : $"and played sfx : {sfx}")}");
     }
 
+    /// <summary> Plays audio for corresponding UI menu changes (currently none). </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     void HandleMenuChange(object sender, MenuChangeEventArgs e)
     {
         if (OpenMenuToSFX.TryGetValue(e.newMenuType, out var sfx) && sfx != null)
             sfx.Play();
 
-        if (debugLog)
+        if (logAudio)
             Debug.Log($"AudioManager: Handled game action {e.newMenuType}{(sfx == null ? "" : $"and played sfx : {sfx}")}");
     }
 
-    /// <summary>
-    ///     Plays sfx for corresponding game state change.
-    /// </summary>
+    /// <summary> Swaps music tracks based on the new game state (pause, in-game, etc.). </summary>
     void HandleGameStateChange(object sender, GameManager.GameStateChangeEventArgs e)
     {
-        if (GameStateToMusic.TryGetValue(e.newState, out var music) && music != null)
+        // Swaps and fades in and out the current tracks
+        if (GameStateToMusic.TryGetValue(e.newState, out var newMusic) && newMusic != null)
         {
-            if (currentMusic != null)
-                StartCoroutine(LerpTrackVolume(currentMusic, fadeCurve, fadeSpeed, true, true));
+            StartCoroutine(LerpTrackVolume(currentMusic, mute: true));
+
             if (!stopMusicByMute)
                 currentMusic.Play();
-            currentMusic = music;
-            StartCoroutine(LerpTrackVolume(currentMusic, fadeCurve, fadeSpeed, false, true));
+
+            currentMusic = newMusic;
+            StartCoroutine(LerpTrackVolume(newMusic, mute: false));
         }
 
-        if (debugLog)
-            Debug.Log($"AudioManager: Handled game state change {(music == null ? "" : $"and changed music track to : {music}")}");
+        if (logAudio)
+            Debug.Log($"AudioManager: Handled game state change {(newMusic == null ? "" : $"and changed music track to : {newMusic}")}");
     }
 
-    bool isFading = false;
-    IEnumerator LerpTrackVolume(AudioSource track, AnimationCurve curve, float speed, bool isMuting, bool waitUntilFade)
+    IEnumerator LerpTrackVolume(AudioSource track, bool mute) => LerpTrackVolume(track, fadeCurve, fadeSpeed, mute);
+    IEnumerator LerpTrackVolume(AudioSource track, AnimationCurve curve, float speed, bool mute)
     {
         // Slide UI elements using lerp and an animation curve
 
+        if (track == null)
+        {
+            Debug.LogWarning("Music track is null.");
+            yield break;
+        }
+
         float startingVolume = track.volume;
-        float targetVolume = isMuting ? 0 : maxMusicVolume;
+        float targetVolume = mute ? 0 : maxMusicVolume;
 
         float current = 0;
 
         while (current < 1)
         {
-            isFading = true;
             current = Mathf.MoveTowards(current, 1, speed * Time.deltaTime);
 
             track.volume = Mathf.Lerp(startingVolume, targetVolume, curve.Evaluate(current));
             yield return null;
         }
-        isFading = false;
     }
 
-    /// <summary>
-    ///     Plays a SFX corresponding to a game action
-    /// </summary>
+    /// <summary> Plays the corresponding SFX to a game action </summary>
     void HandleGameAction(object sender, GameManager.GameActionEventArgs e)
     {
         // I could potentially change this to a class containing a predicate and a sfx, where each sound can have its own condition of when to play, given certain circumstances, which could potentially be a bit less clunky of a solution
@@ -218,31 +216,29 @@ public class AudioManager : MonoBehaviour
             case GameAction.RestartLevel:
             case GameAction.LoadNextLevel:
                 foreach (var audioSource in snap)
-                    audioSource.mute = false;
+                    StartCoroutine(LerpTrackVolume(audioSource, mute: false));
             break;
 
             case GameAction.CompleteLevel:
                 foreach (var audioSource in snap)
-                    audioSource.mute = true;
+                    StartCoroutine(LerpTrackVolume(audioSource, mute: true));
             break;
         }
 
         if (GameActionToSFX.TryGetValue(e.gameAction, out var sfx) && sfx != null)
             sfx.Play();
 
-        if (debugLog)
+        if (logAudio)
             Debug.Log($"AudioManager: Handled game action {e.gameAction}{(sfx == null ? "" : $"and played sfx : {sfx}")}");
     }
 
-    /// <summary>
-    ///     Plays sfx for corresponding UI interactions
-    /// </summary>
+    /// <summary> Plays sfx for corresponding UI interactions. </summary>
     void HandleUIInteract(object sender, UIButton.UIInteractEventArgs e)
     {
         if (UIInteractToSFX.TryGetValue(e.buttonInteraction, out var sfx) && sfx != null)
             sfx.Play();
 
-        if (debugLog)
+        if (logAudio)
             Debug.Log($"AudioManager: Handled UI interaction {e.buttonInteraction} {(sfx == null ? "" : $"and played sfx : {sfx}")}");
 
         // throw new Exception("Logger: Create logger script and check if logger.loggingObject.Contains(gameObject)");

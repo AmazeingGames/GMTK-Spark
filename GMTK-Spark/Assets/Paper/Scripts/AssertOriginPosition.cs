@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEngine.Assertions;
 
+/// <summary>
+/// 
+/// </summary>
 public class AssertOriginPosition : MonoBehaviour
 {
     [SerializeField] string errorMessage;

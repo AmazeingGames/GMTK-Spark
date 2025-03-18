@@ -4,20 +4,20 @@ using UnityEngine;
 
 // Potentially I could just remove the audio listener component
 // If any audio problems come up I can make a single universal audio listener
+
+/// <summary>
+/// 
+/// </summary>
 public class LevelCamera : MonoBehaviour
 {
     [SerializeField] Camera levelCamera;
     [SerializeField] AudioListener levelAudioListener;
 
     private void OnEnable()
-    {
-        MenuManager.MenuChangeEventHandler += HandleMenuChange;
-    }
+        => MenuManager.MenuChangeEventHandler += HandleMenuChange;
 
     private void OnDisable()
-    {
-        MenuManager.MenuChangeEventHandler -= HandleMenuChange;
-    }
+        => MenuManager.MenuChangeEventHandler -= HandleMenuChange;
 
     void HandleMenuChange(object sender, MenuChangeEventArgs e)
     {

@@ -21,7 +21,6 @@ public class PaperInteraction : MonoBehaviour
     [SerializeField] Transform boundingBoxBottomRight;
     [SerializeField] Transform boundingBoxBottomLeft;
 
-
     private void OnEnable()
         => MovePaper.PaperActionEventHandler += HandlePaperAction;
 
@@ -68,15 +67,13 @@ public class PaperInteraction : MonoBehaviour
         this.colliderCenter.gameObject.SetActive(true);
         this.transformCenter.gameObject.SetActive(true);
 
-        //Vector2 polygonCenter = ((Vector2)mousePosition - colliderCenter) + (Vector2)mousePosition;
         Vector2 transformCenter = holdingPaper.transform.position;
         Vector2 colliderCenter = holdingPaper.PolygonCollider2D.bounds.center;
-        Vector2 polygonCenter;
 
         var boundingBoxMax = holdingPaper.PolygonCollider2D.bounds.max;
         var boundingBoxMin = holdingPaper.PolygonCollider2D.bounds.min;
 
-        polygonCenter = InteractionMath.GetCentroid(holdingPaper.PolygonCollider2D);
+        Vector2 polygonCenter = InteractionMath.GetCentroid(holdingPaper.PolygonCollider2D);
 
         this.polygonCenter.transform.position = polygonCenter;
         this.colliderCenter.transform.position = colliderCenter;
@@ -91,6 +88,6 @@ public class PaperInteraction : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space))
             holdingPaper.transform.position = colliderCenter;
 
-        //Debug.Log($"Polygon center is : {transformCenter} | Mouse Position is : {mousePosition} | Amount to move from center to mouse: ({InteractionMath.GetAmountToMoveBetweenPoints(transformCenter, mousePosition).x}, {InteractionMath.GetAmountToMoveBetweenPoints(transformCenter, mousePosition).y})");
+        Debug.Log($"Polygon center is : {transformCenter} | Mouse Position is : {mousePosition} | Amount to move from center to mouse: ({InteractionMath.GetAmountToMoveBetweenPoints(transformCenter, mousePosition).x}, {InteractionMath.GetAmountToMoveBetweenPoints(transformCenter, mousePosition).y})");
     }
 }

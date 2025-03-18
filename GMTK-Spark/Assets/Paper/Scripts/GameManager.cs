@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// 
+/// </summary>
 public class GameManager : Singleton<GameManager>
 {
     KeyCode pauseKey = KeyCode.Escape;

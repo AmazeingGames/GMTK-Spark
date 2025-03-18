@@ -2,15 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using UnityEditor;
-using System.Drawing;
-using System.Linq;
-using System.Security.Cryptography;
 public static class InteractionMath
 {
-    /// <summary>
-    ///     Fires 8 raycasts around the click point to see if it's close to the edge.
-    /// </summary>
+    /// <summary> Fires 8 raycasts around the click point to see if it's close to the edge. </summary>
     /// <param name="polygon"></param>
     /// <param name="mousePosition"></param>
     /// <param name="leniency"></param>
@@ -56,8 +50,8 @@ public static class InteractionMath
     }
 
     /// <summary>
-    ///     Lerps the polygon's transform position so the centroid lines up with the mouse position.
-    ///     Lerps at a fixed speed, rather than fixed time value.
+    ///     Lerps the polygon's transform position, so that the polygon's center (centroid) matches the mouse position.
+    ///     Lerps at a fixed speed.
     /// </summary>
     /// <param name="polygon"></param>
     /// <param name="speed"> How fast to move the polygon. The higher the faster. </param>
@@ -74,6 +68,7 @@ public static class InteractionMath
 
         float distance = Vector3.Distance(startPosition, goalPosition);
         float remainingDistance = distance;
+
         while (GetTotalDistanceBetweenPoints(centroidPosition, mousePosition) > .1f)
         {
             if (Input.GetMouseButtonUp(0) && stopOnMouseUp)
@@ -115,9 +110,7 @@ public static class InteractionMath
     public static double GetTotalDistanceBetweenPoints(Vector2 point1, Vector2 point2)
         => Math.Sqrt(Math.Pow((point2.x - point1.x), 2) + Math.Pow((point2.y - point1.y), 2));
 
-    /// <summary>
-    ///     Returns the distance required to move from one point to another point.
-    /// </summary>
+    /// <summary> Returns the distance required to move from one point to another point. </summary>
     /// <param name="from"> The point we're moving from. </param>
     /// <param name="to"> The point we're moving to. </param>
     /// <returns> Vector of the distance required to move from one point to another point. </returns>
@@ -145,6 +138,7 @@ public static class InteractionMath
     /// <summary>
     ///     Computes the centroid of a polygon while adjusting for world space. 
     ///     Does not work for a complex polygon.
+    ///         What is a complex polygon?
     /// </summary>
     /// <param name="polygon"> Polygon collider to find the centroid of. </param>
     /// <returns> Centroid point, Vector2.zero, if something is wrong. </returns>

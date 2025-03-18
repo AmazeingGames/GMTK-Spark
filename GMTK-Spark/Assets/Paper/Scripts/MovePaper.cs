@@ -7,6 +7,9 @@ using Unity.VisualScripting;
 using UnityEngine;
 using static MovePaper.PaperActionEventArgs;
 
+/// <summary>
+/// 
+/// </summary>
 public class MovePaper : MonoBehaviour
 {
     [Header("Rotation Properties")]
